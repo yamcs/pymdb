@@ -1,13 +1,6 @@
-from yamcs.pymdb import (
-    ArgumentEntry,
-    IntegerArgument,
-    SpaceSystem,
-    ccsds,
-    dump,
-    uint16_t,
-)
+from yamcs.pymdb import ArgumentEntry, IntegerArgument, System, ccsds, uint16_t, xtce
 
-spacecraft = SpaceSystem("Spacecraft")
+spacecraft = System("Spacecraft")
 ccsds_header = ccsds.add_ccsds_header(spacecraft)
 
 command_id = IntegerArgument(
@@ -74,4 +67,4 @@ switch_voltage_off = spacecraft.add_command(
 
 
 with open("ccsds.xml", "wt") as f:
-    dump(spacecraft, f)
+    xtce.dump(spacecraft, f)

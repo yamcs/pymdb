@@ -9,7 +9,7 @@ Use this Python library to generate XTCE XML files for use with [Yamcs Mission C
 ```python
 from yamcs.pymdb import *
 
-spacecraft = SpaceSystem("Spacecraft")
+spacecraft = System("Spacecraft")
 
 param1 = spacecraft.add_integer_parameter(
     name="param1",
@@ -28,5 +28,5 @@ param2 = spacecraft.add_enumerated_parameter(
 
 # Finally, print XTCE
 # Emit an XML that conforms to XTCE
-print(dumps(spacecraft))
+print(xtce.dumps(spacecraft))
 ```

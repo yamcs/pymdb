@@ -5,66 +5,78 @@ from enum import Enum
 from typing import Any, Mapping
 from xml.dom import minidom
 
-from yamcs.pymdb.model import (
-    AbsoluteTimeDataType,
-    AcceptedVerifier,
-    AggregateDataType,
-    AlarmLevel,
-    AndExpression,
+from yamcs.pymdb.commands import (
     Argument,
     ArgumentEntry,
-    ArrayDataType,
-    BinaryDataEncoding,
-    BinaryDataType,
     BooleanArgument,
-    BooleanDataType,
-    BooleanParameter,
-    ByteOrder,
-    Charset,
-    Choices,
     Command,
     CommandLevel,
-    CompleteVerifier,
-    Container,
-    ContainerCheck,
-    ContainerEntry,
-    DataEncoding,
-    DataSource,
-    DataType,
     EnumeratedArgument,
-    EnumeratedDataType,
-    EnumeratedParameter,
-    Epoch,
-    EqExpression,
-    ExecutionVerifier,
-    Expression,
-    ExpressionCheck,
-    FailedVerifier,
     FixedValueEntry,
+)
+from yamcs.pymdb.containers import (
+    Container,
+    ContainerEntry,
+    ParameterEntry,
+    ReferenceLocation,
+)
+from yamcs.pymdb.datatypes import (
+    AbsoluteTimeDataType,
+    AggregateDataType,
+    ArrayDataType,
+    BinaryDataType,
+    BooleanDataType,
+    Choices,
+    DataType,
+    EnumeratedDataType,
+    Epoch,
+    FloatDataType,
+    IntegerDataType,
+    StringDataType,
+)
+from yamcs.pymdb.encodings import (
+    BinaryDataEncoding,
+    ByteOrder,
+    Charset,
+    DataEncoding,
     FloatDataEncoding,
     FloatDataEncodingScheme,
-    FloatDataType,
     FloatTimeEncoding,
-    GteExpression,
-    GtExpression,
     IntegerDataEncoding,
     IntegerDataEncodingScheme,
-    IntegerDataType,
     IntegerTimeEncoding,
     JavaAlgorithm,
+    StringDataEncoding,
+)
+from yamcs.pymdb.expressions import (
+    EqExpression,
+    Expression,
+    GteExpression,
+    GtExpression,
     LteExpression,
     LtExpression,
     NeExpression,
-    OrExpression,
+    _AndExpression,
+    _OrExpression,
+)
+from yamcs.pymdb.parameters import (
+    AlarmLevel,
+    BooleanParameter,
+    DataSource,
+    EnumeratedParameter,
     Parameter,
-    ParameterEntry,
+)
+from yamcs.pymdb.systems import System
+from yamcs.pymdb.verifiers import (
+    AcceptedVerifier,
+    CompleteVerifier,
+    ContainerCheck,
+    ExecutionVerifier,
+    ExpressionCheck,
+    FailedVerifier,
     QueuedVerifier,
     ReceivedVerifier,
-    ReferenceLocation,
     SentFromRangeVerifier,
-    SpaceSystem,
-    StringDataEncoding,
-    StringDataType,
     TransferredToRangeVerifier,
     Verifier,
 )
@@ -99,25 +111,25 @@ def _to_isoduration(seconds: float):
 
 
 class XTCE12Generator:
-    def __init__(self, space_system: SpaceSystem):
-        self.space_system = space_system
+    def __init__(self, system: System):
+        self.system = system
 
     def to_xtce(self, indent=None):
-        el = self.generate_space_system(self.space_system)
+        el = self.generate_space_system(self.system)
         xtce = ET.tostring(el, encoding="unicode")
         if indent:
             xtce_dom = minidom.parseString(xtce)
             return xtce_dom.toprettyxml(indent=indent)
 
-    def add_command_metadata(self, parent: ET.Element, space_system: SpaceSystem):
+    def add_command_metadata(self, parent: ET.Element, system: System):
         el = ET.SubElement(parent, "CommandMetaData")
-        if space_system.commands:
-            self.add_argument_type_set(el, space_system)
-            self.add_meta_command_set(el, space_system)
+        if system.commands:
+            self.add_argument_type_set(el, system)
+            self.add_meta_command_set(el, system)
 
-    def add_argument_type_set(self, parent: ET.Element, space_system: SpaceSystem):
+    def add_argument_type_set(self, parent: ET.Element, system: System):
         set_el = None
-        for command in space_system.commands:
+        for command in system.commands:
             for argument in command.arguments:
                 # Create this lazily, XML should not have this element if it's empty
                 if not set_el:
@@ -130,9 +142,9 @@ class XTCE12Generator:
                     data_type=argument,
                 )
 
-    def add_meta_command_set(self, parent: ET.Element, space_system: SpaceSystem):
+    def add_meta_command_set(self, parent: ET.Element, system: System):
         el = ET.SubElement(parent, "MetaCommandSet")
-        for command in space_system.commands:
+        for command in system.commands:
             self.add_meta_command(el, command)
 
     def add_meta_command(self, parent: ET.Element, command: Command):
@@ -276,13 +288,11 @@ class XTCE12Generator:
             ref_el = ET.SubElement(el, "ContainerRef")
             ref_el.attrib["containerRef"] = self.make_ref(
                 target=check.container.qualified_name,
-                start=command.space_system,
+                start=command.system,
             )
         elif isinstance(check, ExpressionCheck):
             expr_el = ET.SubElement(el, "BooleanExpression")
-            self.add_expression_condition(
-                expr_el, command.space_system, check.expression
-            )
+            self.add_expression_condition(expr_el, command.system, check.expression)
         else:
             raise ExportError(f"Unexpected check {check.__class__}")
 
@@ -302,7 +312,7 @@ class XTCE12Generator:
                 ret_el = ET.SubElement(el, "ReturnParmRef")
                 ret_el.attrib["parameterRef"] = self.make_ref(
                     target=verifier.return_parameter.qualified_name,
-                    start=command.space_system,
+                    start=command.system,
                 )
 
     def add_argument(self, parent: ET.Element, command: Command, argument: Argument):
@@ -389,7 +399,7 @@ class XTCE12Generator:
             expr_el = ET.SubElement(cond_el, "BooleanExpression")
             self.add_expression_condition(
                 expr_el,
-                space_system=command.space_system,
+                system=command.system,
                 expression=entry.include_condition,
             )
 
@@ -423,22 +433,22 @@ class XTCE12Generator:
             expr_el = ET.SubElement(cond_el, "BooleanExpression")
             self.add_expression_condition(
                 expr_el,
-                space_system=command.space_system,
+                system=command.system,
                 expression=entry.include_condition,
             )
 
-    def add_telemetry_metadata(self, parent: ET.Element, space_system: SpaceSystem):
+    def add_telemetry_metadata(self, parent: ET.Element, system: System):
         el = ET.SubElement(parent, "TelemetryMetaData")
-        self.add_parameter_type_set(el, space_system)
-        self.add_parameter_set(el, space_system)
-        self.add_container_set(el, space_system)
+        self.add_parameter_type_set(el, system)
+        self.add_parameter_set(el, system)
+        self.add_container_set(el, system)
 
-    def add_parameter_type_set(self, parent: ET.Element, space_system: SpaceSystem):
-        if not space_system.parameters:
+    def add_parameter_type_set(self, parent: ET.Element, system: System):
+        if not system.parameters:
             return
 
         el = ET.SubElement(parent, "ParameterTypeSet")
-        for parameter in space_system.parameters:
+        for parameter in system.parameters:
             self.add_parameter_type(el, parameter.name, parameter)
 
     def add_argument_type(
@@ -713,7 +723,7 @@ class XTCE12Generator:
             offset_el = ET.SubElement(ref_el, "OffsetFrom")
             offset_el.attrib["parameterRef"] = self.make_ref(
                 data_type.reference.qualified_name,
-                start=self.space_system,
+                start=self.system,
             )
 
     def add_binary_parameter_type(
@@ -1099,12 +1109,12 @@ class XTCE12Generator:
                 enumeration_el.attrib["value"] = str(choice.value)
                 enumeration_el.attrib["label"] = choice.name
 
-    def add_parameter_set(self, parent: ET.Element, space_system: SpaceSystem):
-        if not space_system.parameters:
+    def add_parameter_set(self, parent: ET.Element, system: System):
+        if not system.parameters:
             return
 
         el = ET.SubElement(parent, "ParameterSet")
-        for parameter in space_system.parameters:
+        for parameter in system.parameters:
             parameter_el = ET.SubElement(el, "Parameter")
             parameter_el.attrib["name"] = parameter.name
             parameter_el.attrib["parameterTypeRef"] = parameter.name
@@ -1138,12 +1148,12 @@ class XTCE12Generator:
                 case _:
                     raise ExportError(f"Unexpected data source {parameter.data_source}")
 
-    def add_container_set(self, parent: ET.Element, space_system: SpaceSystem):
-        if not space_system.containers:
+    def add_container_set(self, parent: ET.Element, system: System):
+        if not system.containers:
             return
 
         el = ET.SubElement(parent, "ContainerSet")
-        for container in space_system.containers:
+        for container in system.containers:
             self.add_sequence_container(el, container)
 
     def add_sequence_container(self, parent: ET.Element, container: Container):
@@ -1168,13 +1178,13 @@ class XTCE12Generator:
     def add_expression_condition(
         self,
         parent: ET.Element,
-        space_system: SpaceSystem,
+        system: System,
         expression: Expression,
     ):
         if isinstance(expression, EqExpression):
             self.add_condition(
                 parent,
-                space_system,
+                system,
                 expression.parameter,
                 expression.value,
                 "==",
@@ -1183,7 +1193,7 @@ class XTCE12Generator:
         elif isinstance(expression, NeExpression):
             self.add_condition(
                 parent,
-                space_system,
+                system,
                 expression.parameter,
                 expression.value,
                 "!=",
@@ -1192,7 +1202,7 @@ class XTCE12Generator:
         elif isinstance(expression, LtExpression):
             self.add_condition(
                 parent,
-                space_system,
+                system,
                 expression.parameter,
                 expression.value,
                 "<",
@@ -1201,7 +1211,7 @@ class XTCE12Generator:
         elif isinstance(expression, LteExpression):
             self.add_condition(
                 parent,
-                space_system,
+                system,
                 expression.parameter,
                 expression.value,
                 "<=",
@@ -1210,7 +1220,7 @@ class XTCE12Generator:
         elif isinstance(expression, GtExpression):
             self.add_condition(
                 parent,
-                space_system,
+                system,
                 expression.parameter,
                 expression.value,
                 ">",
@@ -1219,27 +1229,27 @@ class XTCE12Generator:
         elif isinstance(expression, GteExpression):
             self.add_condition(
                 parent,
-                space_system,
+                system,
                 expression.parameter,
                 expression.value,
                 ">=",
                 expression.calibrated,
             )
-        elif isinstance(expression, AndExpression):
+        elif isinstance(expression, _AndExpression):
             el = ET.SubElement(parent, "ANDedConditions")
             for expression in expression.expressions:
-                self.add_expression_condition(el, space_system, expression)
-        elif isinstance(expression, OrExpression):
+                self.add_expression_condition(el, system, expression)
+        elif isinstance(expression, _OrExpression):
             el = ET.SubElement(parent, "ORedConditions")
             for expression in expression.expressions:
-                self.add_expression_condition(el, space_system, expression)
+                self.add_expression_condition(el, system, expression)
         else:
             raise Exception(f"Unexpected expression condition {expression.__class__}")
 
     def add_condition(
         self,
         parent: ET.Element,
-        space_system: SpaceSystem,
+        system: System,
         parameter: Parameter,
         value: Any,
         operator: str,
@@ -1250,7 +1260,7 @@ class XTCE12Generator:
         pref_el = ET.SubElement(condition_el, "ParameterInstanceRef")
         pref_el.attrib["parameterRef"] = self.make_ref(
             parameter.qualified_name,
-            start=space_system,
+            start=system,
         )
         pref_el.attrib["useCalibratedValue"] = _to_xml_value(calibrated)
 
@@ -1289,7 +1299,7 @@ class XTCE12Generator:
         el = ET.SubElement(parent, "ParameterRefEntry")
         el.attrib["parameterRef"] = self.make_ref(
             entry.parameter.qualified_name,
-            start=container.space_system,
+            start=container.system,
         )
         if entry.short_description:
             el.attrib["shortDescription"] = entry.short_description
@@ -1312,7 +1322,7 @@ class XTCE12Generator:
             expr_el = ET.SubElement(cond_el, "BooleanExpression")
             self.add_expression_condition(
                 expr_el,
-                space_system=container.space_system,
+                system=container.system,
                 expression=entry.include_condition,
             )
 
@@ -1325,7 +1335,7 @@ class XTCE12Generator:
         el = ET.SubElement(parent, "ContainerRefEntry")
         el.attrib["containerRef"] = self.make_ref(
             entry.container.qualified_name,
-            start=container.space_system,
+            start=container.system,
         )
         if entry.short_description:
             el.attrib["shortDescription"] = entry.short_description
@@ -1348,11 +1358,11 @@ class XTCE12Generator:
             expr_el = ET.SubElement(cond_el, "BooleanExpression")
             self.add_expression_condition(
                 expr_el,
-                space_system=container.space_system,
+                system=container.system,
                 expression=entry.include_condition,
             )
 
-    def make_ref(self, target: str, start: SpaceSystem):
+    def make_ref(self, target: str, start: System):
         if os.path.commonprefix([target, start.qualified_name]) == "/":
             return target  # abs path
         else:
@@ -1368,7 +1378,7 @@ class XTCE12Generator:
 
         el.attrib["containerRef"] = self.make_ref(
             base_container.qualified_name,
-            start=container.space_system,
+            start=container.system,
         )
 
         if container.restriction_criteria:
@@ -1376,17 +1386,15 @@ class XTCE12Generator:
             expr_el = ET.SubElement(criteria_el, "BooleanExpression")
             self.add_expression_condition(
                 expr_el,
-                space_system=container.space_system,
+                system=container.system,
                 expression=container.restriction_criteria,
             )
 
-    def add_space_systems(self, parent: ET.Element, space_system: SpaceSystem):
-        for subsystem in space_system.subsystems:
+    def add_space_systems(self, parent: ET.Element, system: System):
+        for subsystem in system.subsystems:
             self.generate_space_system(subsystem, parent)
 
-    def generate_space_system(
-        self, space_system: SpaceSystem, parent: ET.Element | None = None
-    ):
+    def generate_space_system(self, system: System, parent: ET.Element | None = None):
         if not parent:
             el = ET.Element("SpaceSystem")
             el.attrib["xmlns"] = "http://www.omg.org/spec/XTCE/20180204"
@@ -1398,36 +1406,36 @@ class XTCE12Generator:
         else:
             el = ET.SubElement(parent, "SpaceSystem")
 
-        el.attrib["name"] = space_system.name
+        el.attrib["name"] = system.name
 
-        if space_system.short_description:
-            el.attrib["shortDescription"] = space_system.short_description
+        if system.short_description:
+            el.attrib["shortDescription"] = system.short_description
 
-        if space_system.long_description:
-            ET.SubElement(el, "LongDescription").text = space_system.long_description
+        if system.long_description:
+            ET.SubElement(el, "LongDescription").text = system.long_description
 
-        if space_system.aliases:
-            self.add_aliases(el, space_system.aliases)
+        if system.aliases:
+            self.add_aliases(el, system.aliases)
 
-        if space_system.extra:
-            self.add_ancillary_data(el, space_system.extra)
+        if system.extra:
+            self.add_ancillary_data(el, system.extra)
 
-        self.add_telemetry_metadata(el, space_system)
-        self.add_command_metadata(el, space_system)
-        self.add_space_systems(el, space_system)
+        self.add_telemetry_metadata(el, system)
+        self.add_command_metadata(el, system)
+        self.add_space_systems(el, system)
         return el
 
 
-def dump(space_system: SpaceSystem, fp, indent="  "):
+def dump(system: System, fp, indent="  "):
     """
-    Serialize the space system to a file-like object
+    Serialize the system to a file-like object
     """
-    xml = dumps(space_system, indent=indent)
+    xml = dumps(system, indent=indent)
     fp.write(xml)
 
 
-def dumps(space_system: SpaceSystem, indent="  "):
+def dumps(system: System, indent="  "):
     """
-    Serialize the space system to an XTCE formatted str
+    Serialize the system to an XTCE formatted str
     """
-    return XTCE12Generator(space_system).to_xtce(indent=indent)
+    return XTCE12Generator(system).to_xtce(indent=indent)

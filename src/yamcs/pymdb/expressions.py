@@ -1,17 +1,84 @@
-from typing import Any
+from __future__ import annotations
 
-from yamcs.pymdb.model import (
-    AndExpression,
-    EqExpression,
-    Expression,
-    GteExpression,
-    GtExpression,
-    LteExpression,
-    LtExpression,
-    NeExpression,
-    OrExpression,
-    Parameter,
-)
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from yamcs.pymdb.parameters import Parameter
+
+
+class Expression:
+    pass
+
+
+class _AndExpression(Expression):
+    def __init__(
+        self,
+        expression1: Expression,
+        expression2: Expression,
+        *args: Expression,
+    ) -> None:
+        self.expressions: list[Expression] = [
+            expression1,
+            expression2,
+            *args,
+        ]
+
+
+class _OrExpression(Expression):
+    def __init__(
+        self,
+        expression1: Expression,
+        expression2: Expression,
+        *args: Expression,
+    ) -> None:
+        self.expressions: list[Expression] = [
+            expression1,
+            expression2,
+            *args,
+        ]
+
+
+@dataclass
+class EqExpression(Expression):
+    parameter: Parameter
+    value: Any
+    calibrated: bool = True
+
+
+@dataclass
+class NeExpression(Expression):
+    parameter: Parameter
+    value: Any
+    calibrated: bool = True
+
+
+@dataclass
+class LtExpression(Expression):
+    parameter: Parameter
+    value: Any
+    calibrated: bool = True
+
+
+@dataclass
+class LteExpression(Expression):
+    parameter: Parameter
+    value: Any
+    calibrated: bool = True
+
+
+@dataclass
+class GtExpression(Expression):
+    parameter: Parameter
+    value: Any
+    calibrated: bool = True
+
+
+@dataclass
+class GteExpression(Expression):
+    parameter: Parameter
+    value: Any
+    calibrated: bool = True
 
 
 def eq(parameter: Parameter, value: Any, calibrated=True):
@@ -39,8 +106,8 @@ def gte(parameter: Parameter, value: Any, calibrated=True):
 
 
 def all_of(expression1: Expression, expression2: Expression, *args: Expression):
-    return AndExpression(expression1, expression2, *args)
+    return _AndExpression(expression1, expression2, *args)
 
 
 def any_of(expression1: Expression, expression2: Expression, *args: Expression):
-    return OrExpression(expression1, expression2, *args)
+    return _OrExpression(expression1, expression2, *args)

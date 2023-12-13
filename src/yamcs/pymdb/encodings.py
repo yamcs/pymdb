@@ -1,12 +1,98 @@
 import dataclasses
+from dataclasses import dataclass
+from enum import Enum, auto
+from typing import TypeAlias
 
-from yamcs.pymdb.model import (
-    ByteOrder,
-    FloatDataEncoding,
-    FloatDataEncodingScheme,
-    IntegerDataEncoding,
-    IntegerDataEncodingScheme,
-)
+from yamcs.pymdb.algorithms import JavaAlgorithm
+
+
+class ByteOrder(Enum):
+    BIG_ENDIAN = auto()
+    LITTLE_ENDIAN = auto()
+
+
+class Charset(Enum):
+    US_ASCII = auto()
+    ISO_8859_1 = auto()
+    WINDOWS_1252 = auto()
+    UTF_8 = auto()
+    UTF_16 = auto()
+    UTF_16LE = auto()
+    UTF_16BE = auto()
+    UTF_32 = auto()
+    UTF_32LE = auto()
+    UTF_32BE = auto()
+
+
+class FloatDataEncodingScheme(Enum):
+    IEEE754_1985 = auto()
+    MILSTD_1750A = auto()
+
+
+class IntegerDataEncodingScheme(Enum):
+    UNSIGNED = auto()
+    SIGN_MAGNITUDE = auto()
+    TWOS_COMPLEMENT = auto()
+    ONES_COMPLEMENT = auto()
+
+
+@dataclass(kw_only=True)
+class DataEncoding:
+    bits: int
+    byte_order: ByteOrder = ByteOrder.BIG_ENDIAN
+
+
+@dataclass(kw_only=True)
+class BinaryDataEncoding(DataEncoding):
+    bits: int | None = None
+    length_bits: int | None = None
+    deserializer: JavaAlgorithm | None = None
+
+
+@dataclass(kw_only=True)
+class IntegerDataEncoding(DataEncoding):
+    scheme: IntegerDataEncodingScheme = IntegerDataEncodingScheme.UNSIGNED
+
+
+@dataclass(kw_only=True)
+class FloatDataEncoding(DataEncoding):
+    scheme: FloatDataEncodingScheme = FloatDataEncodingScheme.IEEE754_1985
+
+
+@dataclass(kw_only=True)
+class FloatTimeEncoding(FloatDataEncoding):
+    offset: int = 0
+    scale: int = 1
+
+
+@dataclass(kw_only=True)
+class IntegerTimeEncoding(IntegerDataEncoding):
+    offset: int = 0
+    scale: int = 1
+
+
+TimeEncoding: TypeAlias = FloatTimeEncoding | IntegerTimeEncoding
+
+
+@dataclass(kw_only=True)
+class StringDataEncoding(DataEncoding):
+    bits: int | None = None
+    length_bits: int | None = None
+
+    max_bits: int | None = 8388608
+    """
+    Maximum number of bits, in case of a dynamically sized string.
+
+    This value hints Yamcs about the buffer size that is allocated to
+    read the string, although Yamcs can choose to use a smaller buffer
+    when it can.
+
+    Default is 1 MB
+    """
+
+    charset: Charset = Charset.US_ASCII
+    termination: bytes = b"\0"
+
 
 uint1_t = IntegerDataEncoding(
     bits=1,

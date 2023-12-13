@@ -1,15 +1,11 @@
 Reference
 =========
 
-Space systems
--------------
+Systems
+-------
 
-.. autoclass:: yamcs.pymdb.model.SpaceSystem
+.. autoclass:: yamcs.pymdb.systems.System
    :members:
 
-.. autoclass:: yamcs.pymdb.model.Subsystem
+.. autoclass:: yamcs.pymdb.systems.Subsystem
    :members:
-
-. . automodule:: yamcs.pymdb.model
-   :members:
-

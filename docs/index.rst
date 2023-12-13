@@ -15,22 +15,22 @@ Install with pip::
 How it works
 ------------
 
-With PyMDB you create one or more :class:`SpaceSystem` objects. A typical Yamcs Mission Database has at least one space system representing the target spacecraft (or payload).
+With PyMDB you create one or more :class:`System` objects. A typical Yamcs Mission Database has at least one system representing the target spacecraft (or payload).
 
 .. code-block:: python
 
    from yamcs.pymdb import *
 
-   satellite = SpaceSystem("MySat")
-   com = satellite.add_space_system("COM")
-   eps = satellite.add_space_system("EPS")
-   fc = satellite.add_space_system("FC")
+   satellite = System("MySat")
+   com = Subsystem(satellite, "COM")
+   eps = Subsystem(satellite, "EPS")
+   fc = Subsystem(satellite, "FC")
 
-   gse = SpaceSystem("GSE")
+   gse = System("GSE")
 
-   # ... add TM/TC definitions to each space system
+   # ... add TM/TC definitions to each system
 
-Then use PyMDB to generate an XTCE description (= XML file), one for each top-level space system.
+Then use PyMDB to generate an XTCE description (= XML file), one for each top-level system.
 
 .. code-block:: python
 
@@ -99,7 +99,7 @@ Table of Contents
 .. toctree::
     :maxdepth: 2
 
-    spacesystems
+    systems
     parameters
     containers
     algorithms

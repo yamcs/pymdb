@@ -1,4 +1,10 @@
-from yamcs.pymdb.model import JavaAlgorithm
+from dataclasses import dataclass
+
+
+@dataclass
+class JavaAlgorithm:
+    java: str
+
 
 hex = JavaAlgorithm("org.yamcs.algo.Hex")
 

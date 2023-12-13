@@ -1,22 +1,25 @@
 from textwrap import dedent
 from typing import NamedTuple
 
-from yamcs.pymdb.encodings import uint1_t, uint2_t, uint3_t, uint11_t, uint14_t, uint16_t
-from yamcs.pymdb.model import (
-    AggregateParameter,
+from yamcs.pymdb.commands import (
     ArgumentEntry,
     BooleanArgument,
-    BooleanMember,
     Command,
-    Container,
-    EnumeratedMember,
     FixedValueEntry,
     IntegerArgument,
-    IntegerMember,
-    IntegerParameter,
-    ParameterEntry,
-    SpaceSystem,
 )
+from yamcs.pymdb.containers import Container, ParameterEntry
+from yamcs.pymdb.datatypes import BooleanMember, EnumeratedMember, IntegerMember
+from yamcs.pymdb.encodings import (
+    uint1_t,
+    uint2_t,
+    uint3_t,
+    uint11_t,
+    uint14_t,
+    uint16_t,
+)
+from yamcs.pymdb.parameters import AggregateParameter, IntegerParameter
+from yamcs.pymdb.systems import System
 
 
 class CcsdsHeader(NamedTuple):
@@ -29,8 +32,8 @@ class CcsdsHeader(NamedTuple):
     tc_apid: IntegerArgument
 
 
-def add_ccsds_header(space_system: SpaceSystem) -> CcsdsHeader:
-    tm_packet_id = space_system.add_aggregate_parameter(
+def add_ccsds_header(system: System) -> CcsdsHeader:
+    tm_packet_id = system.add_aggregate_parameter(
         name="ccsds_packet_id",
         short_description="First word of the primary CCSDS header",
         members=[
@@ -70,7 +73,7 @@ def add_ccsds_header(space_system: SpaceSystem) -> CcsdsHeader:
         ],
     )
 
-    tm_packet_sequence = space_system.add_aggregate_parameter(
+    tm_packet_sequence = system.add_aggregate_parameter(
         name="ccsds_packet_sequence",
         short_description="Second word of the primary CCSDS header",
         members=[
@@ -92,14 +95,15 @@ def add_ccsds_header(space_system: SpaceSystem) -> CcsdsHeader:
         ],
     )
 
-    tm_packet_length = space_system.add_integer_parameter(
+    tm_packet_length = system.add_integer_parameter(
         name="ccsds_packet_length",
         signed=False,
         units="Octets",
         encoding=uint16_t,
     )
 
-    tm_container = space_system.add_container(
+    tm_container = Container(
+        system=system,
         name="ccsds_space_packet",
         abstract=True,
         short_description="CCSDS 133.0-B-1 Space Packet",
@@ -131,7 +135,7 @@ def add_ccsds_header(space_system: SpaceSystem) -> CcsdsHeader:
         encoding=uint11_t,
     )
 
-    tc_command = space_system.add_command(
+    tc_command = system.add_command(
         name="ccsds_space_packet",
         abstract=True,
         short_description="CCSDS 133.0-B-1 Space Packet",

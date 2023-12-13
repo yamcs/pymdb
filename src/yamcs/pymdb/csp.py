@@ -1,22 +1,23 @@
 from textwrap import dedent
 from typing import NamedTuple
 
-from yamcs.pymdb.encodings import uint1_t, uint2_t, uint5_t, uint6_t
-from yamcs.pymdb.model import (
+from yamcs.pymdb.commands import (
     ArgumentEntry,
     BooleanArgument,
-    BooleanParameter,
-    Choices,
     Command,
-    Container,
     EnumeratedArgument,
-    EnumeratedParameter,
     FixedValueEntry,
     IntegerArgument,
-    IntegerParameter,
-    ParameterEntry,
-    SpaceSystem,
 )
+from yamcs.pymdb.containers import Container, ParameterEntry
+from yamcs.pymdb.datatypes import Choices
+from yamcs.pymdb.encodings import uint1_t, uint2_t, uint5_t, uint6_t
+from yamcs.pymdb.parameters import (
+    BooleanParameter,
+    EnumeratedParameter,
+    IntegerParameter,
+)
+from yamcs.pymdb.systems import System
 
 
 class CspHeader(NamedTuple):
@@ -42,18 +43,18 @@ class CspHeader(NamedTuple):
 
 
 def add_csp_header(
-    space_system: SpaceSystem,
+    system: System,
     ids: Choices | None = None,
     prefix: str = "csp_",
 ) -> CspHeader:
     """
-    Add a CSP header to the given space system.
+    Add a CSP header to the given system.
 
     :param ids:
         If provided, model the ``csp_src`` and ``csp_dst`` parameters and
         arguments as enumerations, rather than integers
     """
-    tm_pri = space_system.add_enumerated_parameter(
+    tm_pri = system.add_enumerated_parameter(
         name=f"{prefix}pri",
         short_description="Message priority",
         choices=[
@@ -65,59 +66,60 @@ def add_csp_header(
         encoding=uint2_t,
     )
 
-    tm_src = space_system.add_enumerated_parameter(
+    tm_src = system.add_enumerated_parameter(
         name=f"{prefix}src",
         short_description="Source",
         choices=ids if ids is not None else [],
         encoding=uint5_t,
     )
 
-    tm_dst = space_system.add_enumerated_parameter(
+    tm_dst = system.add_enumerated_parameter(
         name=f"{prefix}dst",
         short_description="Destination",
         choices=ids if ids is not None else [],
         encoding=uint5_t,
     )
 
-    tm_dport = space_system.add_integer_parameter(
+    tm_dport = system.add_integer_parameter(
         name=f"{prefix}dport",
         short_description="Destination port",
         signed=False,
         encoding=uint6_t,
     )
 
-    tm_sport = space_system.add_integer_parameter(
+    tm_sport = system.add_integer_parameter(
         name=f"{prefix}sport",
         short_description="Source port",
         signed=False,
         encoding=uint6_t,
     )
 
-    tm_hmac = space_system.add_boolean_parameter(
+    tm_hmac = system.add_boolean_parameter(
         name=f"{prefix}hmac",
         short_description="Use HMAC verification",
         encoding=uint1_t,
     )
 
-    tm_xtea = space_system.add_boolean_parameter(
+    tm_xtea = system.add_boolean_parameter(
         name=f"{prefix}xtea",
         short_description="Use XTEA encryption",
         encoding=uint1_t,
     )
 
-    tm_rdp = space_system.add_boolean_parameter(
+    tm_rdp = system.add_boolean_parameter(
         name=f"{prefix}rdp",
         short_description="Use RDP protocol",
         encoding=uint1_t,
     )
 
-    tm_crc = space_system.add_boolean_parameter(
+    tm_crc = system.add_boolean_parameter(
         name=f"{prefix}crc",
         short_description="Use CRC32 checksum",
         encoding=uint1_t,
     )
 
-    tm_container = space_system.add_container(
+    tm_container = Container(
+        system=system,
         name=f"{prefix}message",
         abstract=True,
         short_description="CubeSat Space Protocol (CSP) header 1.x",
@@ -209,7 +211,7 @@ def add_csp_header(
         encoding=uint1_t,
     )
 
-    tc_container = space_system.add_command(
+    tc_container = system.add_command(
         name=f"{prefix}message",
         abstract=True,
         short_description="CubeSat Space Protocol (CSP) header 1.x",
