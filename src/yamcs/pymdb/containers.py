@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from enum import Enum, auto
 from typing import TYPE_CHECKING
 
@@ -15,28 +14,42 @@ class ReferenceLocation(Enum):
     PREVIOUS_ENTRY = auto()
 
 
-@dataclass
 class ParameterEntry:
-    parameter: Parameter
+    def __init__(
+        self,
+        parameter: Parameter,
+        short_description: str | None = None,
+        reference_location: ReferenceLocation = ReferenceLocation.PREVIOUS_ENTRY,
+        location_in_bits: int = 0,
+        include_condition: Expression | None = None,
+    ) -> None:
+        self.parameter: Parameter = parameter
 
-    short_description: str | None = None
-    """Oneline description"""
+        self.short_description: str | None = short_description
+        """Oneline description"""
 
-    reference_location: ReferenceLocation = ReferenceLocation.PREVIOUS_ENTRY
-    location_in_bits: int = 0
-    include_condition: Expression | None = None
+        self.reference_location: ReferenceLocation = reference_location
+        self.location_in_bits: int = location_in_bits
+        self.include_condition: Expression | None = include_condition
 
 
-@dataclass
 class ContainerEntry:
-    container: Container
+    def __init__(
+        self,
+        container: Container,
+        short_description: str | None = None,
+        reference_location: ReferenceLocation = ReferenceLocation.PREVIOUS_ENTRY,
+        location_in_bits: int = 0,
+        include_condition: Expression | None = None,
+    ) -> None:
+        self.container: Container = container
 
-    short_description: str | None = None
-    """Oneline description"""
+        self.short_description: str | None = short_description
+        """Oneline description"""
 
-    reference_location: ReferenceLocation = ReferenceLocation.PREVIOUS_ENTRY
-    location_in_bits: int = 0
-    include_condition: Expression | None = None
+        self.reference_location: ReferenceLocation = reference_location
+        self.location_in_bits: int = location_in_bits
+        self.include_condition: Expression | None = include_condition
 
 
 class Container:

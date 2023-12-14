@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 from yamcs.pymdb.containers import ParameterEntry, ReferenceLocation
 from yamcs.pymdb.datatypes import (
@@ -11,6 +10,7 @@ from yamcs.pymdb.datatypes import (
     ArrayDataType,
     BinaryDataType,
     BooleanDataType,
+    Choices,
     DataType,
     EnumeratedDataType,
     Epoch,
@@ -19,6 +19,7 @@ from yamcs.pymdb.datatypes import (
     Member,
     StringDataType,
 )
+from yamcs.pymdb.encodings import DataEncoding, TimeEncoding
 from yamcs.pymdb.expressions import Expression
 from yamcs.pymdb.verifiers import (
     AcceptedVerifier,
@@ -72,82 +73,344 @@ class CommandLevel(Enum):
     """
 
 
-@dataclass
 class Argument(DataType):
-    name: str
-    """Short name of this argument"""
+    def __init__(
+        self,
+        name: str,
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: DataEncoding | None = None,
+    ) -> None:
+        self.name: str = name
+        """Short name of this argument"""
+
+        DataType.__init__(
+            self,
+            initial_value=initial_value,
+            short_description=short_description,
+            long_description=long_description,
+            extra=extra,
+            units=units,
+            encoding=encoding,
+        )
 
 
-@dataclass(kw_only=True)
 class AbsoluteTimeArgument(Argument, AbsoluteTimeDataType):
-    reference: Epoch
+    def __init__(
+        self,
+        name: str,
+        reference: Epoch,
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: TimeEncoding | None = None,
+    ) -> None:
+        AbsoluteTimeDataType.__init__(
+            self,
+            reference=reference,
+        )
+        Argument.__init__(
+            self,
+            name=name,
+            initial_value=initial_value,
+            short_description=short_description,
+            long_description=long_description,
+            extra=extra,
+            units=units,
+            encoding=encoding,
+        )
 
 
-@dataclass(kw_only=True)
 class AggregateArgument(Argument, AggregateDataType):
-    members: list[Member] = field(default_factory=list)
+    def __init__(
+        self,
+        name: str,
+        members: list[Member],
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: DataEncoding | None = None,
+    ) -> None:
+        AggregateDataType.__init__(
+            self,
+            members=members,
+        )
+        Argument.__init__(
+            self,
+            name=name,
+            initial_value=initial_value,
+            short_description=short_description,
+            long_description=long_description,
+            extra=extra,
+            units=units,
+            encoding=encoding,
+        )
 
 
-@dataclass(kw_only=True)
 class ArrayArgument(Argument, ArrayDataType):
-    pass
+    def __init__(
+        self,
+        name: str,
+        data_type: DataType,
+        length: int,
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: DataEncoding | None = None,
+    ) -> None:
+        ArrayDataType.__init__(
+            self,
+            data_type=data_type,
+            length=length,
+        )
+        Argument.__init__(
+            self,
+            name=name,
+            initial_value=initial_value,
+            short_description=short_description,
+            long_description=long_description,
+            extra=extra,
+            units=units,
+            encoding=encoding,
+        )
 
 
-@dataclass(kw_only=True)
 class BinaryArgument(Argument, BinaryDataType):
-    pass
+    def __init__(
+        self,
+        name: str,
+        min_length: int | None = None,
+        max_length: int | None = None,
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: DataEncoding | None = None,
+    ) -> None:
+        BinaryDataType.__init__(
+            self,
+            min_length=min_length,
+            max_length=max_length,
+        )
+        Argument.__init__(
+            self,
+            name=name,
+            initial_value=initial_value,
+            short_description=short_description,
+            long_description=long_description,
+            extra=extra,
+            units=units,
+            encoding=encoding,
+        )
 
 
-@dataclass(kw_only=True)
 class BooleanArgument(Argument, BooleanDataType):
-    pass
+    def __init__(
+        self,
+        name: str,
+        zero_string_value: str = "False",
+        one_string_value: str = "True",
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: DataEncoding | None = None,
+    ) -> None:
+        BooleanDataType.__init__(
+            self,
+            zero_string_value=zero_string_value,
+            one_string_value=one_string_value,
+        )
+        Argument.__init__(
+            self,
+            name=name,
+            initial_value=initial_value,
+            short_description=short_description,
+            long_description=long_description,
+            extra=extra,
+            units=units,
+            encoding=encoding,
+        )
 
 
-@dataclass(kw_only=True)
 class EnumeratedArgument(Argument, EnumeratedDataType):
-    pass
+    def __init__(
+        self,
+        name: str,
+        choices: Choices,
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: DataEncoding | None = None,
+    ) -> None:
+        EnumeratedDataType.__init__(
+            self,
+            choices=choices,
+        )
+        Argument.__init__(
+            self,
+            name=name,
+            initial_value=initial_value,
+            short_description=short_description,
+            long_description=long_description,
+            extra=extra,
+            units=units,
+            encoding=encoding,
+        )
 
 
-@dataclass(kw_only=True)
 class FloatArgument(Argument, FloatDataType):
-    pass
+    def __init__(
+        self,
+        name: str,
+        bits: Literal[32] | Literal[64] = 32,
+        minimum: float | None = None,
+        minimum_inclusive: bool = True,
+        maximum: float | None = None,
+        maximum_inclusive: bool = True,
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: DataEncoding | None = None,
+    ) -> None:
+        FloatDataType.__init__(
+            self,
+            bits=bits,
+            minimum=minimum,
+            minimum_inclusive=minimum_inclusive,
+            maximum=maximum,
+            maximum_inclusive=maximum_inclusive,
+        )
+        Argument.__init__(
+            self,
+            name=name,
+            initial_value=initial_value,
+            short_description=short_description,
+            long_description=long_description,
+            extra=extra,
+            units=units,
+            encoding=encoding,
+        )
 
 
-@dataclass(kw_only=True)
 class IntegerArgument(Argument, IntegerDataType):
-    pass
+    def __init__(
+        self,
+        name: str,
+        signed: bool = True,
+        minimum: int | None = None,
+        maximum: int | None = None,
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: DataEncoding | None = None,
+    ) -> None:
+        IntegerDataType.__init__(
+            self,
+            signed=signed,
+            minimum=minimum,
+            maximum=maximum,
+        )
+        Argument.__init__(
+            self,
+            name=name,
+            initial_value=initial_value,
+            short_description=short_description,
+            long_description=long_description,
+            extra=extra,
+            units=units,
+            encoding=encoding,
+        )
 
 
-@dataclass(kw_only=True)
 class StringArgument(Argument, StringDataType):
-    pass
+    def __init__(
+        self,
+        name: str,
+        min_length: int | None = None,
+        max_length: int | None = None,
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: DataEncoding | None = None,
+    ) -> None:
+        StringDataType.__init__(
+            self,
+            min_length=min_length,
+            max_length=max_length,
+        )
+        Argument.__init__(
+            self,
+            name=name,
+            initial_value=initial_value,
+            short_description=short_description,
+            long_description=long_description,
+            extra=extra,
+            units=units,
+            encoding=encoding,
+        )
 
 
-@dataclass
 class ArgumentEntry:
-    argument: Argument
+    def __init__(
+        self,
+        argument: Argument,
+        short_description: str | None = None,
+        reference_location: ReferenceLocation = ReferenceLocation.PREVIOUS_ENTRY,
+        location_in_bits: int = 0,
+        include_condition: Expression | None = None,
+    ) -> None:
+        self.argument: Argument = argument
 
-    short_description: str | None = None
-    """Oneline description"""
+        self.short_description: str | None = short_description
+        """Oneline description"""
 
-    reference_location: ReferenceLocation = ReferenceLocation.PREVIOUS_ENTRY
-    location_in_bits: int = 0
-    include_condition: Expression | None = None
+        self.reference_location: ReferenceLocation = reference_location
+        self.location_in_bits: int = location_in_bits
+        self.include_condition: Expression | None = include_condition
 
 
-@dataclass
 class FixedValueEntry:
-    binary: bytes
+    def __init__(
+        self,
+        binary: bytes,
+        name: str | None = None,
+        short_description: str | None = None,
+        reference_location: ReferenceLocation = ReferenceLocation.PREVIOUS_ENTRY,
+        location_in_bits: int = 0,
+        include_condition: Expression | None = None,
+        bits: int | None = None,
+    ) -> None:
+        self.binary: bytes = binary
 
-    name: str | None = None
+        self.name: str | None = name
 
-    short_description: str | None = None
-    """Onleine description"""
+        self.short_description: str | None = short_description
+        """Onleine description"""
 
-    reference_location: ReferenceLocation = ReferenceLocation.PREVIOUS_ENTRY
-    location_in_bits: int = 0
-    include_condition: Expression | None = None
-    bits: int | None = None
+        self.reference_location: ReferenceLocation = reference_location
+        self.location_in_bits: int = location_in_bits
+        self.include_condition: Expression | None = include_condition
+        self.bits: int | None = bits
 
 
 CommandEntry = ArgumentEntry | ParameterEntry | FixedValueEntry
@@ -213,6 +476,10 @@ class Command:
 
         self.warning_message = warning_message
         """Message explaining the importance of this telecommand"""
+
+        if name in system._commands_by_name:
+            raise Exception(f"System already contains a command {name}")
+        system._commands_by_name[name] = self
 
     @property
     def verifiers(self) -> list[Verifier]:

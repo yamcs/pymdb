@@ -1,6 +1,6 @@
 from enum import Enum
 
-from yamcs.pymdb import System, csp, xtce
+from yamcs.pymdb import System, csp
 
 
 class Subsystem(Enum):
@@ -13,4 +13,4 @@ spacecraft = System("Spacecraft")
 csp_header = csp.add_csp_header(spacecraft, ids=Subsystem)
 
 with open("csp.xml", "wt") as f:
-    xtce.dump(spacecraft, f)
+    spacecraft.dump(f)

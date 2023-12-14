@@ -11,13 +11,15 @@ from yamcs.pymdb import *
 
 spacecraft = System("Spacecraft")
 
-param1 = spacecraft.add_integer_parameter(
+param1 = IntegerParameter(
+    system=spacecraft,
     name="param1",
     signed=False,
     encoding=uint8_t,
 )
 
-param2 = spacecraft.add_enumerated_parameter(
+param2 = EnumeratedParameter(
+    system=spacecraft,
     name="param2",
     choices=[
         (0, "SUCCESS"),

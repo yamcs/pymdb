@@ -1,5 +1,3 @@
-import dataclasses
-from dataclasses import dataclass
 from enum import Enum, auto
 from typing import TypeAlias
 
@@ -7,91 +5,198 @@ from yamcs.pymdb.algorithms import JavaAlgorithm
 
 
 class ByteOrder(Enum):
+    """
+    Byte order (endianness)
+    """
+
     BIG_ENDIAN = auto()
+    """Big Endian (most significant byte first)"""
+
     LITTLE_ENDIAN = auto()
+    """Little Endian (least significant byte first)"""
 
 
 class Charset(Enum):
+    """String encoding"""
+
     US_ASCII = auto()
+    """US-ASCII"""
+
     ISO_8859_1 = auto()
+    """ISO-8859-1"""
+
     WINDOWS_1252 = auto()
+    """Windows-1252"""
+
     UTF_8 = auto()
+    """UTF-8"""
+
     UTF_16 = auto()
+    """UTF-16"""
+
     UTF_16LE = auto()
+    """UTF-16LE"""
+
     UTF_16BE = auto()
+    """UTF-16BE"""
+
     UTF_32 = auto()
+    """UTF-32"""
+
     UTF_32LE = auto()
+    """UTF-32LE"""
+
     UTF_32BE = auto()
+    """UTF-16BE"""
 
 
 class FloatDataEncodingScheme(Enum):
+    """Float encoding"""
+
     IEEE754_1985 = auto()
+    """IEEE 754-1985"""
+
     MILSTD_1750A = auto()
+    """MIL-STD-1750A"""
 
 
 class IntegerDataEncodingScheme(Enum):
+    """Integer encoding"""
+
     UNSIGNED = auto()
+    """Unsigned"""
+
     SIGN_MAGNITUDE = auto()
+    """Sign-magnitude"""
+
     TWOS_COMPLEMENT = auto()
+    """Two's complement"""
+
     ONES_COMPLEMENT = auto()
+    """Ones' complement"""
 
 
-@dataclass(kw_only=True)
 class DataEncoding:
-    bits: int
-    byte_order: ByteOrder = ByteOrder.BIG_ENDIAN
+    def __init__(
+        self,
+        bits: int | None = None,
+        byte_order: ByteOrder = ByteOrder.BIG_ENDIAN,
+    ) -> None:
+        self.bits = bits
+        self.byte_order = byte_order
 
 
-@dataclass(kw_only=True)
 class BinaryDataEncoding(DataEncoding):
-    bits: int | None = None
-    length_bits: int | None = None
-    deserializer: JavaAlgorithm | None = None
+    def __init__(
+        self,
+        bits: int | None = None,
+        length_bits: int | None = None,
+        byte_order: ByteOrder = ByteOrder.BIG_ENDIAN,
+        deserializer: JavaAlgorithm | None = None,
+    ) -> None:
+        super().__init__(
+            bits=bits,
+            byte_order=byte_order,
+        )
+        self.length_bits: int | None = length_bits
+        self.deserializer: JavaAlgorithm | None = deserializer
 
 
-@dataclass(kw_only=True)
 class IntegerDataEncoding(DataEncoding):
-    scheme: IntegerDataEncodingScheme = IntegerDataEncodingScheme.UNSIGNED
+    def __init__(
+        self,
+        bits: int,
+        byte_order: ByteOrder = ByteOrder.BIG_ENDIAN,
+        scheme: IntegerDataEncodingScheme = IntegerDataEncodingScheme.UNSIGNED,
+    ) -> None:
+        super().__init__(
+            bits=bits,
+            byte_order=byte_order,
+        )
+        self.scheme: IntegerDataEncodingScheme = scheme
 
 
-@dataclass(kw_only=True)
 class FloatDataEncoding(DataEncoding):
-    scheme: FloatDataEncodingScheme = FloatDataEncodingScheme.IEEE754_1985
+    def __init__(
+        self,
+        bits: int,
+        byte_order: ByteOrder = ByteOrder.BIG_ENDIAN,
+        scheme: FloatDataEncodingScheme = FloatDataEncodingScheme.IEEE754_1985,
+    ) -> None:
+        super().__init__(
+            bits=bits,
+            byte_order=byte_order,
+        )
+        self.scheme: FloatDataEncodingScheme = scheme
 
 
-@dataclass(kw_only=True)
 class FloatTimeEncoding(FloatDataEncoding):
-    offset: int = 0
-    scale: int = 1
+    def __init__(
+        self,
+        bits: int,
+        byte_order: ByteOrder = ByteOrder.BIG_ENDIAN,
+        scheme: FloatDataEncodingScheme = FloatDataEncodingScheme.IEEE754_1985,
+        offset: float = 0,
+        scale: float = 1,
+    ) -> None:
+        super().__init__(
+            bits=bits,
+            byte_order=byte_order,
+            scheme=scheme,
+        )
+        self.offset: float = offset
+        self.scale: float = scale
 
 
-@dataclass(kw_only=True)
 class IntegerTimeEncoding(IntegerDataEncoding):
-    offset: int = 0
-    scale: int = 1
+    def __init__(
+        self,
+        bits: int,
+        byte_order: ByteOrder = ByteOrder.BIG_ENDIAN,
+        scheme: IntegerDataEncodingScheme = IntegerDataEncodingScheme.UNSIGNED,
+        offset: float = 0,
+        scale: float = 1,
+    ) -> None:
+        super().__init__(
+            bits=bits,
+            byte_order=byte_order,
+            scheme=scheme,
+        )
+        self.offset: float = offset
+        self.scale: float = scale
 
 
 TimeEncoding: TypeAlias = FloatTimeEncoding | IntegerTimeEncoding
 
 
-@dataclass(kw_only=True)
 class StringDataEncoding(DataEncoding):
-    bits: int | None = None
-    length_bits: int | None = None
+    def __init__(
+        self,
+        bits: int | None = None,
+        byte_order: ByteOrder = ByteOrder.BIG_ENDIAN,
+        length_bits: int | None = None,
+        max_bits: int | None = 8388608,
+    ) -> None:
+        super().__init__(
+            bits=bits,
+            byte_order=byte_order,
+        )
 
-    max_bits: int | None = 8388608
-    """
-    Maximum number of bits, in case of a dynamically sized string.
+        self.length_bits: int | None = length_bits
 
-    This value hints Yamcs about the buffer size that is allocated to
-    read the string, although Yamcs can choose to use a smaller buffer
-    when it can.
+        self.max_bits: int | None = max_bits
+        """
+        Maximum number of bits, in case of a dynamically sized string.
 
-    Default is 1 MB
-    """
+        This value hints Yamcs about the buffer size that is allocated to
+        read the string, although Yamcs can choose to use a smaller buffer
+        when it can.
 
-    charset: Charset = Charset.US_ASCII
-    termination: bytes = b"\0"
+        Default is 1 MB
+        """
+
+        self.charset: Charset = Charset.US_ASCII
+        self.termination: bytes = b"\0"
 
 
 uint1_t = IntegerDataEncoding(
@@ -150,7 +255,11 @@ int8_t = IntegerDataEncoding(
 )
 """Signed 8-bit integer in two's complement notation (big endian)"""
 
-int8le_t = dataclasses.replace(int8_t, byte_order=ByteOrder.LITTLE_ENDIAN)
+int8le_t = IntegerDataEncoding(
+    bits=8,
+    byte_order=ByteOrder.LITTLE_ENDIAN,
+    scheme=IntegerDataEncodingScheme.TWOS_COMPLEMENT,
+)
 """Signed 8-bit integer in two's complement notation (little endian)"""
 
 uint8_t = IntegerDataEncoding(
@@ -160,7 +269,11 @@ uint8_t = IntegerDataEncoding(
 )
 """Unsigned 8-bit integer (big endian)"""
 
-uint8le_t = dataclasses.replace(uint8_t, byte_order=ByteOrder.LITTLE_ENDIAN)
+uint8le_t = IntegerDataEncoding(
+    bits=8,
+    byte_order=ByteOrder.LITTLE_ENDIAN,
+    scheme=IntegerDataEncodingScheme.UNSIGNED,
+)
 """Unsigned 8-bit integer (little endian)"""
 
 uint8_t = IntegerDataEncoding(
@@ -229,7 +342,11 @@ int16_t = IntegerDataEncoding(
 )
 """Signed 16-bit integer in two's complement notation (big endian)"""
 
-int16le_t = dataclasses.replace(int16_t, byte_order=ByteOrder.LITTLE_ENDIAN)
+int16le_t = IntegerDataEncoding(
+    bits=16,
+    byte_order=ByteOrder.LITTLE_ENDIAN,
+    scheme=IntegerDataEncodingScheme.TWOS_COMPLEMENT,
+)
 """Signed 16-bit integer in two's complement notation (little endian)"""
 
 uint16_t = IntegerDataEncoding(
@@ -239,7 +356,11 @@ uint16_t = IntegerDataEncoding(
 )
 """Unsigned 16-bit integer (big endian)"""
 
-uint16le_t = dataclasses.replace(uint16_t, byte_order=ByteOrder.LITTLE_ENDIAN)
+uint16le_t = IntegerDataEncoding(
+    bits=16,
+    byte_order=ByteOrder.LITTLE_ENDIAN,
+    scheme=IntegerDataEncodingScheme.UNSIGNED,
+)
 """Unsigned 16-bit integer (little endian)"""
 
 int32_t = IntegerDataEncoding(
@@ -249,7 +370,11 @@ int32_t = IntegerDataEncoding(
 )
 """Signed 32-bit integer in two's complement notation (big endian)"""
 
-int32le_t = dataclasses.replace(int32_t, byte_order=ByteOrder.LITTLE_ENDIAN)
+int32le_t = IntegerDataEncoding(
+    bits=32,
+    byte_order=ByteOrder.LITTLE_ENDIAN,
+    scheme=IntegerDataEncodingScheme.TWOS_COMPLEMENT,
+)
 """Signed 32-bit integer in two's complement notation (little endian)"""
 
 uint32_t = IntegerDataEncoding(
@@ -259,7 +384,11 @@ uint32_t = IntegerDataEncoding(
 )
 """Unsigned 32-bit integer (big endian)"""
 
-uint32le_t = dataclasses.replace(uint32_t, byte_order=ByteOrder.LITTLE_ENDIAN)
+uint32le_t = IntegerDataEncoding(
+    bits=32,
+    byte_order=ByteOrder.LITTLE_ENDIAN,
+    scheme=IntegerDataEncodingScheme.UNSIGNED,
+)
 """Unsigned 32-bit integer (little endian)"""
 
 float32_t = FloatDataEncoding(
@@ -269,7 +398,11 @@ float32_t = FloatDataEncoding(
 )
 """32-bit float in IEEE754-1985 encoding (big endian)"""
 
-float32le_t = dataclasses.replace(float32_t, byte_order=ByteOrder.LITTLE_ENDIAN)
+float32le_t = FloatDataEncoding(
+    bits=32,
+    byte_order=ByteOrder.LITTLE_ENDIAN,
+    scheme=FloatDataEncodingScheme.IEEE754_1985,
+)
 """32-bit float in IEEE754-1985 encoding (little endian)"""
 
 float64_t = FloatDataEncoding(
@@ -279,5 +412,9 @@ float64_t = FloatDataEncoding(
 )
 """64-bit float in IEEE754-1985 encoding (big endian)"""
 
-float64le_t = dataclasses.replace(float64_t, byte_order=ByteOrder.LITTLE_ENDIAN)
+float64le_t = FloatDataEncoding(
+    bits=64,
+    byte_order=ByteOrder.LITTLE_ENDIAN,
+    scheme=FloatDataEncodingScheme.IEEE754_1985,
+)
 """64-bit float in IEEE754-1985 encoding (little endian)"""

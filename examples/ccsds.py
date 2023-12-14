@@ -1,4 +1,12 @@
-from yamcs.pymdb import ArgumentEntry, IntegerArgument, System, ccsds, uint16_t, xtce
+from yamcs.pymdb import (
+    ArgumentEntry,
+    Command,
+    IntegerArgument,
+    System,
+    ccsds,
+    uint16_t,
+    xtce,
+)
 
 spacecraft = System("Spacecraft")
 ccsds_header = ccsds.add_ccsds_header(spacecraft)
@@ -9,7 +17,8 @@ command_id = IntegerArgument(
     encoding=uint16_t,
 )
 
-project_command = spacecraft.add_command(
+project_command = Command(
+    system=spacecraft,
     name="MyProjectPacket",
     abstract=True,
     parent=ccsds_header.tc_command,
@@ -25,13 +34,15 @@ project_command = spacecraft.add_command(
     ],
 )
 
-reboot_command = spacecraft.add_command(
+reboot_command = Command(
+    system=spacecraft,
     parent=project_command,
     name="Reboot",
     assignments={command_id.name: 1},
 )
 
-switch_voltage_on = spacecraft.add_command(
+switch_voltage_on = Command(
+    system=spacecraft,
     parent=project_command,
     name="SwitchVoltageOn",
     short_description="Switches a battery on",
@@ -48,7 +59,8 @@ switch_voltage_on = spacecraft.add_command(
     ],
 )
 
-switch_voltage_off = spacecraft.add_command(
+switch_voltage_off = Command(
+    system=spacecraft,
     parent=project_command,
     name="SwitchVoltageOff",
     short_description="Switches a battery off",
@@ -67,4 +79,4 @@ switch_voltage_off = spacecraft.add_command(
 
 
 with open("ccsds.xml", "wt") as f:
-    xtce.dump(spacecraft, f)
+    spacecraft.dump(f)

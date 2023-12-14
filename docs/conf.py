@@ -57,8 +57,10 @@ latex_documents = [
 autoclass_content = "both"
 autodoc_class_signature = "separated"
 autodoc_default_options = {
-    "member-order": "bysource",
+    # "member-order": "bysource",
+    "undoc-members": True,
     "show-inheritance": True,
+    "inherited-members": True,
 }
 
 intersphinx_mapping = {

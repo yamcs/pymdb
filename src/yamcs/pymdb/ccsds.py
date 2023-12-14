@@ -33,7 +33,8 @@ class CcsdsHeader(NamedTuple):
 
 
 def add_ccsds_header(system: System) -> CcsdsHeader:
-    tm_packet_id = system.add_aggregate_parameter(
+    tm_packet_id = AggregateParameter(
+        system=system,
         name="ccsds_packet_id",
         short_description="First word of the primary CCSDS header",
         members=[
@@ -73,7 +74,8 @@ def add_ccsds_header(system: System) -> CcsdsHeader:
         ],
     )
 
-    tm_packet_sequence = system.add_aggregate_parameter(
+    tm_packet_sequence = AggregateParameter(
+        system=system,
         name="ccsds_packet_sequence",
         short_description="Second word of the primary CCSDS header",
         members=[
@@ -95,7 +97,8 @@ def add_ccsds_header(system: System) -> CcsdsHeader:
         ],
     )
 
-    tm_packet_length = system.add_integer_parameter(
+    tm_packet_length = IntegerParameter(
+        system=system,
         name="ccsds_packet_length",
         signed=False,
         units="Octets",
@@ -135,7 +138,8 @@ def add_ccsds_header(system: System) -> CcsdsHeader:
         encoding=uint11_t,
     )
 
-    tc_command = system.add_command(
+    tc_command = Command(
+        system=system,
         name="ccsds_space_packet",
         abstract=True,
         short_description="CCSDS 133.0-B-1 Space Packet",

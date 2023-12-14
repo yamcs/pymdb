@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Any, Literal, Type, TypeAlias
 
@@ -17,58 +16,186 @@ class Epoch(Enum):
 Choices: TypeAlias = list[tuple[int, str] | tuple[int, str, str]] | Type[Enum]
 
 
-@dataclass(kw_only=True)
 class DataType:
-    initial_value: Any = None
+    def __init__(
+        self,
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: DataEncoding | None = None,
+    ) -> None:
+        self.initial_value: Any = initial_value
+        """Default value"""
 
-    short_description: str | None = None
-    """Oneline description"""
+        self.short_description: str | None = short_description
+        """Oneline description"""
 
-    long_description: str | None = None
-    """Multiline description"""
+        self.long_description: str | None = long_description
+        """Multiline description"""
 
-    extra: dict[str, str] = field(default_factory=dict)
-    """Arbitrary information, keyed by name"""
+        self.extra: dict[str, str] = extra or {}
+        """Arbitrary information, keyed by name"""
 
-    units: str | None = None
-    encoding: DataEncoding | None = None
+        self.units: str | None = units
+        """Engineering units"""
+
+        self.encoding: DataEncoding | None = encoding
+        """
+        How this data is sent or received from some non-native, off-platform
+        device. (e.g. a spacecraft)
+        """
 
 
-@dataclass(kw_only=True)
 class AbsoluteTimeDataType(DataType):
-    reference: Epoch | AbsoluteTimeParameter
-    encoding: TimeEncoding | None = None
+    def __init__(
+        self,
+        reference: Epoch | AbsoluteTimeParameter,
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: TimeEncoding | None = None,
+    ) -> None:
+        DataType.__init__(
+            self,
+            initial_value=initial_value,
+            short_description=short_description,
+            long_description=long_description,
+            extra=extra,
+            units=units,
+            encoding=encoding,
+        )
+        self.reference: Epoch | AbsoluteTimeParameter = reference
 
 
-@dataclass(kw_only=True)
 class AggregateDataType(DataType):
-    members: list[Member] = field(default_factory=list)
+    def __init__(
+        self,
+        members: list[Member],
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: DataEncoding | None = None,
+    ) -> None:
+        DataType.__init__(
+            self,
+            initial_value=initial_value,
+            short_description=short_description,
+            long_description=long_description,
+            extra=extra,
+            units=units,
+            encoding=encoding,
+        )
+        self.members: list[Member] = members
 
 
-@dataclass(kw_only=True)
 class ArrayDataType(DataType):
-    data_type: DataType
-    length: int
+    def __init__(
+        self,
+        data_type: DataType,
+        length: int,
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: DataEncoding | None = None,
+    ) -> None:
+        DataType.__init__(
+            self,
+            initial_value=initial_value,
+            short_description=short_description,
+            long_description=long_description,
+            extra=extra,
+            units=units,
+            encoding=encoding,
+        )
+        self.data_type: DataType = data_type
+        self.length: int = length
 
 
-@dataclass(kw_only=True)
 class BinaryDataType(DataType):
-    min_length: int | None = None
-    """Minimum length in bytes"""
+    def __init__(
+        self,
+        min_length: int | None = None,
+        max_length: int | None = None,
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: DataEncoding | None = None,
+    ) -> None:
+        DataType.__init__(
+            self,
+            initial_value=initial_value,
+            short_description=short_description,
+            long_description=long_description,
+            extra=extra,
+            units=units,
+            encoding=encoding,
+        )
 
-    max_length: int | None = None
-    """Maximum length in bytes"""
+        self.min_length: int | None = min_length
+        """Minimum length in bytes"""
+
+        self.max_length: int | None = max_length
+        """Maximum length in bytes"""
 
 
-@dataclass(kw_only=True)
 class BooleanDataType(DataType):
-    zero_string_value: str = "False"
-    one_string_value: str = "True"
+    def __init__(
+        self,
+        zero_string_value: str = "False",
+        one_string_value: str = "True",
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: DataEncoding | None = None,
+    ) -> None:
+        DataType.__init__(
+            self,
+            initial_value=initial_value,
+            short_description=short_description,
+            long_description=long_description,
+            extra=extra,
+            units=units,
+            encoding=encoding,
+        )
+
+        self.zero_string_value: str = zero_string_value
+        self.one_string_value: str = one_string_value
 
 
-@dataclass(kw_only=True)
 class EnumeratedDataType(DataType):
-    choices: Choices
+    def __init__(
+        self,
+        choices: Choices,
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: DataEncoding | None = None,
+    ) -> None:
+        DataType.__init__(
+            self,
+            initial_value=initial_value,
+            short_description=short_description,
+            long_description=long_description,
+            extra=extra,
+            units=units,
+            encoding=encoding,
+        )
+
+        self.choices: Choices = choices
 
     def label_for(self, value: int):
         if isinstance(self.choices, list):
@@ -83,88 +210,398 @@ class EnumeratedDataType(DataType):
         raise KeyError(f"No enumeration label for value {value}")
 
 
-@dataclass(kw_only=True)
 class FloatDataType(DataType):
-    bits: Literal[32] | Literal[64] = 32
+    def __init__(
+        self,
+        bits: Literal[32] | Literal[64] = 32,
+        minimum: float | None = None,
+        minimum_inclusive: bool = True,
+        maximum: float | None = None,
+        maximum_inclusive: bool = True,
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: DataEncoding | None = None,
+    ) -> None:
+        DataType.__init__(
+            self,
+            initial_value=initial_value,
+            short_description=short_description,
+            long_description=long_description,
+            extra=extra,
+            units=units,
+            encoding=encoding,
+        )
 
-    minimum: float | None = None
-    """Minimum valid engineering value"""
+        self.bits: Literal[32] | Literal[64] = bits
 
-    minimum_inclusive: bool = True
-    """Whether the minimum value itself is valid"""
+        self.minimum: float | None = minimum
+        """Minimum valid engineering value"""
 
-    maximum: float | None = None
-    """Maximum valid engineering value (inclusive)"""
+        self.minimum_inclusive: bool = minimum_inclusive
+        """Whether the minimum value itself is valid"""
 
-    maximum_inclusive: bool = True
-    """Whether the maximum value itself is valid"""
+        self.maximum: float | None = maximum
+        """Maximum valid engineering value (inclusive)"""
+
+        self.maximum_inclusive: bool = maximum_inclusive
+        """Whether the maximum value itself is valid"""
 
 
-@dataclass(kw_only=True)
 class IntegerDataType(DataType):
-    signed: bool = True
+    def __init__(
+        self,
+        signed: bool = True,
+        minimum: int | None = None,
+        maximum: int | None = None,
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: DataEncoding | None = None,
+    ) -> None:
+        DataType.__init__(
+            self,
+            initial_value=initial_value,
+            short_description=short_description,
+            long_description=long_description,
+            extra=extra,
+            units=units,
+            encoding=encoding,
+        )
 
-    minimum: int | None = None
-    """Minimum valid engineering value (inclusive)"""
+        self.signed: bool = signed
 
-    maximum: int | None = None
-    """Maximum valid engineering value (inclusive)"""
+        self.minimum: int | None = minimum
+        """Minimum valid engineering value (inclusive)"""
+
+        self.maximum: int | None = maximum
+        """Maximum valid engineering value (inclusive)"""
 
 
-@dataclass(kw_only=True)
 class StringDataType(DataType):
-    min_length: int | None = None
-    """Minimum length in characters"""
+    def __init__(
+        self,
+        min_length: int | None = None,
+        max_length: int | None = None,
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: DataEncoding | None = None,
+    ) -> None:
+        DataType.__init__(
+            self,
+            initial_value=initial_value,
+            short_description=short_description,
+            long_description=long_description,
+            extra=extra,
+            units=units,
+            encoding=encoding,
+        )
 
-    max_length: int | None = None
-    """Maximum length in characters"""
+        self.min_length: int | None = min_length
+        """Minimum length in characters"""
+
+        self.max_length: int | None = max_length
+        """Maximum length in characters"""
 
 
-@dataclass
 class Member(DataType):
-    name: str
+    def __init__(
+        self,
+        name: str,
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: DataEncoding | None = None,
+    ) -> None:
+        DataType.__init__(
+            self,
+            initial_value=initial_value,
+            short_description=short_description,
+            long_description=long_description,
+            extra=extra,
+            units=units,
+            encoding=encoding,
+        )
+
+        self.name: str = name
 
 
-@dataclass(kw_only=True)
 class AbsoluteTimeMember(Member, AbsoluteTimeDataType):
-    pass
+    def __init__(
+        self,
+        name: str,
+        reference: Epoch | AbsoluteTimeParameter,
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: TimeEncoding | None = None,
+    ) -> None:
+        AbsoluteTimeDataType.__init__(
+            self,
+            reference=reference,
+        )
+        Member.__init__(
+            self,
+            name=name,
+            initial_value=initial_value,
+            short_description=short_description,
+            long_description=long_description,
+            extra=extra,
+            units=units,
+            encoding=encoding,
+        )
 
 
-@dataclass(kw_only=True)
 class AggregateMember(Member, AggregateDataType):
-    pass
+    def __init__(
+        self,
+        name: str,
+        members: list[Member],
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: DataEncoding | None = None,
+    ) -> None:
+        AggregateDataType.__init__(
+            self,
+            members=members,
+        )
+        Member.__init__(
+            self,
+            name=name,
+            initial_value=initial_value,
+            short_description=short_description,
+            long_description=long_description,
+            extra=extra,
+            units=units,
+            encoding=encoding,
+        )
 
 
-@dataclass(kw_only=True)
 class ArrayMember(Member, ArrayDataType):
-    pass
+    def __init__(
+        self,
+        name: str,
+        data_type: DataType,
+        length: int,
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: DataEncoding | None = None,
+    ) -> None:
+        ArrayDataType.__init__(
+            self,
+            data_type=data_type,
+            length=length,
+        )
+        Member.__init__(
+            self,
+            name=name,
+            initial_value=initial_value,
+            short_description=short_description,
+            long_description=long_description,
+            extra=extra,
+            units=units,
+            encoding=encoding,
+        )
 
 
-@dataclass(kw_only=True)
 class BinaryMember(Member, BinaryDataType):
-    pass
+    def __init__(
+        self,
+        name: str,
+        min_length: int | None = None,
+        max_length: int | None = None,
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: DataEncoding | None = None,
+    ) -> None:
+        BinaryDataType.__init__(
+            self,
+            min_length=min_length,
+            max_length=max_length,
+        )
+        Member.__init__(
+            self,
+            name=name,
+            initial_value=initial_value,
+            short_description=short_description,
+            long_description=long_description,
+            extra=extra,
+            units=units,
+            encoding=encoding,
+        )
 
 
-@dataclass(kw_only=True)
 class BooleanMember(Member, BooleanDataType):
-    pass
+    def __init__(
+        self,
+        name: str,
+        zero_string_value: str = "False",
+        one_string_value: str = "True",
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: DataEncoding | None = None,
+    ) -> None:
+        BooleanDataType.__init__(
+            self,
+            zero_string_value=zero_string_value,
+            one_string_value=one_string_value,
+        )
+        Member.__init__(
+            self,
+            name=name,
+            initial_value=initial_value,
+            short_description=short_description,
+            long_description=long_description,
+            extra=extra,
+            units=units,
+            encoding=encoding,
+        )
 
 
-@dataclass(kw_only=True)
 class EnumeratedMember(Member, EnumeratedDataType):
-    pass
+    def __init__(
+        self,
+        name: str,
+        choices: Choices,
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: DataEncoding | None = None,
+    ) -> None:
+        EnumeratedDataType.__init__(
+            self,
+            choices=choices,
+        )
+        Member.__init__(
+            self,
+            name=name,
+            initial_value=initial_value,
+            short_description=short_description,
+            long_description=long_description,
+            extra=extra,
+            units=units,
+            encoding=encoding,
+        )
 
 
-@dataclass(kw_only=True)
 class FloatMember(Member, FloatDataType):
-    pass
+    def __init__(
+        self,
+        name: str,
+        bits: Literal[32] | Literal[64] = 32,
+        minimum: float | None = None,
+        minimum_inclusive: bool = True,
+        maximum: float | None = None,
+        maximum_inclusive: bool = True,
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: DataEncoding | None = None,
+    ) -> None:
+        FloatDataType.__init__(
+            self,
+            bits=bits,
+            minimum=minimum,
+            minimum_inclusive=minimum_inclusive,
+            maximum=maximum,
+            maximum_inclusive=maximum_inclusive,
+        )
+        Member.__init__(
+            self,
+            name=name,
+            initial_value=initial_value,
+            short_description=short_description,
+            long_description=long_description,
+            extra=extra,
+            units=units,
+            encoding=encoding,
+        )
 
 
-@dataclass(kw_only=True)
 class IntegerMember(Member, IntegerDataType):
-    pass
+    def __init__(
+        self,
+        name: str,
+        signed: bool = True,
+        minimum: int | None = None,
+        maximum: int | None = None,
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: DataEncoding | None = None,
+    ) -> None:
+        IntegerDataType.__init__(
+            self,
+            signed=signed,
+            minimum=minimum,
+            maximum=maximum,
+        )
+        Member.__init__(
+            self,
+            name=name,
+            initial_value=initial_value,
+            short_description=short_description,
+            long_description=long_description,
+            extra=extra,
+            units=units,
+            encoding=encoding,
+        )
 
 
-@dataclass(kw_only=True)
 class StringMember(Member, StringDataType):
-    pass
+    def __init__(
+        self,
+        name: str,
+        min_length: int | None = None,
+        max_length: int | None = None,
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: DataEncoding | None = None,
+    ) -> None:
+        StringDataType.__init__(
+            self,
+            min_length=min_length,
+            max_length=max_length,
+        )
+        Member.__init__(
+            self,
+            name=name,
+            initial_value=initial_value,
+            short_description=short_description,
+            long_description=long_description,
+            extra=extra,
+            units=units,
+            encoding=encoding,
+        )

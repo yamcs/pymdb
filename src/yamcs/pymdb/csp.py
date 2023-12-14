@@ -54,7 +54,8 @@ def add_csp_header(
         If provided, model the ``csp_src`` and ``csp_dst`` parameters and
         arguments as enumerations, rather than integers
     """
-    tm_pri = system.add_enumerated_parameter(
+    tm_pri = EnumeratedParameter(
+        system=system,
         name=f"{prefix}pri",
         short_description="Message priority",
         choices=[
@@ -66,53 +67,61 @@ def add_csp_header(
         encoding=uint2_t,
     )
 
-    tm_src = system.add_enumerated_parameter(
+    tm_src = EnumeratedParameter(
+        system=system,
         name=f"{prefix}src",
         short_description="Source",
         choices=ids if ids is not None else [],
         encoding=uint5_t,
     )
 
-    tm_dst = system.add_enumerated_parameter(
+    tm_dst = EnumeratedParameter(
+        system=system,
         name=f"{prefix}dst",
         short_description="Destination",
         choices=ids if ids is not None else [],
         encoding=uint5_t,
     )
 
-    tm_dport = system.add_integer_parameter(
+    tm_dport = IntegerParameter(
+        system=system,
         name=f"{prefix}dport",
         short_description="Destination port",
         signed=False,
         encoding=uint6_t,
     )
 
-    tm_sport = system.add_integer_parameter(
+    tm_sport = IntegerParameter(
+        system=system,
         name=f"{prefix}sport",
         short_description="Source port",
         signed=False,
         encoding=uint6_t,
     )
 
-    tm_hmac = system.add_boolean_parameter(
+    tm_hmac = BooleanParameter(
+        system=system,
         name=f"{prefix}hmac",
         short_description="Use HMAC verification",
         encoding=uint1_t,
     )
 
-    tm_xtea = system.add_boolean_parameter(
+    tm_xtea = BooleanParameter(
+        system=system,
         name=f"{prefix}xtea",
         short_description="Use XTEA encryption",
         encoding=uint1_t,
     )
 
-    tm_rdp = system.add_boolean_parameter(
+    tm_rdp = BooleanParameter(
+        system=system,
         name=f"{prefix}rdp",
         short_description="Use RDP protocol",
         encoding=uint1_t,
     )
 
-    tm_crc = system.add_boolean_parameter(
+    tm_crc = BooleanParameter(
+        system=system,
         name=f"{prefix}crc",
         short_description="Use CRC32 checksum",
         encoding=uint1_t,
@@ -211,7 +220,8 @@ def add_csp_header(
         encoding=uint1_t,
     )
 
-    tc_container = system.add_command(
+    tc_container = Command(
+        system=system,
         name=f"{prefix}message",
         abstract=True,
         short_description="CubeSat Space Protocol (CSP) header 1.x",

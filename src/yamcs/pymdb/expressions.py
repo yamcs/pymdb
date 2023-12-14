@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
@@ -11,7 +10,7 @@ class Expression:
     pass
 
 
-class _AndExpression(Expression):
+class AndExpression(Expression):
     def __init__(
         self,
         expression1: Expression,
@@ -25,7 +24,7 @@ class _AndExpression(Expression):
         ]
 
 
-class _OrExpression(Expression):
+class OrExpression(Expression):
     def __init__(
         self,
         expression1: Expression,
@@ -39,46 +38,76 @@ class _OrExpression(Expression):
         ]
 
 
-@dataclass
 class EqExpression(Expression):
-    parameter: Parameter
-    value: Any
-    calibrated: bool = True
+    def __init__(
+        self,
+        parameter: Parameter,
+        value: Any,
+        calibrated: bool = True,
+    ):
+        self.parameter: Parameter = parameter
+        self.value: Any = value
+        self.calibrated: bool = calibrated
 
 
-@dataclass
 class NeExpression(Expression):
-    parameter: Parameter
-    value: Any
-    calibrated: bool = True
+    def __init__(
+        self,
+        parameter: Parameter,
+        value: Any,
+        calibrated: bool = True,
+    ):
+        self.parameter: Parameter = parameter
+        self.value: Any = value
+        self.calibrated: bool = calibrated
 
 
-@dataclass
 class LtExpression(Expression):
-    parameter: Parameter
-    value: Any
-    calibrated: bool = True
+    def __init__(
+        self,
+        parameter: Parameter,
+        value: Any,
+        calibrated: bool = True,
+    ):
+        self.parameter: Parameter = parameter
+        self.value: Any = value
+        self.calibrated: bool = calibrated
 
 
-@dataclass
 class LteExpression(Expression):
-    parameter: Parameter
-    value: Any
-    calibrated: bool = True
+    def __init__(
+        self,
+        parameter: Parameter,
+        value: Any,
+        calibrated: bool = True,
+    ):
+        self.parameter: Parameter = parameter
+        self.value: Any = value
+        self.calibrated: bool = calibrated
 
 
-@dataclass
 class GtExpression(Expression):
-    parameter: Parameter
-    value: Any
-    calibrated: bool = True
+    def __init__(
+        self,
+        parameter: Parameter,
+        value: Any,
+        calibrated: bool = True,
+    ):
+        self.parameter: Parameter = parameter
+        self.value: Any = value
+        self.calibrated: bool = calibrated
 
 
-@dataclass
 class GteExpression(Expression):
-    parameter: Parameter
-    value: Any
-    calibrated: bool = True
+    def __init__(
+        self,
+        parameter: Parameter,
+        value: Any,
+        calibrated: bool = True,
+    ):
+        self.parameter: Parameter = parameter
+        self.value: Any = value
+        self.calibrated: bool = calibrated
 
 
 def eq(parameter: Parameter, value: Any, calibrated=True):
@@ -106,8 +135,8 @@ def gte(parameter: Parameter, value: Any, calibrated=True):
 
 
 def all_of(expression1: Expression, expression2: Expression, *args: Expression):
-    return _AndExpression(expression1, expression2, *args)
+    return AndExpression(expression1, expression2, *args)
 
 
 def any_of(expression1: Expression, expression2: Expression, *args: Expression):
-    return _OrExpression(expression1, expression2, *args)
+    return OrExpression(expression1, expression2, *args)

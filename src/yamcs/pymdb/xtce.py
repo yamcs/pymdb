@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import os
 import xml.etree.ElementTree as ET
 from binascii import hexlify
 from enum import Enum
-from typing import Any, Mapping
+from typing import TYPE_CHECKING, Any, Mapping
 from xml.dom import minidom
 
 from yamcs.pymdb.commands import (
@@ -48,7 +50,9 @@ from yamcs.pymdb.encodings import (
     JavaAlgorithm,
     StringDataEncoding,
 )
+from yamcs.pymdb.exceptions import ExportError
 from yamcs.pymdb.expressions import (
+    AndExpression,
     EqExpression,
     Expression,
     GteExpression,
@@ -56,8 +60,7 @@ from yamcs.pymdb.expressions import (
     LteExpression,
     LtExpression,
     NeExpression,
-    _AndExpression,
-    _OrExpression,
+    OrExpression,
 )
 from yamcs.pymdb.parameters import (
     AlarmLevel,
@@ -66,7 +69,6 @@ from yamcs.pymdb.parameters import (
     EnumeratedParameter,
     Parameter,
 )
-from yamcs.pymdb.systems import System
 from yamcs.pymdb.verifiers import (
     AcceptedVerifier,
     CompleteVerifier,
@@ -81,9 +83,8 @@ from yamcs.pymdb.verifiers import (
     Verifier,
 )
 
-
-class ExportError(Exception):
-    """An error occurred while generating an export."""
+if TYPE_CHECKING:
+    from yamcs.pymdb.systems import System
 
 
 def _to_xml_value(value: Any):
@@ -114,12 +115,17 @@ class XTCE12Generator:
     def __init__(self, system: System):
         self.system = system
 
-    def to_xtce(self, indent=None):
-        el = self.generate_space_system(self.system)
+    def to_xtce(self, indent=None, add_schema_location: bool = True) -> str:
+        el = self.generate_space_system(
+            self.system,
+            add_schema_location=add_schema_location,
+        )
         xtce = ET.tostring(el, encoding="unicode")
         if indent:
             xtce_dom = minidom.parseString(xtce)
             return xtce_dom.toprettyxml(indent=indent)
+        else:
+            return xtce
 
     def add_command_metadata(self, parent: ET.Element, system: System):
         el = ET.SubElement(parent, "CommandMetaData")
@@ -166,7 +172,10 @@ class XTCE12Generator:
 
         if command.parent:
             base_el = ET.SubElement(el, "BaseMetaCommand")
-            base_el.attrib["metaCommandRef"] = command.parent.name
+            base_el.attrib["metaCommandRef"] = self.make_ref(
+                target=command.parent.qualified_name,
+                start=command.system,
+            )
 
             if command.assignments:
                 assignments_el = ET.SubElement(base_el, "ArgumentAssignmentList")
@@ -196,7 +205,10 @@ class XTCE12Generator:
 
         if command.parent:
             base_el = ET.SubElement(container_el, "BaseContainer")
-            base_el.attrib["containerRef"] = command.parent.name
+            base_el.attrib["containerRef"] = self.make_ref(
+                target=command.parent.qualified_name,
+                start=command.system,
+            )
 
         sign_el = ET.SubElement(el, "DefaultSignificance")
 
@@ -1235,11 +1247,11 @@ class XTCE12Generator:
                 ">=",
                 expression.calibrated,
             )
-        elif isinstance(expression, _AndExpression):
+        elif isinstance(expression, AndExpression):
             el = ET.SubElement(parent, "ANDedConditions")
             for expression in expression.expressions:
                 self.add_expression_condition(el, system, expression)
-        elif isinstance(expression, _OrExpression):
+        elif isinstance(expression, OrExpression):
             el = ET.SubElement(parent, "ORedConditions")
             for expression in expression.expressions:
                 self.add_expression_condition(el, system, expression)
@@ -1394,15 +1406,21 @@ class XTCE12Generator:
         for subsystem in system.subsystems:
             self.generate_space_system(subsystem, parent)
 
-    def generate_space_system(self, system: System, parent: ET.Element | None = None):
+    def generate_space_system(
+        self,
+        system: System,
+        parent: ET.Element | None = None,
+        add_schema_location: bool = False,
+    ):
         if not parent:
             el = ET.Element("SpaceSystem")
             el.attrib["xmlns"] = "http://www.omg.org/spec/XTCE/20180204"
-            el.attrib["xmlns:xsi"] = "http://www.w3.org/2001/XMLSchema-instance"
-            el.attrib["xsi:schemaLocation"] = "{} {}".format(
-                "http://www.omg.org/spec/XTCE/20180204",
-                "https://www.omg.org/spec/XTCE/20180204/SpaceSystem.xsd",
-            )
+            if add_schema_location:
+                el.attrib["xmlns:xsi"] = "http://www.w3.org/2001/XMLSchema-instance"
+                el.attrib["xsi:schemaLocation"] = "{} {}".format(
+                    "http://www.omg.org/spec/XTCE/20180204",
+                    "https://www.omg.org/spec/XTCE/20180204/SpaceSystem.xsd",
+                )
         else:
             el = ET.SubElement(parent, "SpaceSystem")
 
@@ -1424,18 +1442,3 @@ class XTCE12Generator:
         self.add_command_metadata(el, system)
         self.add_space_systems(el, system)
         return el
-
-
-def dump(system: System, fp, indent="  "):
-    """
-    Serialize the system to a file-like object
-    """
-    xml = dumps(system, indent=indent)
-    fp.write(xml)
-
-
-def dumps(system: System, indent="  "):
-    """
-    Serialize the system to an XTCE formatted str
-    """
-    return XTCE12Generator(system).to_xtce(indent=indent)

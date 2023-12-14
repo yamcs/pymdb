@@ -34,13 +34,11 @@ Then use PyMDB to generate an XTCE description (= XML file), one for each top-le
 
 .. code-block:: python
 
-   from yamcs.pymdb import xtce
-
    with open("satellite.xml", "wt") as f:
-     xtce.dump(satellite, f)
+     satellite.dump(f)
 
    with open("gse.xml", "wt") as f:
-     xtce.dump(gse, f)
+     gse.dump(f)
 
 The generated files look somewhat like this:
 

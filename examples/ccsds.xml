@@ -52,9 +52,15 @@
       </IntegerParameterType>
     </ParameterTypeSet>
     <ParameterSet>
-      <Parameter name="ccsds_packet_id" parameterTypeRef="ccsds_packet_id" shortDescription="First word of the primary CCSDS header"/>
-      <Parameter name="ccsds_packet_sequence" parameterTypeRef="ccsds_packet_sequence" shortDescription="Second word of the primary CCSDS header"/>
-      <Parameter name="ccsds_packet_length" parameterTypeRef="ccsds_packet_length"/>
+      <Parameter name="ccsds_packet_id" parameterTypeRef="ccsds_packet_id" shortDescription="First word of the primary CCSDS header">
+        <ParameterProperties dataSource="telemetered"/>
+      </Parameter>
+      <Parameter name="ccsds_packet_sequence" parameterTypeRef="ccsds_packet_sequence" shortDescription="Second word of the primary CCSDS header">
+        <ParameterProperties dataSource="telemetered"/>
+      </Parameter>
+      <Parameter name="ccsds_packet_length" parameterTypeRef="ccsds_packet_length">
+        <ParameterProperties dataSource="telemetered"/>
+      </Parameter>
     </ParameterSet>
     <ContainerSet>
       <SequenceContainer name="ccsds_space_packet" abstract="true" shortDescription="CCSDS 133.0-B-1 Space Packet">
@@ -117,8 +123,8 @@ The first 8 bytes of a Space Packet are known as the
 &quot;Primary Header&quot;.
 </LongDescription>
         <ArgumentList>
-          <Argument name="ccsds_secondary_header" argumentTypeRef="ccsds_secondary_header"/>
-          <Argument name="ccsds_apid" argumentTypeRef="ccsds_apid"/>
+          <Argument name="ccsds_secondary_header" argumentTypeRef="ccsds_space_packet__ccsds_secondary_header"/>
+          <Argument name="ccsds_apid" argumentTypeRef="ccsds_space_packet__ccsds_apid"/>
         </ArgumentList>
         <CommandContainer name="ccsds_space_packet">
           <EntryList>
@@ -160,6 +166,7 @@ The first 8 bytes of a Space Packet are known as the
           </EntryList>
         </CommandContainer>
         <DefaultSignificance consequenceLevel="normal"/>
+        <VerifierSet/>
       </MetaCommand>
       <MetaCommand name="MyProjectPacket" abstract="true">
         <BaseMetaCommand metaCommandRef="ccsds_space_packet">
@@ -169,7 +176,7 @@ The first 8 bytes of a Space Packet are known as the
           </ArgumentAssignmentList>
         </BaseMetaCommand>
         <ArgumentList>
-          <Argument name="command_id" argumentTypeRef="command_id"/>
+          <Argument name="command_id" argumentTypeRef="MyProjectPacket__command_id"/>
         </ArgumentList>
         <CommandContainer name="MyProjectPacket">
           <EntryList>
@@ -182,6 +189,7 @@ The first 8 bytes of a Space Packet are known as the
           <BaseContainer containerRef="ccsds_space_packet"/>
         </CommandContainer>
         <DefaultSignificance consequenceLevel="normal"/>
+        <VerifierSet/>
       </MetaCommand>
       <MetaCommand name="Reboot" abstract="false">
         <BaseMetaCommand metaCommandRef="MyProjectPacket">
@@ -194,6 +202,7 @@ The first 8 bytes of a Space Packet are known as the
           <BaseContainer containerRef="MyProjectPacket"/>
         </CommandContainer>
         <DefaultSignificance consequenceLevel="normal"/>
+        <VerifierSet/>
       </MetaCommand>
       <MetaCommand name="SwitchVoltageOn" abstract="false" shortDescription="Switches a battery on">
         <BaseMetaCommand metaCommandRef="MyProjectPacket">
@@ -202,7 +211,7 @@ The first 8 bytes of a Space Packet are known as the
           </ArgumentAssignmentList>
         </BaseMetaCommand>
         <ArgumentList>
-          <Argument name="battery" argumentTypeRef="battery" shortDescription="Number of the battery"/>
+          <Argument name="battery" argumentTypeRef="SwitchVoltageOn__battery" shortDescription="Number of the battery"/>
         </ArgumentList>
         <CommandContainer name="SwitchVoltageOn">
           <EntryList>
@@ -215,6 +224,7 @@ The first 8 bytes of a Space Packet are known as the
           <BaseContainer containerRef="MyProjectPacket"/>
         </CommandContainer>
         <DefaultSignificance consequenceLevel="normal"/>
+        <VerifierSet/>
       </MetaCommand>
       <MetaCommand name="SwitchVoltageOff" abstract="false" shortDescription="Switches a battery off">
         <BaseMetaCommand metaCommandRef="MyProjectPacket">
@@ -223,7 +233,7 @@ The first 8 bytes of a Space Packet are known as the
           </ArgumentAssignmentList>
         </BaseMetaCommand>
         <ArgumentList>
-          <Argument name="battery" argumentTypeRef="battery" shortDescription="Number of the battery"/>
+          <Argument name="battery" argumentTypeRef="SwitchVoltageOff__battery" shortDescription="Number of the battery"/>
         </ArgumentList>
         <CommandContainer name="SwitchVoltageOff">
           <EntryList>
@@ -236,6 +246,7 @@ The first 8 bytes of a Space Packet are known as the
           <BaseContainer containerRef="MyProjectPacket"/>
         </CommandContainer>
         <DefaultSignificance consequenceLevel="normal"/>
+        <VerifierSet/>
       </MetaCommand>
     </MetaCommandSet>
   </CommandMetaData>

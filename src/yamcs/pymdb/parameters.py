@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Literal
 
 from yamcs.pymdb.datatypes import (
     AbsoluteTimeDataType,
@@ -10,28 +9,66 @@ from yamcs.pymdb.datatypes import (
     ArrayDataType,
     BinaryDataType,
     BooleanDataType,
+    Choices,
     DataType,
     EnumeratedDataType,
+    Epoch,
     FloatDataType,
     IntegerDataType,
     Member,
     StringDataType,
 )
+from yamcs.pymdb.encodings import DataEncoding, TimeEncoding
 
 if TYPE_CHECKING:
     from yamcs.pymdb.systems import System
 
 
 class AlarmLevel(Enum):
+    """
+    Alarm levels with increasing concern.
+    """
+
     NORMAL = auto()
+    """
+    Used to indicate there is no concern.
+    """
+
     WATCH = auto()
+    """
+    Least concern. Considered to be below the more commonly used WARNING level.
+    """
+
     WARNING = auto()
+    """
+    Concern that represents the most commonly used minimum concern level for
+    many software applications.
+    """
+
     DISTRESS = auto()
+    """
+    An alarm level of concern in-between the more commonly used WARNING and
+    CRITICAL levels.
+    """
+
     CRITICAL = auto()
+    """
+    An alarm level of concern that represents the most commonly used maximum
+    concern level for many software applications.
+    """
+
     SEVERE = auto()
+    """
+    An alarm level of highest concern. Considered to be above the most commonly
+    used Critical level.
+    """
 
 
 class DataSource(Enum):
+    """
+    The nature of the source entity for which a parameter receives a value
+    """
+
     TELEMETERED = auto()
     """A telemetered parameter is one that will have values in telemetry"""
 
@@ -60,30 +97,96 @@ class DataSource(Enum):
     """
 
 
-@dataclass(kw_only=True)
 class EnumerationAlarm:
-    states: dict[str, AlarmLevel]
-    default_level: AlarmLevel = AlarmLevel.NORMAL
+    """
+    Alarm definition for an :class:`EnumeratedParameter`
+    """
+
+    def __init__(
+        self,
+        states: dict[str, AlarmLevel],
+        default_level: AlarmLevel = AlarmLevel.NORMAL,
+    ):
+        self.states: dict[str, AlarmLevel] = states
+        """
+        Alarm levels, keyed by enumeration label
+        """
+
+        self.default_level: AlarmLevel = default_level
+        """
+        Default alarm level (when the parameter value is not contained in
+        :attr:`states`)
+        """
 
 
-@dataclass
 class Parameter(DataType):
-    name: str
-    """Short name of this parameter"""
-
-    system: System
-    """System this parameter belongs to"""
-
-    aliases: dict[str, str] = field(default_factory=dict)
-    """Alternative names, keyed by namespace"""
-
-    data_source: DataSource = DataSource.TELEMETERED
     """
-    The nature of the source entity for which this parameter receives a value
+    Base class for a telemetry parameter.
+
+    If parameters are to be used as entries of telemetry or command
+    containers, an encoding should also be specified, describing the raw
+    encoding.
+
+    Implementations are: :class:`AbsoluteTimeParameter`,
+    :class:`BinaryParameter`, :class:`BooleanParameter`,
+    :class:`EnumeratedParameter`, :class:`FloatParameter`,
+    :class:`IntegerParameter` and :class:`StringParameter`.
+
+    And complex parameters :class:`AggregateParameter` and
+    :class:`ArrayParameter`. These do not directly specify an
+    encoding, but group together other parameters.
+
+    Each of these implementations matches a native engineering type in Yamcs.
     """
+
+    def __init__(
+        self,
+        system: System,
+        name: str,
+        aliases: dict[str, str] | None = None,
+        data_source: DataSource = DataSource.TELEMETERED,
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: DataEncoding | None = None,
+    ) -> None:
+        DataType.__init__(
+            self,
+            initial_value=initial_value,
+            short_description=short_description,
+            long_description=long_description,
+            extra=extra,
+            units=units,
+            encoding=encoding,
+        )
+        self.name: str = name
+        """Short name of this parameter"""
+
+        self.system: System = system
+        """System this parameter belongs to"""
+
+        self.aliases: dict[str, str] = aliases or {}
+        """Alternative names, keyed by namespace"""
+
+        self.data_source: DataSource = data_source
+        """
+        The nature of the source entity for which this parameter receives a
+        value
+        """
+
+        if name in system._parameters_by_name:
+            raise Exception(f"System already contains a parameter {name}")
+        system._parameters_by_name[name] = self
 
     @property
     def qualified_name(self):
+        """
+        Absolute path of this item covering the full system tree. For example,
+        an item ``C`` in a subystem ``B`` of a top-level system ``A`` is
+        represented as ``/A/B/C``
+        """
         path = "/" + self.name
 
         parent = self.system
@@ -94,47 +197,369 @@ class Parameter(DataType):
         return path
 
 
-@dataclass(kw_only=True)
 class AbsoluteTimeParameter(Parameter, AbsoluteTimeDataType):
-    pass
+    """
+    A parameter where engineering values represent an instant in time
+    """
+
+    def __init__(
+        self,
+        system: System,
+        name: str,
+        reference: Epoch | AbsoluteTimeParameter,
+        aliases: dict[str, str] | None = None,
+        data_source: DataSource = DataSource.TELEMETERED,
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: TimeEncoding | None = None,
+    ) -> None:
+        AbsoluteTimeDataType.__init__(
+            self,
+            reference=reference,
+        )
+        Parameter.__init__(
+            self,
+            name=name,
+            system=system,
+            aliases=aliases,
+            data_source=data_source,
+            initial_value=initial_value,
+            short_description=short_description,
+            long_description=long_description,
+            extra=extra,
+            units=units,
+            encoding=encoding,
+        )
 
 
-@dataclass(kw_only=True)
 class AggregateParameter(Parameter, AggregateDataType):
-    members: list[Member] = field(default_factory=list)
+    """
+    A parameter where engineering values represent a structure of other
+    data types, referred to as `members`
+    """
+
+    def __init__(
+        self,
+        system: System,
+        name: str,
+        members: list[Member],
+        aliases: dict[str, str] | None = None,
+        data_source: DataSource = DataSource.TELEMETERED,
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: DataEncoding | None = None,
+    ) -> None:
+        AggregateDataType.__init__(
+            self,
+            members=members,
+        )
+        Parameter.__init__(
+            self,
+            name=name,
+            system=system,
+            aliases=aliases,
+            data_source=data_source,
+            initial_value=initial_value,
+            short_description=short_description,
+            long_description=long_description,
+            extra=extra,
+            units=units,
+            encoding=encoding,
+        )
 
 
-@dataclass(kw_only=True)
 class ArrayParameter(Parameter, ArrayDataType):
-    pass
+    """
+    A parameter where engineering values represent an array where each element
+    is of another data type
+    """
+
+    def __init__(
+        self,
+        system: System,
+        name: str,
+        data_type: DataType,
+        length: int,
+        aliases: dict[str, str] | None = None,
+        data_source: DataSource = DataSource.TELEMETERED,
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: DataEncoding | None = None,
+    ) -> None:
+        ArrayDataType.__init__(
+            self,
+            data_type=data_type,
+            length=length,
+        )
+        Parameter.__init__(
+            self,
+            name=name,
+            system=system,
+            aliases=aliases,
+            data_source=data_source,
+            initial_value=initial_value,
+            short_description=short_description,
+            long_description=long_description,
+            extra=extra,
+            units=units,
+            encoding=encoding,
+        )
 
 
-@dataclass(kw_only=True)
 class BinaryParameter(Parameter, BinaryDataType):
-    pass
+    """
+    A parameter where engineering values represent binary
+    """
+
+    def __init__(
+        self,
+        system: System,
+        name: str,
+        min_length: int | None = None,
+        max_length: int | None = None,
+        aliases: dict[str, str] | None = None,
+        data_source: DataSource = DataSource.TELEMETERED,
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: DataEncoding | None = None,
+    ) -> None:
+        BinaryDataType.__init__(
+            self,
+            min_length=min_length,
+            max_length=max_length,
+        )
+        Parameter.__init__(
+            self,
+            name=name,
+            system=system,
+            aliases=aliases,
+            data_source=data_source,
+            initial_value=initial_value,
+            short_description=short_description,
+            long_description=long_description,
+            extra=extra,
+            units=units,
+            encoding=encoding,
+        )
 
 
-@dataclass(kw_only=True)
 class BooleanParameter(Parameter, BooleanDataType):
-    pass
+    """
+    A parameter where engineering values represent a boolean enumeration
+    """
+
+    def __init__(
+        self,
+        system: System,
+        name: str,
+        zero_string_value: str = "False",
+        one_string_value: str = "True",
+        aliases: dict[str, str] | None = None,
+        data_source: DataSource = DataSource.TELEMETERED,
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: DataEncoding | None = None,
+    ) -> None:
+        BooleanDataType.__init__(
+            self,
+            zero_string_value=zero_string_value,
+            one_string_value=one_string_value,
+        )
+        Parameter.__init__(
+            self,
+            name=name,
+            system=system,
+            aliases=aliases,
+            data_source=data_source,
+            initial_value=initial_value,
+            short_description=short_description,
+            long_description=long_description,
+            extra=extra,
+            units=units,
+            encoding=encoding,
+        )
 
 
-@dataclass(kw_only=True)
 class EnumeratedParameter(Parameter, EnumeratedDataType):
-    alarm: EnumerationAlarm | None = None
-    """Specification for alarm monitoring"""
+    """
+    A parameter where engineering values represent states in an enumeration
+    """
+
+    def __init__(
+        self,
+        system: System,
+        name: str,
+        choices: Choices,
+        alarm: EnumerationAlarm | None = None,
+        aliases: dict[str, str] | None = None,
+        data_source: DataSource = DataSource.TELEMETERED,
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: DataEncoding | None = None,
+    ) -> None:
+        EnumeratedDataType.__init__(
+            self,
+            choices=choices,
+        )
+        Parameter.__init__(
+            self,
+            name=name,
+            system=system,
+            aliases=aliases,
+            data_source=data_source,
+            initial_value=initial_value,
+            short_description=short_description,
+            long_description=long_description,
+            extra=extra,
+            units=units,
+            encoding=encoding,
+        )
+
+        self.alarm: EnumerationAlarm | None = alarm
+        """Specification for alarm monitoring"""
 
 
-@dataclass(kw_only=True)
 class FloatParameter(Parameter, FloatDataType):
-    pass
+    """
+    A parameter where engineering values represent a decimal
+    """
+
+    def __init__(
+        self,
+        system: System,
+        name: str,
+        bits: Literal[32] | Literal[64] = 32,
+        minimum: float | None = None,
+        minimum_inclusive: bool = True,
+        maximum: float | None = None,
+        maximum_inclusive: bool = True,
+        aliases: dict[str, str] | None = None,
+        data_source: DataSource = DataSource.TELEMETERED,
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: DataEncoding | None = None,
+    ) -> None:
+        FloatDataType.__init__(
+            self,
+            bits=bits,
+            minimum=minimum,
+            minimum_inclusive=minimum_inclusive,
+            maximum=maximum,
+            maximum_inclusive=maximum_inclusive,
+        )
+        Parameter.__init__(
+            self,
+            name=name,
+            system=system,
+            aliases=aliases,
+            data_source=data_source,
+            initial_value=initial_value,
+            short_description=short_description,
+            long_description=long_description,
+            extra=extra,
+            units=units,
+            encoding=encoding,
+        )
 
 
-@dataclass(kw_only=True)
 class IntegerParameter(Parameter, IntegerDataType):
-    pass
+    """
+    A parameter where engineering values represent an integer
+    """
+
+    def __init__(
+        self,
+        system: System,
+        name: str,
+        signed: bool = True,
+        minimum: int | None = None,
+        maximum: int | None = None,
+        aliases: dict[str, str] | None = None,
+        data_source: DataSource = DataSource.TELEMETERED,
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: DataEncoding | None = None,
+    ) -> None:
+        IntegerDataType.__init__(
+            self,
+            signed=signed,
+            minimum=minimum,
+            maximum=maximum,
+        )
+        Parameter.__init__(
+            self,
+            name=name,
+            system=system,
+            aliases=aliases,
+            data_source=data_source,
+            initial_value=initial_value,
+            short_description=short_description,
+            long_description=long_description,
+            extra=extra,
+            units=units,
+            encoding=encoding,
+        )
 
 
-@dataclass(kw_only=True)
 class StringParameter(Parameter, StringDataType):
-    pass
+    """
+    A parameter where engineering values represent a character string
+    """
+
+    def __init__(
+        self,
+        system: System,
+        name: str,
+        min_length: int | None = None,
+        max_length: int | None = None,
+        aliases: dict[str, str] | None = None,
+        data_source: DataSource = DataSource.TELEMETERED,
+        initial_value: Any = None,
+        short_description: str | None = None,
+        long_description: str | None = None,
+        extra: dict[str, str] | None = None,
+        units: str | None = None,
+        encoding: DataEncoding | None = None,
+    ) -> None:
+        StringDataType.__init__(
+            self,
+            min_length=min_length,
+            max_length=max_length,
+        )
+        Parameter.__init__(
+            self,
+            name=name,
+            system=system,
+            aliases=aliases,
+            data_source=data_source,
+            initial_value=initial_value,
+            short_description=short_description,
+            long_description=long_description,
+            extra=extra,
+            units=units,
+            encoding=encoding,
+        )

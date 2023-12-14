@@ -27,20 +27,12 @@
           <Enumeration value="3" label="ADCS"/>
         </EnumerationList>
       </EnumeratedParameterType>
-      <EnumeratedParameterType name="csp_dport">
+      <IntegerParameterType name="csp_dport" signed="false">
         <IntegerDataEncoding sizeInBits="6" encoding="unsigned" byteOrder="mostSignificantByteFirst"/>
-        <EnumerationList>
-          <Enumeration value="0" label="CSP_MGMT"/>
-          <Enumeration value="1" label="CSP_PING"/>
-        </EnumerationList>
-      </EnumeratedParameterType>
-      <EnumeratedParameterType name="csp_sport">
+      </IntegerParameterType>
+      <IntegerParameterType name="csp_sport" signed="false">
         <IntegerDataEncoding sizeInBits="6" encoding="unsigned" byteOrder="mostSignificantByteFirst"/>
-        <EnumerationList>
-          <Enumeration value="0" label="CSP_MGMT"/>
-          <Enumeration value="1" label="CSP_PING"/>
-        </EnumerationList>
-      </EnumeratedParameterType>
+      </IntegerParameterType>
       <BooleanParameterType name="csp_hmac" zeroStringValue="False" oneStringValue="True">
         <IntegerDataEncoding sizeInBits="1" encoding="unsigned" byteOrder="mostSignificantByteFirst"/>
       </BooleanParameterType>
@@ -55,15 +47,33 @@
       </BooleanParameterType>
     </ParameterTypeSet>
     <ParameterSet>
-      <Parameter name="csp_pri" parameterTypeRef="csp_pri" shortDescription="Message priority"/>
-      <Parameter name="csp_src" parameterTypeRef="csp_src" shortDescription="Source"/>
-      <Parameter name="csp_dst" parameterTypeRef="csp_dst" shortDescription="Destination"/>
-      <Parameter name="csp_dport" parameterTypeRef="csp_dport" shortDescription="Destination port"/>
-      <Parameter name="csp_sport" parameterTypeRef="csp_sport" shortDescription="Source port"/>
-      <Parameter name="csp_hmac" parameterTypeRef="csp_hmac" shortDescription="Use HMAC verification"/>
-      <Parameter name="csp_xtea" parameterTypeRef="csp_xtea" shortDescription="Use XTEA encryption"/>
-      <Parameter name="csp_rdp" parameterTypeRef="csp_rdp" shortDescription="Use RDP protocol"/>
-      <Parameter name="csp_crc" parameterTypeRef="csp_crc" shortDescription="Use CRC32 checksum"/>
+      <Parameter name="csp_pri" parameterTypeRef="csp_pri" shortDescription="Message priority">
+        <ParameterProperties dataSource="telemetered"/>
+      </Parameter>
+      <Parameter name="csp_src" parameterTypeRef="csp_src" shortDescription="Source">
+        <ParameterProperties dataSource="telemetered"/>
+      </Parameter>
+      <Parameter name="csp_dst" parameterTypeRef="csp_dst" shortDescription="Destination">
+        <ParameterProperties dataSource="telemetered"/>
+      </Parameter>
+      <Parameter name="csp_dport" parameterTypeRef="csp_dport" shortDescription="Destination port">
+        <ParameterProperties dataSource="telemetered"/>
+      </Parameter>
+      <Parameter name="csp_sport" parameterTypeRef="csp_sport" shortDescription="Source port">
+        <ParameterProperties dataSource="telemetered"/>
+      </Parameter>
+      <Parameter name="csp_hmac" parameterTypeRef="csp_hmac" shortDescription="Use HMAC verification">
+        <ParameterProperties dataSource="telemetered"/>
+      </Parameter>
+      <Parameter name="csp_xtea" parameterTypeRef="csp_xtea" shortDescription="Use XTEA encryption">
+        <ParameterProperties dataSource="telemetered"/>
+      </Parameter>
+      <Parameter name="csp_rdp" parameterTypeRef="csp_rdp" shortDescription="Use RDP protocol">
+        <ParameterProperties dataSource="telemetered"/>
+      </Parameter>
+      <Parameter name="csp_crc" parameterTypeRef="csp_crc" shortDescription="Use CRC32 checksum">
+        <ParameterProperties dataSource="telemetered"/>
+      </Parameter>
     </ParameterSet>
     <ContainerSet>
       <SequenceContainer name="csp_message" abstract="true" shortDescription="CubeSat Space Protocol (CSP) header 1.x">
@@ -155,13 +165,9 @@ packets with HMAC, XTEA encryption, RDP header and CRC32 checksum.
           <Enumeration value="3" label="ADCS"/>
         </EnumerationList>
       </EnumeratedArgumentType>
-      <EnumeratedArgumentType name="csp_message__csp_dport">
+      <IntegerArgumentType name="csp_message__csp_dport" signed="false">
         <IntegerDataEncoding sizeInBits="6" encoding="unsigned" byteOrder="mostSignificantByteFirst"/>
-        <EnumerationList>
-          <Enumeration value="0" label="CSP_MGMT"/>
-          <Enumeration value="1" label="CSP_PING"/>
-        </EnumerationList>
-      </EnumeratedArgumentType>
+      </IntegerArgumentType>
       <BooleanArgumentType name="csp_message__csp_hmac" initialValue="False" zeroStringValue="False" oneStringValue="True">
         <IntegerDataEncoding sizeInBits="1" encoding="unsigned" byteOrder="mostSignificantByteFirst"/>
       </BooleanArgumentType>
@@ -220,12 +226,12 @@ packets with HMAC, XTEA encryption, RDP header and CRC32 checksum.
                 <FixedValue>0</FixedValue>
               </LocationInContainerInBits>
             </ArgumentRefEntry>
-            <FixedValueEntry binaryValue="00" sizeInBits="6" name="sport" shortDescription="Ephemeral port for outgoing connection">
+            <FixedValueEntry binaryValue="20" sizeInBits="6" name="csp_sport" shortDescription="Ephemeral port for outgoing connection">
               <LocationInContainerInBits referenceLocation="previousEntry">
                 <FixedValue>0</FixedValue>
               </LocationInContainerInBits>
             </FixedValueEntry>
-            <FixedValueEntry binaryValue="00" sizeInBits="4" name="reserved">
+            <FixedValueEntry binaryValue="00" sizeInBits="4" name="csp_reserved">
               <LocationInContainerInBits referenceLocation="previousEntry">
                 <FixedValue>0</FixedValue>
               </LocationInContainerInBits>
@@ -253,6 +259,7 @@ packets with HMAC, XTEA encryption, RDP header and CRC32 checksum.
           </EntryList>
         </CommandContainer>
         <DefaultSignificance consequenceLevel="normal"/>
+        <VerifierSet/>
       </MetaCommand>
     </MetaCommandSet>
   </CommandMetaData>
