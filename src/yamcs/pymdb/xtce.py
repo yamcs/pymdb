@@ -848,9 +848,8 @@ class XTCE12Generator:
             self.add_data_encoding(el, data_type.encoding)
 
         if data_type.minimum is not None or data_type.maximum is not None:
-            set_el = ET.SubElement(el, "ValidRangeSet")
-            set_el.attrib["validRangeAppliesToCalibrated"] = "true"
-            range_el = ET.SubElement(set_el, "ValidRange")
+            range_el = ET.SubElement(el, "ValidRange")
+            range_el.attrib["validRangeAppliesToCalibrated"] = "true"
             if data_type.minimum is not None:
                 if data_type.minimum_inclusive:
                     range_el.attrib["minInclusive"] = str(data_type.minimum)
@@ -884,9 +883,8 @@ class XTCE12Generator:
             self.add_data_encoding(el, data_type.encoding)
 
         if data_type.minimum is not None or data_type.maximum is not None:
-            set_el = ET.SubElement(el, "ValidRangeSet")
-            set_el.attrib["validRangeAppliesToCalibrated"] = "true"
-            range_el = ET.SubElement(set_el, "ValidRange")
+            range_el = ET.SubElement(el, "ValidRange")
+            range_el.attrib["validRangeAppliesToCalibrated"] = "true"
             if data_type.minimum is not None:
                 range_el.attrib["minInclusive"] = str(data_type.minimum)
             if data_type.maximum is not None:
