@@ -941,13 +941,6 @@ class XTCE12Generator:
         self, parent: ET.Element, encoding: BinaryDataEncoding
     ):
         el = ET.SubElement(parent, "BinaryDataEncoding")
-
-        match encoding.byte_order:
-            case ByteOrder.BIG_ENDIAN:
-                el.attrib["byteOrder"] = "mostSignificantByteFirst"
-            case ByteOrder.LITTLE_ENDIAN:
-                el.attrib["byteOrder"] = "leastSignificantByteFirst"
-
         size_el = ET.SubElement(el, "SizeInBits")
 
         if encoding.bits is not None:
@@ -990,12 +983,6 @@ class XTCE12Generator:
         self, parent: ET.Element, encoding: StringDataEncoding
     ):
         el = ET.SubElement(parent, "StringDataEncoding")
-
-        match encoding.byte_order:
-            case ByteOrder.BIG_ENDIAN:
-                el.attrib["byteOrder"] = "mostSignificantByteFirst"
-            case ByteOrder.LITTLE_ENDIAN:
-                el.attrib["byteOrder"] = "leastSignificantByteFirst"
 
         match encoding.charset:
             case Charset.US_ASCII:

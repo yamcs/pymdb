@@ -77,13 +77,8 @@ class IntegerDataEncodingScheme(Enum):
 
 
 class DataEncoding:
-    def __init__(
-        self,
-        bits: int | None = None,
-        byte_order: ByteOrder = ByteOrder.BIG_ENDIAN,
-    ) -> None:
+    def __init__(self, bits: int | None = None) -> None:
         self.bits = bits
-        self.byte_order = byte_order
 
 
 class BinaryDataEncoding(DataEncoding):
@@ -91,13 +86,9 @@ class BinaryDataEncoding(DataEncoding):
         self,
         bits: int | None = None,
         length_bits: int | None = None,
-        byte_order: ByteOrder = ByteOrder.BIG_ENDIAN,
         deserializer: JavaAlgorithm | None = None,
     ) -> None:
-        super().__init__(
-            bits=bits,
-            byte_order=byte_order,
-        )
+        super().__init__(bits=bits)
         self.length_bits: int | None = length_bits
         self.deserializer: JavaAlgorithm | None = deserializer
 
@@ -109,10 +100,8 @@ class IntegerDataEncoding(DataEncoding):
         byte_order: ByteOrder = ByteOrder.BIG_ENDIAN,
         scheme: IntegerDataEncodingScheme = IntegerDataEncodingScheme.UNSIGNED,
     ) -> None:
-        super().__init__(
-            bits=bits,
-            byte_order=byte_order,
-        )
+        super().__init__(bits=bits)
+        self.byte_order: ByteOrder = byte_order
         self.scheme: IntegerDataEncodingScheme = scheme
 
 
@@ -123,10 +112,8 @@ class FloatDataEncoding(DataEncoding):
         byte_order: ByteOrder = ByteOrder.BIG_ENDIAN,
         scheme: FloatDataEncodingScheme = FloatDataEncodingScheme.IEEE754_1985,
     ) -> None:
-        super().__init__(
-            bits=bits,
-            byte_order=byte_order,
-        )
+        super().__init__(bits=bits)
+        self.byte_order: ByteOrder = byte_order
         self.scheme: FloatDataEncodingScheme = scheme
 
 
@@ -173,14 +160,10 @@ class StringDataEncoding(DataEncoding):
     def __init__(
         self,
         bits: int | None = None,
-        byte_order: ByteOrder = ByteOrder.BIG_ENDIAN,
         length_bits: int | None = None,
         max_bits: int | None = 8388608,
     ) -> None:
-        super().__init__(
-            bits=bits,
-            byte_order=byte_order,
-        )
+        super().__init__(bits=bits)
 
         self.length_bits: int | None = length_bits
 
