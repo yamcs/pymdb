@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Any, Literal
 
@@ -429,8 +430,8 @@ class Command:
         parent: Command | None = None,
         restriction_criteria: Expression | None = None,
         assignments: dict[str, Any] | None = None,
-        arguments: list[Argument] | None = None,
-        entries: list[CommandEntry] | None = None,
+        arguments: Sequence[Argument] | None = None,
+        entries: Sequence[CommandEntry] | None = None,
         level: CommandLevel = CommandLevel.NORMAL,
         warning_message: str | None = None,
     ):
@@ -456,8 +457,8 @@ class Command:
         self.parent = parent
         self.restriction_criteria = restriction_criteria
         self.assignments = assignments or {}
-        self.arguments = arguments or []
-        self._entries = entries
+        self.arguments: list[Argument] = list(arguments) if arguments else []
+        self._entries: list[CommandEntry] = list(entries) if entries else []
 
         self.transferred_to_range_verifier: TransferredToRangeVerifier | None = None
         self.sent_from_range_verifier: SentFromRangeVerifier | None = None
@@ -546,5 +547,5 @@ class Command:
             return self._entries
 
     @entries.setter
-    def entries(self, entries: list[CommandEntry]):
-        self._entries = entries
+    def entries(self, entries: Sequence[CommandEntry]):
+        self._entries = list(entries)

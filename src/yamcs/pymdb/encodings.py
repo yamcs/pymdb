@@ -86,11 +86,25 @@ class BinaryDataEncoding(DataEncoding):
         self,
         bits: int | None = None,
         length_bits: int | None = None,
-        deserializer: JavaAlgorithm | None = None,
+        encoder: JavaAlgorithm | None = None,
+        decoder: JavaAlgorithm | None = None,
     ) -> None:
         super().__init__(bits=bits)
+
         self.length_bits: int | None = length_bits
-        self.deserializer: JavaAlgorithm | None = deserializer
+        """
+        Length in bits of a leading size tag
+        """
+
+        self.encoder: JavaAlgorithm | None = encoder
+        """
+        Custom encoder, when this encoding is used for telecommanding
+        """
+
+        self.decoder: JavaAlgorithm | None = decoder
+        """
+        Custom decoder, when this encoding is used for telemetry
+        """
 
 
 class IntegerDataEncoding(DataEncoding):
@@ -238,26 +252,12 @@ int8_t = IntegerDataEncoding(
 )
 """Signed 8-bit integer in two's complement notation (big endian)"""
 
-int8le_t = IntegerDataEncoding(
-    bits=8,
-    byte_order=ByteOrder.LITTLE_ENDIAN,
-    scheme=IntegerDataEncodingScheme.TWOS_COMPLEMENT,
-)
-"""Signed 8-bit integer in two's complement notation (little endian)"""
-
 uint8_t = IntegerDataEncoding(
     bits=8,
     byte_order=ByteOrder.BIG_ENDIAN,
     scheme=IntegerDataEncodingScheme.UNSIGNED,
 )
 """Unsigned 8-bit integer (big endian)"""
-
-uint8le_t = IntegerDataEncoding(
-    bits=8,
-    byte_order=ByteOrder.LITTLE_ENDIAN,
-    scheme=IntegerDataEncodingScheme.UNSIGNED,
-)
-"""Unsigned 8-bit integer (little endian)"""
 
 uint8_t = IntegerDataEncoding(
     bits=8,

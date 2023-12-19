@@ -477,6 +477,8 @@ class XTCE12Generator:
             self.add_boolean_argument_type(parent, name, data_type)
         elif isinstance(data_type, EnumeratedDataType):
             self.add_enumerated_argument_type(parent, name, data_type)
+        elif isinstance(data_type, FloatDataType):
+            self.add_float_argument_type(parent, name, data_type)
         elif isinstance(data_type, IntegerDataType):
             self.add_integer_argument_type(parent, name, data_type)
         elif isinstance(data_type, StringDataType):
@@ -590,6 +592,42 @@ class XTCE12Generator:
             self.add_data_encoding(el, data_type.encoding)
 
         self.add_enumeration_list(el, data_type.choices)
+
+    def add_float_argument_type(
+        self,
+        parent: ET.Element,
+        name: str,
+        data_type: FloatDataType,
+    ):
+        el = ET.SubElement(parent, "FloatArgumentType")
+        el.attrib["name"] = name
+        el.attrib["sizeInBits"] = str(data_type.bits)
+
+        if data_type.initial_value is not None:
+            el.attrib["initialValue"] = str(data_type.initial_value)
+
+        if data_type.units:
+            unit_set_el = ET.SubElement(el, "UnitSet")
+            unit_el = ET.SubElement(unit_set_el, "Unit")
+            unit_el.attrib["form"] = "calibrated"
+            unit_el.text = data_type.units
+
+        if data_type.encoding:
+            self.add_data_encoding(el, data_type.encoding)
+
+        if data_type.minimum is not None or data_type.maximum is not None:
+            range_el = ET.SubElement(el, "ValidRange")
+            range_el.attrib["validRangeAppliesToCalibrated"] = "true"
+            if data_type.minimum is not None:
+                if data_type.minimum_inclusive:
+                    range_el.attrib["minInclusive"] = str(data_type.minimum)
+                else:
+                    range_el.attrib["minExclusive"] = str(data_type.minimum)
+            if data_type.maximum is not None:
+                if data_type.maximum_inclusive:
+                    range_el.attrib["maxInclusive"] = str(data_type.maximum)
+                else:
+                    range_el.attrib["maxExclusive"] = str(data_type.maximum)
 
     def add_integer_argument_type(
         self,
@@ -955,9 +993,13 @@ class XTCE12Generator:
 
             # These are the ones that are really relevant
             if encoding.length_bits:
-                if encoding.deserializer:
+                if encoding.encoder:
                     raise ExportError(
-                        "It is not possible to have both a deserializer and a leading-size binary"
+                        "It is not possible to have both an encoder and a leading-size binary"
+                    )
+                if encoding.decoder:
+                    raise ExportError(
+                        "It is not possible to have both a decoder and a leading-size binary"
                     )
 
                 algo_el = ET.SubElement(el, "FromBinaryTransformAlgorithm")
@@ -967,11 +1009,28 @@ class XTCE12Generator:
                 text_el.text = (
                     f"org.yamcs.algo.LeadingSizeBinaryDecoder({encoding.length_bits})"
                 )
+                algo_el = ET.SubElement(el, "ToBinaryTransformAlgorithm")
+                algo_el.attrib["name"] = "LeadingSizeBinaryEncoder"
+                text_el = ET.SubElement(algo_el, "AlgorithmText")
+                text_el.attrib["language"] = "java"
+                text_el.text = (
+                    f"org.yamcs.algo.LeadingSizeBinaryEncoder({encoding.length_bits})"
+                )
 
-        if encoding.deserializer:
-            algorithm = encoding.deserializer
+        if encoding.decoder:
+            algorithm = encoding.decoder
             if isinstance(algorithm, JavaAlgorithm):
                 algo_el = ET.SubElement(el, "FromBinaryTransformAlgorithm")
+                algo_el.attrib["name"] = algorithm.java.replace(".", "_")
+                text_el = ET.SubElement(algo_el, "AlgorithmText")
+                text_el.attrib["language"] = "java"
+                text_el.text = algorithm.java
+            else:
+                raise Exception("Unexpected algorithm type")
+        if encoding.encoder:
+            algorithm = encoding.encoder
+            if isinstance(algorithm, JavaAlgorithm):
+                algo_el = ET.SubElement(el, "ToBinaryTransformAlgorithm")
                 algo_el.attrib["name"] = algorithm.java.replace(".", "_")
                 text_el = ET.SubElement(algo_el, "AlgorithmText")
                 text_el.attrib["language"] = "java"
@@ -1069,11 +1128,12 @@ class XTCE12Generator:
             case IntegerDataEncodingScheme.ONES_COMPLEMENT:
                 el.attrib["encoding"] = "onesComplement"
 
-        match encoding.byte_order:
-            case ByteOrder.BIG_ENDIAN:
-                el.attrib["byteOrder"] = "mostSignificantByteFirst"
-            case ByteOrder.LITTLE_ENDIAN:
-                el.attrib["byteOrder"] = "leastSignificantByteFirst"
+        if (encoding.bits is not None) and (encoding.bits > 8):
+            match encoding.byte_order:
+                case ByteOrder.BIG_ENDIAN:
+                    el.attrib["byteOrder"] = "mostSignificantByteFirst"
+                case ByteOrder.LITTLE_ENDIAN:
+                    el.attrib["byteOrder"] = "leastSignificantByteFirst"
 
     def add_float_data_encoding(self, parent: ET.Element, encoding: FloatDataEncoding):
         el = ET.SubElement(parent, "FloatDataEncoding")
@@ -1167,8 +1227,12 @@ class XTCE12Generator:
         if container.aliases:
             self.add_aliases(el, container.aliases)
 
-        if container.extra:
-            self.add_ancillary_data(el, container.extra)
+        extra = dict(container.extra)
+        if container.hint_partition:
+            extra["Yamcs"] = "UseAsArchivingPartition"
+
+        if extra:
+            self.add_ancillary_data(el, extra)
 
         self.add_packet_entry_list(el, container)
 

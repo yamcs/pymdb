@@ -70,6 +70,7 @@ class Container:
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
+        hint_partition: bool = False,
     ):
         self.name: str = name
         """Short name of this parameter"""
@@ -89,7 +90,13 @@ class Container:
         self.extra: dict[str, str] = extra or {}
         """Arbitrary information, keyed by name"""
 
-        self.entries = entries or []
+        self.hint_partition: bool = hint_partition
+        """
+        Hint that this container's name should be used for partitioning when
+        stored to Yamcs.
+        """
+
+        self.entries: list[ParameterEntry | ContainerEntry] = entries or []
         self.parent: Container | None = parent
         self.abstract: bool = abstract
         self.restriction_criteria: Expression | None = restriction_criteria

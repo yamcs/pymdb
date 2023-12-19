@@ -91,12 +91,6 @@ Floats
 Little endian variants
 ----------------------
 
-.. autoattribute:: yamcs.pymdb.encodings.uint8le_t
-    :annotation: unsigned 8-bit integer (little endian)
-
-.. autoattribute:: yamcs.pymdb.encodings.int8le_t
-    :annotation: signed 8-bit integer in two's complement notation (little endian)
-
 .. autoattribute:: yamcs.pymdb.encodings.uint16le_t
     :annotation: unsigned 16-bit integer (little endian)
 
