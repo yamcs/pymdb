@@ -7,6 +7,7 @@ from enum import Enum
 from typing import TYPE_CHECKING, Any, Mapping
 from xml.dom import minidom
 
+from yamcs.pymdb.ancillary import AncillaryData
 from yamcs.pymdb.commands import (
     Argument,
     ArgumentEntry,
@@ -348,21 +349,33 @@ class XTCE12Generator:
     def add_ancillary_data(
         self,
         parent: ET.Element,
-        extra: Mapping[str, str | list[str]],
+        extra: Mapping[str, str | list[str]] | AncillaryData,
     ):
-        set_el = ET.SubElement(parent, "AncillaryDataSet")
-        for k, v in extra.items():
-            # Yamcs allows the 'name' to be non-unique. This is somewhat unexpected,
-            # but we support it because it is needed with some special options.
-            if isinstance(v, list):
-                for item in v:
+        if isinstance(extra, AncillaryData):
+            if len(extra):
+                set_el = ET.SubElement(parent, "AncillaryDataSet")
+                for item in extra:
+                    el = ET.SubElement(set_el, "AncillaryData")
+                    el.attrib["name"] = item.name
+                    if item.url:
+                        el.attrib["href"] = item.url
+                    if item.mimetype:
+                        el.attrib["mimeType"] = item.mimetype
+                    el.text = item.value
+        else:
+            set_el = ET.SubElement(parent, "AncillaryDataSet")
+            for k, v in extra.items():
+                # Yamcs allows the 'name' to be non-unique. This is somewhat unexpected,
+                # but we support it because it is needed with some special options.
+                if isinstance(v, list):
+                    for item in v:
+                        el = ET.SubElement(set_el, "AncillaryData")
+                        el.attrib["name"] = k
+                        el.text = item
+                else:
                     el = ET.SubElement(set_el, "AncillaryData")
                     el.attrib["name"] = k
-                    el.text = item
-            else:
-                el = ET.SubElement(set_el, "AncillaryData")
-                el.attrib["name"] = k
-                el.text = v
+                    el.text = v
 
     def add_command_entry_list(self, parent: ET.Element, command: Command):
         el = ET.SubElement(parent, "EntryList")
@@ -1022,6 +1035,8 @@ class XTCE12Generator:
             if isinstance(algorithm, JavaAlgorithm):
                 algo_el = ET.SubElement(el, "FromBinaryTransformAlgorithm")
                 algo_el.attrib["name"] = algorithm.java.replace(".", "_")
+                if algorithm.extra:
+                    self.add_ancillary_data(algo_el, algorithm.extra)
                 text_el = ET.SubElement(algo_el, "AlgorithmText")
                 text_el.attrib["language"] = "java"
                 text_el.text = algorithm.java
@@ -1032,6 +1047,8 @@ class XTCE12Generator:
             if isinstance(algorithm, JavaAlgorithm):
                 algo_el = ET.SubElement(el, "ToBinaryTransformAlgorithm")
                 algo_el.attrib["name"] = algorithm.java.replace(".", "_")
+                if algorithm.extra:
+                    self.add_ancillary_data(algo_el, algorithm.extra)
                 text_el = ET.SubElement(algo_el, "AlgorithmText")
                 text_el.attrib["language"] = "java"
                 text_el.text = algorithm.java

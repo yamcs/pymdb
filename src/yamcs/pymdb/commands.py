@@ -78,6 +78,7 @@ class Argument(DataType):
     def __init__(
         self,
         name: str,
+        *,
         initial_value: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
@@ -104,6 +105,7 @@ class AbsoluteTimeArgument(Argument, AbsoluteTimeDataType):
         self,
         name: str,
         reference: Epoch,
+        *,
         initial_value: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
@@ -132,6 +134,7 @@ class AggregateArgument(Argument, AggregateDataType):
         self,
         name: str,
         members: list[Member],
+        *,
         initial_value: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
@@ -161,6 +164,7 @@ class ArrayArgument(Argument, ArrayDataType):
         name: str,
         data_type: DataType,
         length: int,
+        *,
         initial_value: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
@@ -189,6 +193,7 @@ class BinaryArgument(Argument, BinaryDataType):
     def __init__(
         self,
         name: str,
+        *,
         min_length: int | None = None,
         max_length: int | None = None,
         initial_value: Any = None,
@@ -219,6 +224,7 @@ class BooleanArgument(Argument, BooleanDataType):
     def __init__(
         self,
         name: str,
+        *,
         zero_string_value: str = "False",
         one_string_value: str = "True",
         initial_value: Any = None,
@@ -250,6 +256,7 @@ class EnumeratedArgument(Argument, EnumeratedDataType):
         self,
         name: str,
         choices: Choices,
+        *,
         initial_value: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
@@ -278,6 +285,7 @@ class FloatArgument(Argument, FloatDataType):
         self,
         name: str,
         bits: Literal[32] | Literal[64] = 32,
+        *,
         minimum: float | None = None,
         minimum_inclusive: bool = True,
         maximum: float | None = None,
@@ -313,6 +321,7 @@ class IntegerArgument(Argument, IntegerDataType):
     def __init__(
         self,
         name: str,
+        *,
         signed: bool = True,
         minimum: int | None = None,
         maximum: int | None = None,
@@ -345,6 +354,7 @@ class StringArgument(Argument, StringDataType):
     def __init__(
         self,
         name: str,
+        *,
         min_length: int | None = None,
         max_length: int | None = None,
         initial_value: Any = None,
@@ -375,6 +385,7 @@ class ArgumentEntry:
     def __init__(
         self,
         argument: Argument,
+        *,
         short_description: str | None = None,
         reference_location: ReferenceLocation = ReferenceLocation.PREVIOUS_ENTRY,
         location_in_bits: int = 0,
@@ -395,6 +406,7 @@ class FixedValueEntry:
         self,
         binary: bytes,
         name: str | None = None,
+        *,
         short_description: str | None = None,
         reference_location: ReferenceLocation = ReferenceLocation.PREVIOUS_ENTRY,
         location_in_bits: int = 0,
@@ -422,6 +434,7 @@ class Command:
         self,
         name: str,
         system: System,
+        *,
         aliases: dict[str, str] | None = None,
         short_description: str | None = None,
         long_description: str | None = None,
@@ -458,7 +471,9 @@ class Command:
         self.restriction_criteria = restriction_criteria
         self.assignments = assignments or {}
         self.arguments: list[Argument] = list(arguments) if arguments else []
-        self._entries: list[CommandEntry] = list(entries) if entries else []
+        self._entries: list[CommandEntry] | None = (
+            list(entries) if entries is not None else None
+        )
 
         self.transferred_to_range_verifier: TransferredToRangeVerifier | None = None
         self.sent_from_range_verifier: SentFromRangeVerifier | None = None

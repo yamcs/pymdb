@@ -1,6 +1,21 @@
+from yamcs.pymdb.ancillary import AncillaryData
+
+
 class JavaAlgorithm:
-    def __init__(self, java: str):
+    def __init__(
+        self,
+        java: str,
+        *,
+        extra: dict[str, str] | AncillaryData | None = None,
+    ):
         self.java: str = java
+
+        self.extra: AncillaryData
+        """Arbitrary information, keyed by name"""
+        if isinstance(extra, AncillaryData):
+            self.extra = extra
+        else:
+            self.extra = AncillaryData(extra)
 
 
 hex_string_decoder = JavaAlgorithm("org.yamcs.algo.HexStringDecoder")
