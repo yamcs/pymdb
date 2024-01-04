@@ -213,17 +213,16 @@ class XTCE12Generator:
 
         sign_el = ET.SubElement(el, "DefaultSignificance")
 
-        match command.level:
-            case CommandLevel.NORMAL:
-                sign_el.attrib["consequenceLevel"] = "normal"
-            case CommandLevel.VITAL:
-                sign_el.attrib["consequenceLevel"] = "vital"
-            case CommandLevel.CRITICAL:
-                sign_el.attrib["consequenceLevel"] = "critical"
-            case CommandLevel.FORBIDDEN:
-                sign_el.attrib["consequenceLevel"] = "forbidden"
-            case _:
-                raise ExportError(f"Unexpected command level {command.level}")
+        if command.level == CommandLevel.NORMAL:
+            sign_el.attrib["consequenceLevel"] = "normal"
+        elif command.level == CommandLevel.VITAL:
+            sign_el.attrib["consequenceLevel"] = "vital"
+        elif command.level == CommandLevel.CRITICAL:
+            sign_el.attrib["consequenceLevel"] = "critical"
+        elif command.level == CommandLevel.FORBIDDEN:
+            sign_el.attrib["consequenceLevel"] = "forbidden"
+        else:
+            raise ExportError(f"Unexpected command level {command.level}")
 
         if command.warning_message:
             sign_el.attrib["reasonForWarning"] = command.warning_message
@@ -408,13 +407,12 @@ class XTCE12Generator:
 
         loc_el = ET.SubElement(el, "LocationInContainerInBits")
 
-        match entry.reference_location:
-            case ReferenceLocation.PREVIOUS_ENTRY:
-                loc_el.attrib["referenceLocation"] = "previousEntry"
-            case ReferenceLocation.CONTAINER_START:
-                loc_el.attrib["referenceLocation"] = "containerStart"
-            case _:
-                raise Exception("Unexpected reference location")
+        if entry.reference_location == ReferenceLocation.PREVIOUS_ENTRY:
+            loc_el.attrib["referenceLocation"] = "previousEntry"
+        elif entry.reference_location == ReferenceLocation.CONTAINER_START:
+            loc_el.attrib["referenceLocation"] = "containerStart"
+        else:
+            raise Exception("Unexpected reference location")
 
         fv_el = ET.SubElement(loc_el, "FixedValue")
         fv_el.text = str(entry.location_in_bits)
@@ -442,13 +440,12 @@ class XTCE12Generator:
 
         loc_el = ET.SubElement(el, "LocationInContainerInBits")
 
-        match entry.reference_location:
-            case ReferenceLocation.PREVIOUS_ENTRY:
-                loc_el.attrib["referenceLocation"] = "previousEntry"
-            case ReferenceLocation.CONTAINER_START:
-                loc_el.attrib["referenceLocation"] = "containerStart"
-            case _:
-                raise Exception("Unexpected reference location")
+        if entry.reference_location == ReferenceLocation.PREVIOUS_ENTRY:
+            loc_el.attrib["referenceLocation"] = "previousEntry"
+        elif entry.reference_location == ReferenceLocation.CONTAINER_START:
+            loc_el.attrib["referenceLocation"] = "containerStart"
+        else:
+            raise Exception("Unexpected reference location")
 
         fv_el = ET.SubElement(loc_el, "FixedValue")
         fv_el.text = str(entry.location_in_bits)
@@ -515,11 +512,10 @@ class XTCE12Generator:
 
         if isinstance(data_type.reference, Epoch):
             epoch_el = ET.SubElement(ref_el, "Epoch")
-            match data_type.reference:
-                case Epoch.UNIX:
-                    epoch_el.text = "UNIX"
-                case _:
-                    raise Exception(f"Unexpected epoch {data_type.reference}")
+            if data_type.reference == Epoch.UNIX:
+                epoch_el.text = "UNIX"
+            else:
+                raise Exception(f"Unexpected epoch {data_type.reference}")
         else:
             raise Exception("Arguments can only reference epoch")
 
@@ -777,11 +773,10 @@ class XTCE12Generator:
 
         if isinstance(data_type.reference, Epoch):
             epoch_el = ET.SubElement(ref_el, "Epoch")
-            match data_type.reference:
-                case Epoch.UNIX:
-                    epoch_el.text = "UNIX"
-                case _:
-                    raise Exception(f"Unexpected epoch {data_type.reference}")
+            if data_type.reference == Epoch.UNIX:
+                epoch_el.text = "UNIX"
+            else:
+                raise Exception(f"Unexpected epoch {data_type.reference}")
         else:
             offset_el = ET.SubElement(ref_el, "OffsetFrom")
             offset_el.attrib["parameterRef"] = self.make_ref(
@@ -956,21 +951,20 @@ class XTCE12Generator:
             self.add_data_encoding(el, data_type.encoding)
 
     def alarm_level_to_text(self, level: AlarmLevel):
-        match level:
-            case AlarmLevel.NORMAL:
-                return "normal"
-            case AlarmLevel.WATCH:
-                return "watch"
-            case AlarmLevel.WARNING:
-                return "warning"
-            case AlarmLevel.DISTRESS:
-                return "distress"
-            case AlarmLevel.CRITICAL:
-                return "critical"
-            case AlarmLevel.SEVERE:
-                return "severe"
-            case _:
-                raise Exception("Unexpected alarm level")
+        if level == AlarmLevel.NORMAL:
+            return "normal"
+        elif level == AlarmLevel.WATCH:
+            return "watch"
+        elif level == AlarmLevel.WARNING:
+            return "warning"
+        elif level == AlarmLevel.DISTRESS:
+            return "distress"
+        elif level == AlarmLevel.CRITICAL:
+            return "critical"
+        elif level == AlarmLevel.SEVERE:
+            return "severe"
+        else:
+            raise Exception("Unexpected alarm level")
 
     def add_data_encoding(self, parent: ET.Element, encoding: DataEncoding):
         if isinstance(encoding, FloatTimeEncoding):
@@ -1008,11 +1002,13 @@ class XTCE12Generator:
             if encoding.length_bits:
                 if encoding.encoder:
                     raise ExportError(
-                        "It is not possible to have both an encoder and a leading-size binary"
+                        "It is not possible to have both an encoder and a "
+                        "leading-size binary"
                     )
                 if encoding.decoder:
                     raise ExportError(
-                        "It is not possible to have both a decoder and a leading-size binary"
+                        "It is not possible to have both a decoder and a "
+                        "leading-size binary"
                     )
 
                 algo_el = ET.SubElement(el, "FromBinaryTransformAlgorithm")
@@ -1060,29 +1056,28 @@ class XTCE12Generator:
     ):
         el = ET.SubElement(parent, "StringDataEncoding")
 
-        match encoding.charset:
-            case Charset.US_ASCII:
-                el.attrib["encoding"] = "US-ASCII"
-            case Charset.ISO_8859_1:
-                el.attrib["encoding"] = "ISO-8859-1"
-            case Charset.WINDOWS_1252:
-                el.attrib["encoding"] = "Windows-1252"
-            case Charset.UTF_8:
-                el.attrib["encoding"] = "UTF-8"
-            case Charset.UTF_16:
-                el.attrib["encoding"] = "UTF-16"
-            case Charset.UTF_16LE:
-                el.attrib["encoding"] = "UTF-16LE"
-            case Charset.UTF_16BE:
-                el.attrib["encoding"] = "UTF-16BE"
-            case Charset.UTF_32:
-                el.attrib["encoding"] = "UTF-32"
-            case Charset.UTF_32LE:
-                el.attrib["encoding"] = "UTF-32LE"
-            case Charset.UTF_32BE:
-                el.attrib["encoding"] = "UTF-32BE"
-            case _:
-                raise Exception(f"Unexpected charset {encoding.charset}")
+        if encoding.charset == Charset.US_ASCII:
+            el.attrib["encoding"] = "US-ASCII"
+        elif encoding.charset == Charset.ISO_8859_1:
+            el.attrib["encoding"] = "ISO-8859-1"
+        elif encoding.charset == Charset.WINDOWS_1252:
+            el.attrib["encoding"] = "Windows-1252"
+        elif encoding.charset == Charset.UTF_8:
+            el.attrib["encoding"] = "UTF-8"
+        elif encoding.charset == Charset.UTF_16:
+            el.attrib["encoding"] = "UTF-16"
+        elif encoding.charset == Charset.UTF_16LE:
+            el.attrib["encoding"] = "UTF-16LE"
+        elif encoding.charset == Charset.UTF_16BE:
+            el.attrib["encoding"] = "UTF-16BE"
+        elif encoding.charset == Charset.UTF_32:
+            el.attrib["encoding"] = "UTF-32"
+        elif encoding.charset == Charset.UTF_32LE:
+            el.attrib["encoding"] = "UTF-32LE"
+        elif encoding.charset == Charset.UTF_32BE:
+            el.attrib["encoding"] = "UTF-32BE"
+        else:
+            raise Exception(f"Unexpected charset {encoding.charset}")
 
         if encoding.bits is not None:
             size_el = ET.SubElement(el, "SizeInBits")
@@ -1135,38 +1130,34 @@ class XTCE12Generator:
         el = ET.SubElement(parent, "IntegerDataEncoding")
         el.attrib["sizeInBits"] = str(encoding.bits)
 
-        match encoding.scheme:
-            case IntegerDataEncodingScheme.UNSIGNED:
-                el.attrib["encoding"] = "unsigned"
-            case IntegerDataEncodingScheme.SIGN_MAGNITUDE:
-                el.attrib["encoding"] = "signMagnitude"
-            case IntegerDataEncodingScheme.TWOS_COMPLEMENT:
-                el.attrib["encoding"] = "twosComplement"
-            case IntegerDataEncodingScheme.ONES_COMPLEMENT:
-                el.attrib["encoding"] = "onesComplement"
+        if encoding.scheme == IntegerDataEncodingScheme.UNSIGNED:
+            el.attrib["encoding"] = "unsigned"
+        elif encoding.scheme == IntegerDataEncodingScheme.SIGN_MAGNITUDE:
+            el.attrib["encoding"] = "signMagnitude"
+        elif encoding.scheme == IntegerDataEncodingScheme.TWOS_COMPLEMENT:
+            el.attrib["encoding"] = "twosComplement"
+        elif encoding.scheme == IntegerDataEncodingScheme.ONES_COMPLEMENT:
+            el.attrib["encoding"] = "onesComplement"
 
         if (encoding.bits is not None) and (encoding.bits > 8):
-            match encoding.byte_order:
-                case ByteOrder.BIG_ENDIAN:
-                    el.attrib["byteOrder"] = "mostSignificantByteFirst"
-                case ByteOrder.LITTLE_ENDIAN:
-                    el.attrib["byteOrder"] = "leastSignificantByteFirst"
+            if encoding.byte_order == ByteOrder.BIG_ENDIAN:
+                el.attrib["byteOrder"] = "mostSignificantByteFirst"
+            elif encoding.byte_order == ByteOrder.LITTLE_ENDIAN:
+                el.attrib["byteOrder"] = "leastSignificantByteFirst"
 
     def add_float_data_encoding(self, parent: ET.Element, encoding: FloatDataEncoding):
         el = ET.SubElement(parent, "FloatDataEncoding")
         el.attrib["sizeInBits"] = str(encoding.bits)
 
-        match encoding.scheme:
-            case FloatDataEncodingScheme.IEEE754_1985:
-                el.attrib["encoding"] = "IEEE754_1985"
-            case FloatDataEncodingScheme.MILSTD_1750A:
-                el.attrib["encoding"] = "MILSTD_1750A"
+        if encoding.scheme == FloatDataEncodingScheme.IEEE754_1985:
+            el.attrib["encoding"] = "IEEE754_1985"
+        elif encoding.scheme == FloatDataEncodingScheme.MILSTD_1750A:
+            el.attrib["encoding"] = "MILSTD_1750A"
 
-        match encoding.byte_order:
-            case ByteOrder.BIG_ENDIAN:
-                el.attrib["byteOrder"] = "mostSignificantByteFirst"
-            case ByteOrder.LITTLE_ENDIAN:
-                el.attrib["byteOrder"] = "leastSignificantByteFirst"
+        if encoding.byte_order == ByteOrder.BIG_ENDIAN:
+            el.attrib["byteOrder"] = "mostSignificantByteFirst"
+        elif encoding.byte_order == ByteOrder.LITTLE_ENDIAN:
+            el.attrib["byteOrder"] = "leastSignificantByteFirst"
 
     def add_enumeration_list(self, parent: ET.Element, choices: Choices):
         el = ET.SubElement(parent, "EnumerationList")
@@ -1208,19 +1199,18 @@ class XTCE12Generator:
                 self.add_ancillary_data(el, parameter.extra)
 
             props_el = ET.SubElement(parameter_el, "ParameterProperties")
-            match parameter.data_source:
-                case DataSource.TELEMETERED:
-                    props_el.attrib["dataSource"] = "telemetered"
-                case DataSource.DERIVED:
-                    props_el.attrib["dataSource"] = "derived"
-                case DataSource.CONSTANT:
-                    props_el.attrib["dataSource"] = "constant"
-                case DataSource.LOCAL:
-                    props_el.attrib["dataSource"] = "local"
-                case DataSource.GROUND:
-                    props_el.attrib["dataSource"] = "ground"
-                case _:
-                    raise ExportError(f"Unexpected data source {parameter.data_source}")
+            if parameter.data_source == DataSource.TELEMETERED:
+                props_el.attrib["dataSource"] = "telemetered"
+            elif parameter.data_source == DataSource.DERIVED:
+                props_el.attrib["dataSource"] = "derived"
+            elif parameter.data_source == DataSource.CONSTANT:
+                props_el.attrib["dataSource"] = "constant"
+            elif parameter.data_source == DataSource.LOCAL:
+                props_el.attrib["dataSource"] = "local"
+            elif parameter.data_source == DataSource.GROUND:
+                props_el.attrib["dataSource"] = "ground"
+            else:
+                raise ExportError(f"Unexpected data source {parameter.data_source}")
 
     def add_container_set(self, parent: ET.Element, system: System):
         if not system.containers:
@@ -1384,13 +1374,12 @@ class XTCE12Generator:
 
         loc_el = ET.SubElement(el, "LocationInContainerInBits")
 
-        match entry.reference_location:
-            case ReferenceLocation.PREVIOUS_ENTRY:
-                loc_el.attrib["referenceLocation"] = "previousEntry"
-            case ReferenceLocation.CONTAINER_START:
-                loc_el.attrib["referenceLocation"] = "containerStart"
-            case _:
-                raise Exception("Unexpected reference location")
+        if entry.reference_location == ReferenceLocation.PREVIOUS_ENTRY:
+            loc_el.attrib["referenceLocation"] = "previousEntry"
+        elif entry.reference_location == ReferenceLocation.CONTAINER_START:
+            loc_el.attrib["referenceLocation"] = "containerStart"
+        else:
+            raise Exception("Unexpected reference location")
 
         fv_el = ET.SubElement(loc_el, "FixedValue")
         fv_el.text = str(entry.location_in_bits)
@@ -1420,13 +1409,12 @@ class XTCE12Generator:
 
         loc_el = ET.SubElement(el, "LocationInContainerInBits")
 
-        match entry.reference_location:
-            case ReferenceLocation.PREVIOUS_ENTRY:
-                loc_el.attrib["referenceLocation"] = "previousEntry"
-            case ReferenceLocation.CONTAINER_START:
-                loc_el.attrib["referenceLocation"] = "containerStart"
-            case _:
-                raise Exception("Unexpected reference location")
+        if entry.reference_location == ReferenceLocation.PREVIOUS_ENTRY:
+            loc_el.attrib["referenceLocation"] = "previousEntry"
+        elif entry.reference_location == ReferenceLocation.CONTAINER_START:
+            loc_el.attrib["referenceLocation"] = "containerStart"
+        else:
+            raise Exception("Unexpected reference location")
 
         fv_el = ET.SubElement(loc_el, "FixedValue")
         fv_el.text = str(entry.location_in_bits)

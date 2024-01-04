@@ -228,7 +228,7 @@ def add_csp_header(
         long_description=dedent(
             """
             CSP Header 1.x
-            
+
             The port range is divided into three adjustable segments.
             Ports 0 to 7 are used for general services such as ping and
             buffer status, and are implemented by the CSP service handler.
