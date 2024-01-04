@@ -11,7 +11,7 @@ setuptools.setup(
     description="Generate XTCE for use with Yamcs",
     long_description=readme,
     long_description_content_type="text/markdown",
-    url="https://github.com/yamcs/python-yamcs-pymdb",
+    url="https://github.com/yamcs/pymdb",
     author="Space Applications Services",
     author_email="yamcs@spaceapplications.com",
     license="LGPL",

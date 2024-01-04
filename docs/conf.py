@@ -47,7 +47,7 @@ latex_elements = {
 latex_documents = [
     (
         master_doc,
-        "python-yamcs-pymdb.tex",
+        "pymdb.tex",
         "Yamcs PyMDB",
         "Space Applications Services",
         "manual",
