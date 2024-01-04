@@ -4,7 +4,7 @@ import os
 import xml.etree.ElementTree as ET
 from binascii import hexlify
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Mapping
+from typing import TYPE_CHECKING, Any, Mapping, cast
 from xml.dom import minidom
 
 from yamcs.pymdb.ancillary import AncillaryData
@@ -1167,7 +1167,8 @@ class XTCE12Generator:
                 enumeration_el.attrib["value"] = str(choice[0])
                 enumeration_el.attrib["label"] = choice[1]
                 if len(choice) > 2:
-                    enumeration_el.attrib["shortDescription"] = choice[2]  # type: ignore
+                    typeless_choice = cast(Any, choice)
+                    enumeration_el.attrib["shortDescription"] = typeless_choice[2]
         else:
             for choice in choices:
                 enumeration_el = ET.SubElement(el, "Enumeration")
