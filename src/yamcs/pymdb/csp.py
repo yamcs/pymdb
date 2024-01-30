@@ -50,9 +50,13 @@ def add_csp_header(
     """
     Add a CSP header to the given system.
 
+    :param system:
+        System where to add parameters, commands and containers
     :param ids:
         If provided, model the ``csp_src`` and ``csp_dst`` parameters and
-        arguments as enumerations, rather than integers
+        arguments as enumerations, rather than integers.
+    :param prefix:
+        Prefix for all generated names.
     """
     tm_pri = EnumeratedParameter(
         system=system,
