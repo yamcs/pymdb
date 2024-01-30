@@ -589,7 +589,7 @@ class XTCE12Generator:
         el.attrib["name"] = name
 
         if data_type.initial_value:
-            el.attrib["initialValue"] = data_type.initial_value
+            el.attrib["initialValue"] = str(data_type.initial_value)
 
         if data_type.units:
             unit_set_el = ET.SubElement(el, "UnitSet")
