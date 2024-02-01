@@ -1,4 +1,28 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from yamcs.pymdb.ancillary import AncillaryData
+
+if TYPE_CHECKING:
+    from yamcs.pymdb.parameters import Parameter
+
+
+class InputParameter:
+    def __init__(
+        self,
+        parameter: Parameter,
+        *,
+        name: str | None = None,
+    ):
+        self.parameter = parameter
+        """Reference parameter"""
+
+        self.name: str | None = name
+        """
+        Name to be used inside the algorithm. If not specified, a name
+        is derived from the basename of the parameter.
+        """
 
 
 class JavaAlgorithm:
@@ -6,9 +30,13 @@ class JavaAlgorithm:
         self,
         java: str,
         *,
+        inputs: list[InputParameter] | None = None,
         extra: dict[str, str] | AncillaryData | None = None,
     ):
         self.java: str = java
+
+        self.inputs: list[InputParameter] = inputs or []
+        """Parameter inputs available to the algorithm"""
 
         self.extra: AncillaryData
         """Arbitrary information, keyed by name"""

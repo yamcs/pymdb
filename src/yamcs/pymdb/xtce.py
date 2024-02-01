@@ -7,6 +7,7 @@ from enum import Enum
 from typing import TYPE_CHECKING, Any, Mapping, cast
 from xml.dom import minidom
 
+from yamcs.pymdb.algorithms import JavaAlgorithm
 from yamcs.pymdb.ancillary import AncillaryData
 from yamcs.pymdb.commands import (
     Argument,
@@ -48,7 +49,6 @@ from yamcs.pymdb.encodings import (
     IntegerDataEncoding,
     IntegerDataEncodingScheme,
     IntegerTimeEncoding,
-    JavaAlgorithm,
     StringDataEncoding,
 )
 from yamcs.pymdb.exceptions import ExportError
@@ -310,7 +310,7 @@ class XTCE12Generator:
             expr_el = ET.SubElement(el, "BooleanExpression")
             self.add_expression_condition(expr_el, command.system, check.expression)
         elif isinstance(check, AlgorithmCheck):
-            self.add_algorithm(el, "CustomAlgorithm", check.algorithm)
+            self.add_input_only_algorithm(el, "CustomAlgorithm", check.algorithm)
         else:
             raise ExportError(f"Unexpected check {check.__class__}")
 
@@ -1033,12 +1033,18 @@ class XTCE12Generator:
                 )
 
         if encoding.decoder:
-            self.add_algorithm(el, "FromBinaryTransformAlgorithm", encoding.decoder)
+            self.add_input_only_algorithm(
+                el, "FromBinaryTransformAlgorithm", encoding.decoder
+            )
 
         if encoding.encoder:
-            self.add_algorithm(el, "ToBinaryTransformAlgorithm", encoding.encoder)
+            self.add_input_only_algorithm(
+                el, "ToBinaryTransformAlgorithm", encoding.encoder
+            )
 
-    def add_algorithm(self, parent: ET.Element, tag: str, algorithm: JavaAlgorithm):
+    def add_input_only_algorithm(
+        self, parent: ET.Element, tag: str, algorithm: JavaAlgorithm
+    ):
         el = ET.SubElement(parent, tag)
         if isinstance(algorithm, JavaAlgorithm):
             el.attrib["name"] = algorithm.java.replace(".", "_")
@@ -1047,6 +1053,14 @@ class XTCE12Generator:
             text_el = ET.SubElement(el, "AlgorithmText")
             text_el.attrib["language"] = "Java"
             text_el.text = algorithm.java
+
+            if algorithm.inputs:
+                inputset_el = ET.SubElement(el, "InputSet")
+                for input in algorithm.inputs:
+                    ref_el = ET.SubElement(inputset_el, "InputParameterInstanceRef")
+                    ref_el.attrib["parameterRef"] = input.parameter.qualified_name
+                    if input.name:
+                        ref_el.attrib["inputName"] = input.name
         else:
             raise Exception("Unexpected algorithm type")
 
