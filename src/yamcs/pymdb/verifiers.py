@@ -1,10 +1,12 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from collections import defaultdict
+from dataclasses import dataclass, field
 from enum import Enum, auto
 from typing import TYPE_CHECKING, TypeAlias
 
 if TYPE_CHECKING:
+    from yamcs.pymdb.algorithms import JavaAlgorithm
     from yamcs.pymdb.containers import Container
     from yamcs.pymdb.expressions import Expression
     from yamcs.pymdb.parameters import Parameter
@@ -13,6 +15,11 @@ if TYPE_CHECKING:
 class TerminationAction(Enum):
     SUCCESS = auto()
     FAIL = auto()
+
+
+class AlgorithmCheck:
+    def __init__(self, algorithm: JavaAlgorithm):
+        self.algorithm = algorithm
 
 
 class ContainerCheck:
@@ -25,7 +32,7 @@ class ExpressionCheck:
         self.expression = expression
 
 
-Check: TypeAlias = ContainerCheck | ExpressionCheck
+Check: TypeAlias = AlgorithmCheck | ContainerCheck | ExpressionCheck
 
 
 @dataclass
@@ -39,6 +46,9 @@ class Verifier:
     delay: float = 0
     """Wait time before starting to check (in seconds)"""
 
+    name: str | None = None
+    """Optional name"""
+
     on_success: TerminationAction | None = None
     """What it means for the whole command, when this single verifier succeeds"""
 
@@ -47,6 +57,9 @@ class Verifier:
 
     on_timeout: TerminationAction | None = None
     """What it means for the whole command, when this single verifier times out"""
+
+    extra: dict[str, str] = field(default_factory=lambda: {})
+    """Arbitrary information, keyed by name"""
 
 
 @dataclass

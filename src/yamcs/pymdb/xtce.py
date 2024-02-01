@@ -72,6 +72,7 @@ from yamcs.pymdb.parameters import (
 )
 from yamcs.pymdb.verifiers import (
     AcceptedVerifier,
+    AlgorithmCheck,
     CompleteVerifier,
     ContainerCheck,
     ExecutionVerifier,
@@ -274,7 +275,10 @@ class XTCE12Generator:
         else:
             raise ExportError(f"Unexpected verifier {verifier.__class__}")
 
-        extra = {}
+        if verifier.name:
+            el.attrib["name"] = verifier.name
+
+        extra = verifier.extra or {}
         if verifier.on_success:
             extra["yamcs.onSuccess"] = verifier.on_success.name
         else:
@@ -305,6 +309,8 @@ class XTCE12Generator:
         elif isinstance(check, ExpressionCheck):
             expr_el = ET.SubElement(el, "BooleanExpression")
             self.add_expression_condition(expr_el, command.system, check.expression)
+        elif isinstance(check, AlgorithmCheck):
+            self.add_algorithm(el, "CustomAlgorithm", check.algorithm)
         else:
             raise ExportError(f"Unexpected check {check.__class__}")
 
@@ -1014,42 +1020,35 @@ class XTCE12Generator:
                 algo_el = ET.SubElement(el, "FromBinaryTransformAlgorithm")
                 algo_el.attrib["name"] = "LeadingSizeBinaryDecoder"
                 text_el = ET.SubElement(algo_el, "AlgorithmText")
-                text_el.attrib["language"] = "java"
+                text_el.attrib["language"] = "Java"
                 text_el.text = (
                     f"org.yamcs.algo.LeadingSizeBinaryDecoder({encoding.length_bits})"
                 )
                 algo_el = ET.SubElement(el, "ToBinaryTransformAlgorithm")
                 algo_el.attrib["name"] = "LeadingSizeBinaryEncoder"
                 text_el = ET.SubElement(algo_el, "AlgorithmText")
-                text_el.attrib["language"] = "java"
+                text_el.attrib["language"] = "Java"
                 text_el.text = (
                     f"org.yamcs.algo.LeadingSizeBinaryEncoder({encoding.length_bits})"
                 )
 
         if encoding.decoder:
-            algorithm = encoding.decoder
-            if isinstance(algorithm, JavaAlgorithm):
-                algo_el = ET.SubElement(el, "FromBinaryTransformAlgorithm")
-                algo_el.attrib["name"] = algorithm.java.replace(".", "_")
-                if algorithm.extra:
-                    self.add_ancillary_data(algo_el, algorithm.extra)
-                text_el = ET.SubElement(algo_el, "AlgorithmText")
-                text_el.attrib["language"] = "java"
-                text_el.text = algorithm.java
-            else:
-                raise Exception("Unexpected algorithm type")
+            self.add_algorithm(el, "FromBinaryTransformAlgorithm", encoding.decoder)
+
         if encoding.encoder:
-            algorithm = encoding.encoder
-            if isinstance(algorithm, JavaAlgorithm):
-                algo_el = ET.SubElement(el, "ToBinaryTransformAlgorithm")
-                algo_el.attrib["name"] = algorithm.java.replace(".", "_")
-                if algorithm.extra:
-                    self.add_ancillary_data(algo_el, algorithm.extra)
-                text_el = ET.SubElement(algo_el, "AlgorithmText")
-                text_el.attrib["language"] = "java"
-                text_el.text = algorithm.java
-            else:
-                raise Exception("Unexpected algorithm type")
+            self.add_algorithm(el, "ToBinaryTransformAlgorithm", encoding.encoder)
+
+    def add_algorithm(self, parent: ET.Element, tag: str, algorithm: JavaAlgorithm):
+        el = ET.SubElement(parent, tag)
+        if isinstance(algorithm, JavaAlgorithm):
+            el.attrib["name"] = algorithm.java.replace(".", "_")
+            if algorithm.extra:
+                self.add_ancillary_data(el, algorithm.extra)
+            text_el = ET.SubElement(el, "AlgorithmText")
+            text_el.attrib["language"] = "Java"
+            text_el.text = algorithm.java
+        else:
+            raise Exception("Unexpected algorithm type")
 
     def add_string_data_encoding(
         self, parent: ET.Element, encoding: StringDataEncoding
