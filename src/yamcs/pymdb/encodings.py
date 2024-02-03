@@ -176,6 +176,8 @@ class StringDataEncoding(DataEncoding):
         bits: int | None = None,
         length_bits: int | None = None,
         max_bits: int | None = 8388608,
+        charset: Charset = Charset.US_ASCII,
+        termination: bytes = b"\0",
     ) -> None:
         super().__init__(bits=bits)
 
@@ -192,8 +194,8 @@ class StringDataEncoding(DataEncoding):
         Default is 1 MB
         """
 
-        self.charset: Charset = Charset.US_ASCII
-        self.termination: bytes = b"\0"
+        self.charset: Charset = charset
+        self.termination: bytes = termination
 
 
 uint1_t = IntegerDataEncoding(
