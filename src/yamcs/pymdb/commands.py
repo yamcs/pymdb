@@ -99,6 +99,9 @@ class Argument(DataType):
             encoding=encoding,
         )
 
+        def __str__(self) -> str:
+            return self.name
+
 
 class AbsoluteTimeArgument(Argument, AbsoluteTimeDataType):
     def __init__(
@@ -564,3 +567,6 @@ class Command:
     @entries.setter
     def entries(self, entries: Sequence[CommandEntry]):
         self._entries = list(entries)
+
+    def __str__(self) -> str:
+        return self.qualified_name

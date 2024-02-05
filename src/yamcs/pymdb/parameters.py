@@ -196,6 +196,9 @@ class Parameter(DataType):
 
         return path
 
+    def __str__(self) -> str:
+        return self.qualified_name
+
 
 class AbsoluteTimeParameter(Parameter, AbsoluteTimeDataType):
     """
