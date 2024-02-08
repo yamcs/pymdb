@@ -64,7 +64,8 @@ def check_complete_verifiers(system: System):
 
 def check_float_encoding(system: System):
     """
-    Check that the size of float parameters/arguments is consistent with its data encoding.
+    Check that the size of float parameters/arguments is consistent with its data
+    encoding.
 
     A common mistake is to have a float of 32 bits, with an encoding of 64 bits.
     """
