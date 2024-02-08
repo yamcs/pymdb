@@ -62,6 +62,7 @@ from yamcs.pymdb.expressions import (
     LtExpression,
     NeExpression,
     OrExpression,
+    ParameterMember,
 )
 from yamcs.pymdb.parameters import (
     AlarmLevel,
@@ -1278,7 +1279,7 @@ class XTCE12Generator:
             self.add_condition(
                 parent,
                 system,
-                expression.parameter,
+                expression.ref,
                 expression.value,
                 "==",
                 expression.calibrated,
@@ -1287,7 +1288,7 @@ class XTCE12Generator:
             self.add_condition(
                 parent,
                 system,
-                expression.parameter,
+                expression.ref,
                 expression.value,
                 "!=",
                 expression.calibrated,
@@ -1296,7 +1297,7 @@ class XTCE12Generator:
             self.add_condition(
                 parent,
                 system,
-                expression.parameter,
+                expression.ref,
                 expression.value,
                 "<",
                 expression.calibrated,
@@ -1305,7 +1306,7 @@ class XTCE12Generator:
             self.add_condition(
                 parent,
                 system,
-                expression.parameter,
+                expression.ref,
                 expression.value,
                 "<=",
                 expression.calibrated,
@@ -1314,7 +1315,7 @@ class XTCE12Generator:
             self.add_condition(
                 parent,
                 system,
-                expression.parameter,
+                expression.ref,
                 expression.value,
                 ">",
                 expression.calibrated,
@@ -1323,7 +1324,7 @@ class XTCE12Generator:
             self.add_condition(
                 parent,
                 system,
-                expression.parameter,
+                expression.ref,
                 expression.value,
                 ">=",
                 expression.calibrated,
@@ -1343,7 +1344,7 @@ class XTCE12Generator:
         self,
         parent: ET.Element,
         system: System,
-        parameter: Parameter,
+        ref: Parameter | ParameterMember,
         value: Any,
         operator: str,
         calibrated: bool,
@@ -1351,24 +1352,36 @@ class XTCE12Generator:
         condition_el = ET.SubElement(parent, "Condition")
 
         pref_el = ET.SubElement(condition_el, "ParameterInstanceRef")
-        pref_el.attrib["parameterRef"] = self.make_ref(
-            parameter.qualified_name,
-            start=system,
-        )
+        data_type: DataType
+        if isinstance(ref, Parameter):
+            data_type = ref
+            pref_el.attrib["parameterRef"] = self.make_ref(
+                ref.qualified_name,
+                start=system,
+            )
+        else:  # ParameterMember
+            data_type = ref.path[-1]
+            parameter_ref = self.make_ref(
+                ref.parameter.qualified_name,
+                start=system,
+            )
+            for member in ref.path:
+                parameter_ref += "/" + member.name
+            pref_el.attrib["parameterRef"] = parameter_ref
         pref_el.attrib["useCalibratedValue"] = _to_xml_value(calibrated)
 
         ET.SubElement(condition_el, "ComparisonOperator").text = operator
         val_el = ET.SubElement(condition_el, "Value")
 
         val_el.text = _to_xml_value(value)
-        if isinstance(parameter, BooleanParameter) and isinstance(value, bool):
+        if isinstance(data_type, BooleanDataType) and isinstance(value, bool):
             if value:
-                val_el.text = parameter.one_string_value
+                val_el.text = data_type.one_string_value
             else:
-                val_el.text = parameter.zero_string_value
-        elif isinstance(parameter, EnumeratedParameter) and isinstance(value, int):
+                val_el.text = data_type.zero_string_value
+        elif isinstance(data_type, EnumeratedDataType) and isinstance(value, int):
             if value:
-                val_el.text = parameter.label_for(value)
+                val_el.text = data_type.label_for(value)
 
     def add_packet_entry_list(self, parent: ET.Element, container: Container):
         el = ET.SubElement(parent, "EntryList")

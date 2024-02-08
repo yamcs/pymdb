@@ -93,6 +93,12 @@ class AggregateDataType(DataType):
         )
         self.members: list[Member] = members
 
+    def find_member(self, name: str) -> Member:
+        for member in self.members:
+            if member.name == name:
+                return member
+        raise KeyError
+
 
 class ArrayDataType(DataType):
     def __init__(

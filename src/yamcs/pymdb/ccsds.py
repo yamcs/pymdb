@@ -18,59 +18,65 @@ from yamcs.pymdb.encodings import (
     uint14_t,
     uint16_t,
 )
+from yamcs.pymdb.expressions import ParameterMember
 from yamcs.pymdb.parameters import AggregateParameter, IntegerParameter
 from yamcs.pymdb.systems import System
 
 
 class CcsdsHeader(NamedTuple):
     tm_container: Container
-    tm_packet_id: AggregateParameter
-    tm_packet_sequence: AggregateParameter
-    tm_packet_length: IntegerParameter
+    tm_version: ParameterMember
+    tm_type: ParameterMember
+    tm_secondary_header: ParameterMember
+    tm_apid: ParameterMember
     tc_command: Command
     tc_secondary_header: BooleanArgument
     tc_apid: IntegerArgument
 
 
 def add_ccsds_header(system: System) -> CcsdsHeader:
+    tm_version_member = IntegerMember(
+        name="version",
+        signed=False,
+        encoding=uint3_t,
+    )
+    tm_type_member = EnumeratedMember(
+        name="type",
+        choices=[
+            (0, "TM"),
+            (1, "TC"),
+        ],
+        long_description=dedent(
+            """
+            Used to distinguish telemetry (or reporting) packets from
+            telecommand (or requesting) packets.
+
+            Note that some systems, notably the International Space System,
+            use a different convention where 0=core and 1=payload.
+            """
+        ),
+        encoding=uint1_t,
+    )
+    tm_secondary_header_member = BooleanMember(
+        name="secondary_header",
+        zero_string_value="Not Present",
+        one_string_value="Present",
+        encoding=uint1_t,
+    )
+    tm_apid_member = IntegerMember(
+        name="apid",
+        signed=False,
+        encoding=uint11_t,
+    )
     tm_packet_id = AggregateParameter(
         system=system,
         name="ccsds_packet_id",
         short_description="First word of the primary CCSDS header",
         members=[
-            IntegerMember(
-                name="version",
-                signed=False,
-                encoding=uint3_t,
-            ),
-            EnumeratedMember(
-                name="type",
-                choices=[
-                    (0, "TM"),
-                    (1, "TC"),
-                ],
-                long_description=dedent(
-                    """
-                    Used to distinguish telemetry (or reporting) packets from
-                    telecommand (or requesting) packets.
-
-                    Note that some systems, notably the International Space System,
-                    use a different convention where 0=core and 1=payload.
-                    """
-                ),
-                encoding=uint1_t,
-            ),
-            BooleanMember(
-                name="secondary_header",
-                zero_string_value="Not Present",
-                one_string_value="Present",
-                encoding=uint1_t,
-            ),
-            IntegerMember(
-                name="apid",
-                signed=False,
-                encoding=uint11_t,
-            ),
+            tm_version_member,
+            tm_type_member,
+            tm_secondary_header_member,
+            tm_apid_member,
         ],
     )
 
@@ -188,11 +194,29 @@ def add_ccsds_header(system: System) -> CcsdsHeader:
         ],
     )
 
+    tm_version = ParameterMember(
+        tm_packet_id,
+        path=tm_version_member,
+    )
+    tm_type = ParameterMember(
+        tm_packet_id,
+        path=tm_type_member,
+    )
+    tm_secondary_header = ParameterMember(
+        tm_packet_id,
+        path=tm_secondary_header_member,
+    )
+    tm_apid = ParameterMember(
+        tm_packet_id,
+        path=tm_apid_member,
+    )
+
     return CcsdsHeader(
         tm_container,
-        tm_packet_id,
-        tm_packet_sequence,
-        tm_packet_length,
+        tm_version,
+        tm_type,
+        tm_secondary_header,
+        tm_apid,
         tc_command,
         tc_secondary_header,
         tc_apid,
