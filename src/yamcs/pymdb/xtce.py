@@ -117,17 +117,28 @@ class XTCE12Generator:
     def __init__(self, system: System):
         self.system = system
 
-    def to_xtce(self, indent=None, add_schema_location: bool = True) -> str:
+    def to_xtce(
+        self,
+        indent="",
+        add_schema_location: bool = True,
+        top_comment: bool | str = True,
+    ) -> str:
         el = self.generate_space_system(
             self.system,
             add_schema_location=add_schema_location,
         )
         xtce = ET.tostring(el, encoding="unicode")
-        if indent:
-            xtce_dom = minidom.parseString(xtce)
-            return xtce_dom.toprettyxml(indent=indent)
-        else:
-            return xtce
+        xtce_dom = minidom.parseString(xtce)
+
+        if top_comment is True:
+            top_comment = (
+                "\nThis file was automatically generated with Yamcs PyMDB.\n"
+                "See https://github.com/yamcs/pymdb\n"
+            )
+        if top_comment:
+            comment_el = xtce_dom.createComment(top_comment)
+            xtce_dom.insertBefore(comment_el, xtce_dom.firstChild)
+        return xtce_dom.toprettyxml(indent=indent)
 
     def add_command_metadata(self, parent: ET.Element, system: System):
         el = ET.SubElement(parent, "CommandMetaData")
@@ -1202,9 +1213,9 @@ class XTCE12Generator:
                 parameter_el.attrib["shortDescription"] = parameter.short_description
 
             if parameter.long_description:
-                ET.SubElement(
-                    parameter_el, "LongDescription"
-                ).text = parameter.long_description
+                ET.SubElement(parameter_el, "LongDescription").text = (
+                    parameter.long_description
+                )
 
             if parameter.aliases:
                 self.add_aliases(parameter_el, parameter.aliases)

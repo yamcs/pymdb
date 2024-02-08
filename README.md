@@ -30,5 +30,5 @@ param2 = EnumeratedParameter(
 
 # Finally, print XTCE
 # Emit an XML that conforms to XTCE
-print(xtce.dumps(spacecraft))
+print(spacecraft.dumps())
 ```

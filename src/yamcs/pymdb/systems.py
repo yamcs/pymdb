@@ -110,18 +110,21 @@ class System:
         """
         return self._subsystems_by_name[name]
 
-    def dump(self, fp, indent="  ") -> None:
+    def dump(self, fp, indent: str = "  ", top_comment: bool | str = True) -> None:
         """
         Serialize this system in XTCE format to a file-like object
         """
-        xml = self.dumps(indent=indent)
+        xml = self.dumps(indent=indent, top_comment=top_comment)
         fp.write(xml)
 
-    def dumps(self, indent="  ") -> str:
+    def dumps(self, indent: str = "  ", top_comment: bool | str = True) -> str:
         """
         Serialize this system to an XTCE formatted string
         """
-        return xtce.XTCE12Generator(self).to_xtce(indent=indent)
+        return xtce.XTCE12Generator(self).to_xtce(
+            indent=indent,
+            top_comment=top_comment,
+        )
 
 
 class Subsystem(System):
