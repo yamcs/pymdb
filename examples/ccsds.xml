@@ -1,4 +1,8 @@
 <?xml version="1.0" ?>
+<!--
+This file was automatically generated with Yamcs PyMDB.
+See https://github.com/yamcs/pymdb
+-->
 <SpaceSystem xmlns="http://www.omg.org/spec/XTCE/20180204" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.omg.org/spec/XTCE/20180204 https://www.omg.org/spec/XTCE/20180204/SpaceSystem.xsd" name="Spacecraft">
   <TelemetryMetaData>
     <ParameterTypeSet>
@@ -11,17 +15,17 @@
         </MemberList>
       </AggregateParameterType>
       <IntegerParameterType name="ccsds_packet_id__version" signed="false">
-        <IntegerDataEncoding sizeInBits="3" encoding="unsigned" byteOrder="mostSignificantByteFirst"/>
+        <IntegerDataEncoding sizeInBits="3" encoding="unsigned"/>
       </IntegerParameterType>
       <EnumeratedParameterType name="ccsds_packet_id__type">
-        <IntegerDataEncoding sizeInBits="1" encoding="unsigned" byteOrder="mostSignificantByteFirst"/>
+        <IntegerDataEncoding sizeInBits="1" encoding="unsigned"/>
         <EnumerationList>
           <Enumeration value="0" label="TM"/>
           <Enumeration value="1" label="TC"/>
         </EnumerationList>
       </EnumeratedParameterType>
       <BooleanParameterType name="ccsds_packet_id__secondary_header" zeroStringValue="Not Present" oneStringValue="Present">
-        <IntegerDataEncoding sizeInBits="1" encoding="unsigned" byteOrder="mostSignificantByteFirst"/>
+        <IntegerDataEncoding sizeInBits="1" encoding="unsigned"/>
       </BooleanParameterType>
       <IntegerParameterType name="ccsds_packet_id__apid" signed="false">
         <IntegerDataEncoding sizeInBits="11" encoding="unsigned" byteOrder="mostSignificantByteFirst"/>
@@ -33,7 +37,7 @@
         </MemberList>
       </AggregateParameterType>
       <EnumeratedParameterType name="ccsds_packet_sequence__group_flags">
-        <IntegerDataEncoding sizeInBits="2" encoding="unsigned" byteOrder="mostSignificantByteFirst"/>
+        <IntegerDataEncoding sizeInBits="2" encoding="unsigned"/>
         <EnumerationList>
           <Enumeration value="0" label="Continuation"/>
           <Enumeration value="1" label="First"/>
@@ -93,7 +97,7 @@ The first 8 bytes of a Space Packet are known as the
   <CommandMetaData>
     <ArgumentTypeSet>
       <BooleanArgumentType name="ccsds_space_packet__ccsds_secondary_header" zeroStringValue="Not Present" oneStringValue="Present">
-        <IntegerDataEncoding sizeInBits="1" encoding="unsigned" byteOrder="mostSignificantByteFirst"/>
+        <IntegerDataEncoding sizeInBits="1" encoding="unsigned"/>
       </BooleanArgumentType>
       <IntegerArgumentType name="ccsds_space_packet__ccsds_apid" signed="false">
         <IntegerDataEncoding sizeInBits="11" encoding="unsigned" byteOrder="mostSignificantByteFirst"/>
