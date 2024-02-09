@@ -143,6 +143,7 @@ class Parameter(DataType):
         self,
         system: System,
         name: str,
+        *,
         aliases: dict[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
         initial_value: Any = None,

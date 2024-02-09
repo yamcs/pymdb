@@ -5,7 +5,6 @@ from yamcs.pymdb import (
     System,
     ccsds,
     uint16_t,
-    xtce,
 )
 
 spacecraft = System("Spacecraft")

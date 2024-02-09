@@ -63,6 +63,7 @@ class Container:
         system: System,
         name: str,
         entries: list[ParameterEntry | ContainerEntry] | None = None,
+        *,
         parent: Container | None = None,
         abstract: bool = False,
         restriction_criteria: Expression | None = None,

@@ -66,7 +66,6 @@ from yamcs.pymdb.expressions import (
 )
 from yamcs.pymdb.parameters import (
     AlarmLevel,
-    BooleanParameter,
     DataSource,
     EnumeratedParameter,
     Parameter,

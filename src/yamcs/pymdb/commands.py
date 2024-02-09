@@ -435,8 +435,8 @@ CommandEntry = ArgumentEntry | ParameterEntry | FixedValueEntry
 class Command:
     def __init__(
         self,
-        name: str,
         system: System,
+        name: str,
         *,
         aliases: dict[str, str] | None = None,
         short_description: str | None = None,
