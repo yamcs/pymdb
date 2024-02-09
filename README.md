@@ -32,3 +32,7 @@ param2 = EnumeratedParameter(
 # Emit an XML that conforms to XTCE
 print(spacecraft.dumps())
 ```
+
+## License
+
+LGPL-3.0. See [LICENSE](https://github.com/yamcs/pymdb/blob/master/LICENSE)
