@@ -14,7 +14,7 @@ See https://github.com/yamcs/pymdb
           <Member name="apid" typeRef="ccsds_packet_id__apid"/>
         </MemberList>
       </AggregateParameterType>
-      <IntegerParameterType name="ccsds_packet_id__version" signed="false">
+      <IntegerParameterType name="ccsds_packet_id__version" signed="false" sizeInBits="32">
         <IntegerDataEncoding sizeInBits="3" encoding="unsigned"/>
       </IntegerParameterType>
       <EnumeratedParameterType name="ccsds_packet_id__type">
@@ -27,7 +27,7 @@ See https://github.com/yamcs/pymdb
       <BooleanParameterType name="ccsds_packet_id__secondary_header" zeroStringValue="Not Present" oneStringValue="Present">
         <IntegerDataEncoding sizeInBits="1" encoding="unsigned"/>
       </BooleanParameterType>
-      <IntegerParameterType name="ccsds_packet_id__apid" signed="false">
+      <IntegerParameterType name="ccsds_packet_id__apid" signed="false" sizeInBits="32">
         <IntegerDataEncoding sizeInBits="11" encoding="unsigned" byteOrder="mostSignificantByteFirst"/>
       </IntegerParameterType>
       <AggregateParameterType name="ccsds_packet_sequence">
@@ -45,10 +45,10 @@ See https://github.com/yamcs/pymdb
           <Enumeration value="3" label="Standalone"/>
         </EnumerationList>
       </EnumeratedParameterType>
-      <IntegerParameterType name="ccsds_packet_sequence__source_sequence_count" signed="false">
+      <IntegerParameterType name="ccsds_packet_sequence__source_sequence_count" signed="false" sizeInBits="32">
         <IntegerDataEncoding sizeInBits="14" encoding="unsigned" byteOrder="mostSignificantByteFirst"/>
       </IntegerParameterType>
-      <IntegerParameterType name="ccsds_packet_length" signed="false">
+      <IntegerParameterType name="ccsds_packet_length" signed="false" sizeInBits="32">
         <UnitSet>
           <Unit form="calibrated">Octets</Unit>
         </UnitSet>
@@ -99,19 +99,19 @@ The first 8 bytes of a Space Packet are known as the
       <BooleanArgumentType name="ccsds_space_packet__ccsds_secondary_header" zeroStringValue="Not Present" oneStringValue="Present">
         <IntegerDataEncoding sizeInBits="1" encoding="unsigned"/>
       </BooleanArgumentType>
-      <IntegerArgumentType name="ccsds_space_packet__ccsds_apid" signed="false">
+      <IntegerArgumentType name="ccsds_space_packet__ccsds_apid" signed="false" sizeInBits="32">
         <IntegerDataEncoding sizeInBits="11" encoding="unsigned" byteOrder="mostSignificantByteFirst"/>
       </IntegerArgumentType>
-      <IntegerArgumentType name="MyProjectPacket__command_id" signed="false">
+      <IntegerArgumentType name="MyProjectPacket__command_id" signed="false" sizeInBits="32">
         <IntegerDataEncoding sizeInBits="16" encoding="unsigned" byteOrder="mostSignificantByteFirst"/>
       </IntegerArgumentType>
-      <IntegerArgumentType name="SwitchVoltageOn__battery" signed="false">
+      <IntegerArgumentType name="SwitchVoltageOn__battery" signed="false" sizeInBits="32">
         <IntegerDataEncoding sizeInBits="16" encoding="unsigned" byteOrder="mostSignificantByteFirst"/>
         <ValidRangeSet validRangeAppliesToCalibrated="true">
           <ValidRange minInclusive="1" maxInclusive="3"/>
         </ValidRangeSet>
       </IntegerArgumentType>
-      <IntegerArgumentType name="SwitchVoltageOff__battery" signed="false">
+      <IntegerArgumentType name="SwitchVoltageOff__battery" signed="false" sizeInBits="32">
         <IntegerDataEncoding sizeInBits="16" encoding="unsigned" byteOrder="mostSignificantByteFirst"/>
         <ValidRangeSet validRangeAppliesToCalibrated="true">
           <ValidRange minInclusive="1" maxInclusive="3"/>

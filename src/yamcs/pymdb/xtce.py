@@ -663,9 +663,11 @@ class XTCE12Generator:
     ):
         el = ET.SubElement(parent, "IntegerArgumentType")
         el.attrib["name"] = name
+        el.attrib["signed"] = _to_xml_value(data_type.signed)
+        el.attrib["sizeInBits"] = str(data_type.bits)
+
         if data_type.initial_value is not None:
             el.attrib["initialValue"] = _to_xml_value(data_type.initial_value)
-        el.attrib["signed"] = _to_xml_value(data_type.signed)
 
         if data_type.units:
             unit_set_el = ET.SubElement(el, "UnitSet")
@@ -935,6 +937,7 @@ class XTCE12Generator:
         if data_type.initial_value is not None:
             el.attrib["initialValue"] = str(data_type.initial_value)
         el.attrib["signed"] = _to_xml_value(data_type.signed)
+        el.attrib["sizeInBits"] = str(data_type.bits)
 
         if data_type.units:
             unit_set_el = ET.SubElement(el, "UnitSet")

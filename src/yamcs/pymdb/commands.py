@@ -326,6 +326,7 @@ class IntegerArgument(Argument, IntegerDataType):
         name: str,
         *,
         signed: bool = True,
+        bits: int = 32,
         minimum: int | None = None,
         maximum: int | None = None,
         initial_value: Any = None,
@@ -338,6 +339,7 @@ class IntegerArgument(Argument, IntegerDataType):
         IntegerDataType.__init__(
             self,
             signed=signed,
+            bits=bits,
             minimum=minimum,
             maximum=maximum,
         )

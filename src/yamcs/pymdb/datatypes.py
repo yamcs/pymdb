@@ -260,6 +260,7 @@ class IntegerDataType(DataType):
     def __init__(
         self,
         signed: bool = True,
+        bits: int = 32,
         minimum: int | None = None,
         maximum: int | None = None,
         initial_value: Any = None,
@@ -280,6 +281,8 @@ class IntegerDataType(DataType):
         )
 
         self.signed: bool = signed
+
+        self.bits: int = bits
 
         self.minimum: int | None = minimum
         """Minimum valid engineering value (inclusive)"""
@@ -556,6 +559,7 @@ class IntegerMember(Member, IntegerDataType):
         self,
         name: str,
         signed: bool = True,
+        bits: int = 32,
         minimum: int | None = None,
         maximum: int | None = None,
         initial_value: Any = None,
@@ -568,6 +572,7 @@ class IntegerMember(Member, IntegerDataType):
         IntegerDataType.__init__(
             self,
             signed=signed,
+            bits=bits,
             minimum=minimum,
             maximum=maximum,
         )

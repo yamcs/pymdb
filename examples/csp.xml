@@ -31,10 +31,10 @@ See https://github.com/yamcs/pymdb
           <Enumeration value="3" label="ADCS"/>
         </EnumerationList>
       </EnumeratedParameterType>
-      <IntegerParameterType name="csp_dport" signed="false">
+      <IntegerParameterType name="csp_dport" signed="false" sizeInBits="32">
         <IntegerDataEncoding sizeInBits="6" encoding="unsigned"/>
       </IntegerParameterType>
-      <IntegerParameterType name="csp_sport" signed="false">
+      <IntegerParameterType name="csp_sport" signed="false" sizeInBits="32">
         <IntegerDataEncoding sizeInBits="6" encoding="unsigned"/>
       </IntegerParameterType>
       <BooleanParameterType name="csp_hmac" zeroStringValue="False" oneStringValue="True">
@@ -169,7 +169,7 @@ packets with HMAC, XTEA encryption, RDP header and CRC32 checksum.
           <Enumeration value="3" label="ADCS"/>
         </EnumerationList>
       </EnumeratedArgumentType>
-      <IntegerArgumentType name="csp_message__csp_dport" signed="false">
+      <IntegerArgumentType name="csp_message__csp_dport" signed="false" sizeInBits="32">
         <IntegerDataEncoding sizeInBits="6" encoding="unsigned"/>
       </IntegerArgumentType>
       <BooleanArgumentType name="csp_message__csp_hmac" initialValue="False" zeroStringValue="False" oneStringValue="True">

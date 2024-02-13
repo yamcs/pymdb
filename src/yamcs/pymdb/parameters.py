@@ -497,6 +497,7 @@ class IntegerParameter(Parameter, IntegerDataType):
         system: System,
         name: str,
         signed: bool = True,
+        bits: int = 32,
         minimum: int | None = None,
         maximum: int | None = None,
         aliases: dict[str, str] | None = None,
@@ -511,6 +512,7 @@ class IntegerParameter(Parameter, IntegerDataType):
         IntegerDataType.__init__(
             self,
             signed=signed,
+            bits=bits,
             minimum=minimum,
             maximum=maximum,
         )
