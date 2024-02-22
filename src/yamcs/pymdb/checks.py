@@ -1,7 +1,7 @@
 from yamcs.pymdb.commands import ArrayArgument
 from yamcs.pymdb.datatypes import FloatDataType
 from yamcs.pymdb.encodings import ByteOrder, FloatDataEncoding, IntegerDataEncoding
-from yamcs.pymdb.parameters import ArrayParameter
+from yamcs.pymdb.parameters import ArrayParameter, FloatParameter
 from yamcs.pymdb.systems import System
 from yamcs.pymdb.verifiers import TerminationAction
 
@@ -14,7 +14,9 @@ def iter_parameter_data_types(system: System):
             yield parameter
 
     for subsystem in system.subsystems:
-        yield iter_parameter_data_types(subsystem)
+        subgen = iter_parameter_data_types(subsystem)
+        for a in subgen:
+            yield a
 
 
 def iter_argument_data_types(system: System):
