@@ -3,6 +3,7 @@ from yamcs.pymdb import checks  # noqa
 from yamcs.pymdb import csp  # noqa
 from yamcs.pymdb.algorithms import *  # noqa
 from yamcs.pymdb.ancillary import *  # noqa
+from yamcs.pymdb.calibrators import *  # noqa
 from yamcs.pymdb.commands import *  # noqa
 from yamcs.pymdb.containers import *  # noqa
 from yamcs.pymdb.datatypes import *  # noqa

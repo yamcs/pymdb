@@ -21,7 +21,9 @@ from yamcs.pymdb.datatypes import (
 from yamcs.pymdb.encodings import DataEncoding, TimeEncoding
 
 if TYPE_CHECKING:
+    from yamcs.pymdb.calibrators import Calibrator
     from yamcs.pymdb.systems import System
+
 
 
 class AlarmLevel(Enum):
@@ -463,6 +465,7 @@ class FloatParameter(Parameter, FloatDataType):
         extra: dict[str, str] | None = None,
         units: str | None = None,
         encoding: DataEncoding | None = None,
+        calibrator: Calibrator | None = None,
     ) -> None:
         FloatDataType.__init__(
             self,
@@ -471,6 +474,7 @@ class FloatParameter(Parameter, FloatDataType):
             minimum_inclusive=minimum_inclusive,
             maximum=maximum,
             maximum_inclusive=maximum_inclusive,
+            calibrator=calibrator,
         )
         Parameter.__init__(
             self,
@@ -508,6 +512,7 @@ class IntegerParameter(Parameter, IntegerDataType):
         extra: dict[str, str] | None = None,
         units: str | None = None,
         encoding: DataEncoding | None = None,
+        calibrator: Calibrator | None = None,
     ) -> None:
         IntegerDataType.__init__(
             self,
@@ -515,6 +520,7 @@ class IntegerParameter(Parameter, IntegerDataType):
             bits=bits,
             minimum=minimum,
             maximum=maximum,
+            calibrator=calibrator,
         )
         Parameter.__init__(
             self,

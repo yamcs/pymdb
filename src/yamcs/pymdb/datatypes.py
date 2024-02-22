@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any, Literal, Type, TypeAlias
 from yamcs.pymdb.encodings import DataEncoding, TimeEncoding
 
 if TYPE_CHECKING:
+    from yamcs.pymdb.calibrators import Calibrator
     from yamcs.pymdb.parameters import AbsoluteTimeParameter
 
 
@@ -230,6 +231,7 @@ class FloatDataType(DataType):
         extra: dict[str, str] | None = None,
         units: str | None = None,
         encoding: DataEncoding | None = None,
+        calibrator: Calibrator | None = None,
     ) -> None:
         DataType.__init__(
             self,
@@ -255,6 +257,9 @@ class FloatDataType(DataType):
         self.maximum_inclusive: bool = maximum_inclusive
         """Whether the maximum value itself is valid"""
 
+        self.calibrator: Calibrator | None = calibrator
+        """Describes how a raw value is transformed to an engineering value"""
+
 
 class IntegerDataType(DataType):
     def __init__(
@@ -269,6 +274,7 @@ class IntegerDataType(DataType):
         extra: dict[str, str] | None = None,
         units: str | None = None,
         encoding: DataEncoding | None = None,
+        calibrator: Calibrator | None = None,
     ) -> None:
         DataType.__init__(
             self,
@@ -289,6 +295,9 @@ class IntegerDataType(DataType):
 
         self.maximum: int | None = maximum
         """Maximum valid engineering value (inclusive)"""
+
+        self.calibrator: Calibrator | None = calibrator
+        """Describes how a raw value is transformed to an engineering value"""
 
 
 class StringDataType(DataType):
@@ -533,6 +542,7 @@ class FloatMember(Member, FloatDataType):
         extra: dict[str, str] | None = None,
         units: str | None = None,
         encoding: DataEncoding | None = None,
+        calibrator: Calibrator | None = None,
     ) -> None:
         FloatDataType.__init__(
             self,
@@ -541,6 +551,7 @@ class FloatMember(Member, FloatDataType):
             minimum_inclusive=minimum_inclusive,
             maximum=maximum,
             maximum_inclusive=maximum_inclusive,
+            calibrator=calibrator,
         )
         Member.__init__(
             self,
@@ -568,6 +579,7 @@ class IntegerMember(Member, IntegerDataType):
         extra: dict[str, str] | None = None,
         units: str | None = None,
         encoding: DataEncoding | None = None,
+        calibrator: Calibrator | None = None,
     ) -> None:
         IntegerDataType.__init__(
             self,
@@ -575,6 +587,7 @@ class IntegerMember(Member, IntegerDataType):
             bits=bits,
             minimum=minimum,
             maximum=maximum,
+            calibrator=calibrator,
         )
         Member.__init__(
             self,

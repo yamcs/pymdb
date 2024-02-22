@@ -35,6 +35,7 @@ from yamcs.pymdb.verifiers import (
 )
 
 if TYPE_CHECKING:
+    from yamcs.pymdb.calibrators import Calibrator
     from yamcs.pymdb.systems import System
 
 
@@ -299,6 +300,7 @@ class FloatArgument(Argument, FloatDataType):
         extra: dict[str, str] | None = None,
         units: str | None = None,
         encoding: DataEncoding | None = None,
+        calibrator: Calibrator | None = None,
     ) -> None:
         FloatDataType.__init__(
             self,
@@ -307,6 +309,7 @@ class FloatArgument(Argument, FloatDataType):
             minimum_inclusive=minimum_inclusive,
             maximum=maximum,
             maximum_inclusive=maximum_inclusive,
+            calibrator=calibrator,
         )
         Argument.__init__(
             self,
@@ -335,6 +338,7 @@ class IntegerArgument(Argument, IntegerDataType):
         extra: dict[str, str] | None = None,
         units: str | None = None,
         encoding: DataEncoding | None = None,
+        calibrator: Calibrator | None = None,
     ) -> None:
         IntegerDataType.__init__(
             self,
@@ -342,6 +346,7 @@ class IntegerArgument(Argument, IntegerDataType):
             bits=bits,
             minimum=minimum,
             maximum=maximum,
+            calibrator=calibrator,
         )
         Argument.__init__(
             self,

@@ -9,6 +9,7 @@ from xml.dom import minidom
 
 from yamcs.pymdb.algorithms import JavaAlgorithm
 from yamcs.pymdb.ancillary import AncillaryData
+from yamcs.pymdb.calibrators import Calibrator, Interpolate, Polynomial
 from yamcs.pymdb.commands import (
     Argument,
     ArgumentEntry,
@@ -910,7 +911,12 @@ class XTCE12Generator:
             unit_el.text = data_type.units
 
         if data_type.encoding:
-            self.add_data_encoding(el, data_type.encoding)
+            self.add_data_encoding(el, data_type.encoding, data_type.calibrator)
+
+        if data_type.calibrator and not data_type.encoding:
+            raise ExportError(
+                "A calibrator should only be specified if there is an encoding"
+            )
 
         if data_type.minimum is not None or data_type.maximum is not None:
             range_el = ET.SubElement(el, "ValidRange")
@@ -946,7 +952,12 @@ class XTCE12Generator:
             unit_el.text = data_type.units
 
         if data_type.encoding:
-            self.add_data_encoding(el, data_type.encoding)
+            self.add_data_encoding(el, data_type.encoding, data_type.calibrator)
+
+        if data_type.calibrator and not data_type.encoding:
+            raise ExportError(
+                "A calibrator should only be specified if there is an encoding"
+            )
 
         if data_type.minimum is not None or data_type.maximum is not None:
             range_el = ET.SubElement(el, "ValidRange")
@@ -986,7 +997,12 @@ class XTCE12Generator:
         else:
             raise Exception("Unexpected alarm level")
 
-    def add_data_encoding(self, parent: ET.Element, encoding: DataEncoding):
+    def add_data_encoding(
+        self,
+        parent: ET.Element,
+        encoding: DataEncoding,
+        calibrator: Calibrator | None = None,
+    ):
         if isinstance(encoding, FloatTimeEncoding):
             self.add_float_time_encoding(parent, encoding)
         elif isinstance(encoding, IntegerTimeEncoding):
@@ -994,9 +1010,9 @@ class XTCE12Generator:
         elif isinstance(encoding, BinaryDataEncoding):
             self.add_binary_data_encoding(parent, encoding)
         elif isinstance(encoding, IntegerDataEncoding):
-            self.add_integer_data_encoding(parent, encoding)
+            self.add_integer_data_encoding(parent, encoding, calibrator)
         elif isinstance(encoding, FloatDataEncoding):
-            self.add_float_data_encoding(parent, encoding)
+            self.add_float_data_encoding(parent, encoding, calibrator)
         elif isinstance(encoding, StringDataEncoding):
             self.add_string_data_encoding(parent, encoding)
         else:
@@ -1140,7 +1156,7 @@ class XTCE12Generator:
         el.attrib["offset"] = str(encoding.offset)
         el.attrib["scale"] = str(encoding.scale)
         el.attrib["units"] = "seconds"
-        self.add_float_data_encoding(el, encoding)
+        self.add_float_data_encoding(el, encoding, calibrator=None)
 
     def add_integer_time_encoding(
         self, parent: ET.Element, encoding: IntegerTimeEncoding
@@ -1149,10 +1165,13 @@ class XTCE12Generator:
         el.attrib["offset"] = str(encoding.offset)
         el.attrib["scale"] = str(encoding.scale)
         el.attrib["units"] = "seconds"
-        self.add_integer_data_encoding(el, encoding)
+        self.add_integer_data_encoding(el, encoding, calibrator=None)
 
     def add_integer_data_encoding(
-        self, parent: ET.Element, encoding: IntegerDataEncoding
+        self,
+        parent: ET.Element,
+        encoding: IntegerDataEncoding,
+        calibrator: Calibrator | None,
     ):
         el = ET.SubElement(parent, "IntegerDataEncoding")
         el.attrib["sizeInBits"] = str(encoding.bits)
@@ -1172,7 +1191,15 @@ class XTCE12Generator:
             elif encoding.byte_order == ByteOrder.LITTLE_ENDIAN:
                 el.attrib["byteOrder"] = "leastSignificantByteFirst"
 
-    def add_float_data_encoding(self, parent: ET.Element, encoding: FloatDataEncoding):
+        if calibrator:
+            self.add_calibrator(el, calibrator)
+
+    def add_float_data_encoding(
+        self,
+        parent: ET.Element,
+        encoding: FloatDataEncoding,
+        calibrator: Calibrator | None,
+    ):
         el = ET.SubElement(parent, "FloatDataEncoding")
         el.attrib["sizeInBits"] = str(encoding.bits)
 
@@ -1185,6 +1212,26 @@ class XTCE12Generator:
             el.attrib["byteOrder"] = "mostSignificantByteFirst"
         elif encoding.byte_order == ByteOrder.LITTLE_ENDIAN:
             el.attrib["byteOrder"] = "leastSignificantByteFirst"
+
+        if calibrator:
+            self.add_calibrator(el, calibrator)
+
+    def add_calibrator(self, parent: ET.Element, calibrator: Calibrator):
+        el = ET.SubElement(parent, "DefaultCalibrator")
+        if isinstance(calibrator, Polynomial):
+            poly_el = ET.SubElement(el, "PolynomialCalibrator")
+            for idx, coef in enumerate(calibrator.coefficients):
+                term_el = ET.SubElement(poly_el, "Term")
+                term_el.attrib["coefficient"] = str(coef)
+                term_el.attrib["exponent"] = str(idx)
+        elif isinstance(calibrator, Interpolate):
+            spline_el = ET.SubElement(el, "SplineCalibrator")
+            for idx, x in enumerate(calibrator.xp):
+                point_el = ET.SubElement(spline_el, "SplinePoint")
+                point_el.attrib["raw"] = str(x)
+                point_el.attrib["calibrated"] = str(calibrator.fp[idx])
+        else:
+            raise ExportError(f"Unexpected calibrator {calibrator.__class__}")
 
     def add_enumeration_list(self, parent: ET.Element, choices: Choices):
         el = ET.SubElement(parent, "EnumerationList")
