@@ -231,9 +231,9 @@ class Subsystem(System):
             if isinstance(parent, Subsystem):
                 parent = parent.system
             else:
-                parent = None
+                return parent
 
-        return parent or self
+        return parent
 
     @property
     def qualified_name(self) -> str:
