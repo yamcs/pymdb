@@ -110,7 +110,6 @@ class ArrayDataType(DataType):
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
-        units: str | None = None,
         encoding: DataEncoding | None = None,
     ) -> None:
         DataType.__init__(
@@ -119,7 +118,6 @@ class ArrayDataType(DataType):
             short_description=short_description,
             long_description=long_description,
             extra=extra,
-            units=units,
             encoding=encoding,
         )
         self.data_type: DataType = data_type
@@ -390,7 +388,6 @@ class AggregateMember(Member, AggregateDataType):
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
-        units: str | None = None,
         encoding: DataEncoding | None = None,
     ) -> None:
         AggregateDataType.__init__(
@@ -404,7 +401,6 @@ class AggregateMember(Member, AggregateDataType):
             short_description=short_description,
             long_description=long_description,
             extra=extra,
-            units=units,
             encoding=encoding,
         )
 
@@ -419,7 +415,6 @@ class ArrayMember(Member, ArrayDataType):
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
-        units: str | None = None,
         encoding: DataEncoding | None = None,
     ) -> None:
         ArrayDataType.__init__(
@@ -434,7 +429,6 @@ class ArrayMember(Member, ArrayDataType):
             short_description=short_description,
             long_description=long_description,
             extra=extra,
-            units=units,
             encoding=encoding,
         )
 

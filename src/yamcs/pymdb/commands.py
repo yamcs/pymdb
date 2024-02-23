@@ -143,7 +143,6 @@ class AggregateArgument(Argument, AggregateDataType):
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
-        units: str | None = None,
         encoding: DataEncoding | None = None,
     ) -> None:
         AggregateDataType.__init__(
@@ -157,7 +156,6 @@ class AggregateArgument(Argument, AggregateDataType):
             short_description=short_description,
             long_description=long_description,
             extra=extra,
-            units=units,
             encoding=encoding,
         )
 
@@ -173,7 +171,6 @@ class ArrayArgument(Argument, ArrayDataType):
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
-        units: str | None = None,
         encoding: DataEncoding | None = None,
     ) -> None:
         ArrayDataType.__init__(
@@ -188,7 +185,6 @@ class ArrayArgument(Argument, ArrayDataType):
             short_description=short_description,
             long_description=long_description,
             extra=extra,
-            units=units,
             encoding=encoding,
         )
 

@@ -25,7 +25,6 @@ if TYPE_CHECKING:
     from yamcs.pymdb.systems import System
 
 
-
 class AlarmLevel(Enum):
     """
     Alarm levels with increasing concern.
@@ -258,7 +257,6 @@ class AggregateParameter(Parameter, AggregateDataType):
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
-        units: str | None = None,
         encoding: DataEncoding | None = None,
     ) -> None:
         AggregateDataType.__init__(
@@ -275,7 +273,6 @@ class AggregateParameter(Parameter, AggregateDataType):
             short_description=short_description,
             long_description=long_description,
             extra=extra,
-            units=units,
             encoding=encoding,
         )
 
@@ -298,7 +295,6 @@ class ArrayParameter(Parameter, ArrayDataType):
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
-        units: str | None = None,
         encoding: DataEncoding | None = None,
     ) -> None:
         ArrayDataType.__init__(
@@ -316,7 +312,6 @@ class ArrayParameter(Parameter, ArrayDataType):
             short_description=short_description,
             long_description=long_description,
             extra=extra,
-            units=units,
             encoding=encoding,
         )
 
