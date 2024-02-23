@@ -86,6 +86,54 @@ class System:
         """
         return list(self._subsystems_by_name.values())
 
+    def remove_parameter(self, name: str) -> bool:
+        """
+        Removes a parameter directly belonging to this system.
+
+        Raises an exception if no such parameter exists
+        """
+        try:
+            self._parameters_by_name.pop(name)
+            return True
+        except KeyError:
+            return False
+
+    def remove_command(self, name: str) -> bool:
+        """
+        Removes a command directly belonging to this system.
+
+        Raises an exception if no such command exists
+        """
+        try:
+            self._commands_by_name.pop(name)
+            return True
+        except KeyError:
+            return False
+
+    def remove_container(self, name: str) -> bool:
+        """
+        Removes a container directly belonging to this system.
+
+        Raises an exception if no such container exists
+        """
+        try:
+            self._containers_by_name.pop(name)
+            return True
+        except KeyError:
+            return False
+
+    def remove_subsystem(self, name: str) -> bool:
+        """
+        Removes a subsystem directly belonging to this system.
+
+        Raises an exception if no such subsystem exists
+        """
+        try:
+            self._subsystems_by_name.pop(name)
+            return True
+        except KeyError:
+            return False
+
     def find_parameter(self, name: str) -> Parameter:
         """
         Find a parameter belonging directly to this system.
@@ -93,6 +141,14 @@ class System:
         Raises an exception if no parameter is found
         """
         return self._parameters_by_name[name]
+
+    def find_command(self, name: str) -> Command:
+        """
+        Find a command belonging directly to this system.
+
+        Raises an exception if no command is found
+        """
+        return self._commands_by_name[name]
 
     def find_container(self, name: str) -> Container:
         """
@@ -125,6 +181,9 @@ class System:
             indent=indent,
             top_comment=top_comment,
         )
+
+    def __str__(self) -> str:
+        return self.qualified_name
 
 
 class Subsystem(System):
