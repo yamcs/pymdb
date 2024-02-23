@@ -1,7 +1,7 @@
 from yamcs.pymdb.commands import ArrayArgument
 from yamcs.pymdb.datatypes import FloatDataType
 from yamcs.pymdb.encodings import ByteOrder, FloatDataEncoding, IntegerDataEncoding
-from yamcs.pymdb.parameters import ArrayParameter, FloatParameter
+from yamcs.pymdb.parameters import ArrayParameter
 from yamcs.pymdb.systems import System
 from yamcs.pymdb.verifiers import TerminationAction
 
@@ -33,11 +33,12 @@ def iter_argument_data_types(system: System):
             yield a, b, c
 
 
-def check_complete_verifiers(system: System):
+def check_complete_verifiers(system: System) -> bool:
     """
     Checks that all commands have at least one complete verifier that
     can completes the command
     """
+    ok = True
     for command in system.commands:
         if command.abstract:
             continue
@@ -55,27 +56,32 @@ def check_complete_verifiers(system: System):
                 break
 
         if not match:
+            ok = False
             print(
                 f"Command {command} has no verifier that can complete "
                 "the command successfully"
             )
 
     for subsystem in system.subsystems:
-        check_complete_verifiers(subsystem)
+        ok &= check_complete_verifiers(subsystem)
+
+    return ok
 
 
-def check_float_encoding(system: System):
+def check_float_encoding(system: System) -> bool:
     """
     Check that the size of float parameters/arguments is consistent with its data
     encoding.
 
     A common mistake is to have a float of 32 bits, with an encoding of 64 bits.
     """
+    ok = True
     for data_type in iter_parameter_data_types(system):
         if isinstance(data_type, FloatDataType) and isinstance(
             data_type.encoding, FloatDataEncoding
         ):
             if data_type.bits == 32 and data_type.encoding.bits == 64:
+                ok = False
                 print(
                     f"Parameter {data_type}: float bits (32) is "
                     "smaller than encoding (64)"
@@ -86,16 +92,19 @@ def check_float_encoding(system: System):
             data_type.encoding, FloatDataEncoding
         ):
             if data_type.bits == 32 and data_type.encoding.bits == 64:
+                ok = False
                 print(
                     f"Command {command}: argument {argument.name} float bits (32) is "
                     "smaller than encoding (64)"
                 )
+    return ok
 
 
-def check_little_endian_only(system: System):
+def check_little_endian_only(system: System) -> bool:
     """
     Check that data types use ony little endian encodings.
     """
+    ok = True
     for parameter in system.parameters:
         data_type = parameter
         if isinstance(parameter, ArrayParameter):
@@ -108,6 +117,7 @@ def check_little_endian_only(system: System):
                 and encoding.bits
                 and encoding.bits > 8
             ):
+                ok = False
                 print(f"Parameter {parameter} is not in little endian")
 
     for command in system.commands:
@@ -123,10 +133,13 @@ def check_little_endian_only(system: System):
                     and encoding.bits
                     and encoding.bits > 8
                 ):
+                    ok = False
                     print(
                         f"Command {command}: argument {argument.name} "
                         "is not in little endian"
                     )
 
     for subsystem in system.subsystems:
-        check_little_endian_only(subsystem)
+        ok &= check_little_endian_only(subsystem)
+
+    return ok
