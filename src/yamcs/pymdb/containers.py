@@ -3,6 +3,8 @@ from __future__ import annotations
 from enum import Enum, auto
 from typing import TYPE_CHECKING
 
+from yamcs.pymdb.datatypes import AggregateDataType, ArrayDataType
+
 if TYPE_CHECKING:
     from yamcs.pymdb.expressions import Expression
     from yamcs.pymdb.parameters import Parameter
@@ -32,6 +34,9 @@ class ParameterEntry:
         self.location_in_bits: int = location_in_bits
         self.include_condition: Expression | None = include_condition
 
+    def __str__(self) -> str:
+        return self.parameter.__str__()
+
 
 class ContainerEntry:
     def __init__(
@@ -50,6 +55,9 @@ class ContainerEntry:
         self.reference_location: ReferenceLocation = reference_location
         self.location_in_bits: int = location_in_bits
         self.include_condition: Expression | None = include_condition
+
+    def __str__(self) -> str:
+        return self.container.__str__()
 
 
 class Container:
@@ -71,6 +79,7 @@ class Container:
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
+        bits: int | None = None,
         hint_partition: bool = False,
     ):
         self.name: str = name
@@ -90,6 +99,19 @@ class Container:
 
         self.extra: dict[str, str] = extra or {}
         """Arbitrary information, keyed by name"""
+
+        self.bits: int | None = bits
+        """
+        Explicit fixed size in bits. Usually unnecessary, because Yamcs
+        can derive a lot from the entries.
+
+        If provided, Yamcs can use this information to speed up parameter
+        extraction, especially when this container is used as an entry
+        into another container.
+
+        If this container extends base container(s), their size should be
+        included.
+        """
 
         self.hint_partition: bool = hint_partition
         """
@@ -113,6 +135,11 @@ class Container:
 
     @property
     def qualified_name(self):
+        """
+        Absolute path of this item covering the full system tree. For example,
+        an item ``C`` in a subystem ``B`` of a top-level system ``A`` is
+        represented as ``/A/B/C``
+        """
         path = "/" + self.name
 
         parent = self.system
@@ -121,3 +148,47 @@ class Container:
             parent = getattr(parent, "system", None)
 
         return path
+
+    def fit_entries(self):
+        """
+        Automatically set a fixed size to this container based on the known entries.
+        """
+        if self.parent:
+            raise NotImplementedError()
+
+        max_pos = 0
+
+        prev_pos = 0
+        for entry in self.entries:
+            if isinstance(entry, ParameterEntry):
+                parameter = entry.parameter
+                bits = None
+                if isinstance(parameter, ArrayDataType):
+                    length = parameter.length
+                    encoding = parameter.data_type.encoding
+                    if encoding and encoding.bits:
+                        bits = length * encoding.bits
+                elif isinstance(parameter, AggregateDataType):
+                    raise NotImplementedError()
+                elif parameter.encoding and parameter.encoding.bits:
+                    bits = parameter.encoding.bits
+
+                if not bits:
+                    raise Exception(f"Cannot determine size of {entry.parameter}")
+
+                pos = entry.location_in_bits
+                if entry.reference_location == ReferenceLocation.PREVIOUS_ENTRY:
+                    pos += prev_pos
+
+                pos += bits
+
+                prev_pos = pos
+                if pos > max_pos:
+                    max_pos = pos
+            else:
+                raise NotImplementedError()
+
+        self.bits = max_pos
+
+    def __str__(self) -> str:
+        return self.qualified_name

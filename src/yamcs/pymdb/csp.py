@@ -149,6 +149,7 @@ def add_csp_header(
             packets with HMAC, XTEA encryption, RDP header and CRC32 checksum.
             """
         ),
+        bits=32,
         entries=[
             ParameterEntry(tm_pri),
             ParameterEntry(tm_src),

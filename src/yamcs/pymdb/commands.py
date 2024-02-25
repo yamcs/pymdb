@@ -524,6 +524,11 @@ class Command:
 
     @property
     def qualified_name(self):
+        """
+        Absolute path of this item covering the full system tree. For example,
+        an item ``C`` in a subystem ``B`` of a top-level system ``A`` is
+        represented as ``/A/B/C``
+        """
         path = "/" + self.name
 
         parent = self.system

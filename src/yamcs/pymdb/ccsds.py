@@ -120,10 +120,11 @@ def add_ccsds_header(system: System) -> CcsdsHeader:
             """
             Represents a Space Packet as defined in CCSDS 133.0-B-1
 
-            The first 8 bytes of a Space Packet are known as the
+            The first 6 bytes of a Space Packet are known as the
             "Primary Header".
             """
         ),
+        bits=8 * 6,
         entries=[
             ParameterEntry(tm_packet_id),
             ParameterEntry(tm_packet_sequence),
@@ -153,7 +154,7 @@ def add_ccsds_header(system: System) -> CcsdsHeader:
             """
             Represents a Space Packet as defined in CCSDS 133.0-B-1
 
-            The first 8 bytes of a Space Packet are known as the
+            The first 6 bytes of a Space Packet are known as the
             "Primary Header".
             """
         ),

@@ -71,9 +71,14 @@ See https://github.com/yamcs/pymdb
         <LongDescription>
 Represents a Space Packet as defined in CCSDS 133.0-B-1
 
-The first 8 bytes of a Space Packet are known as the
+The first 6 bytes of a Space Packet are known as the
 &quot;Primary Header&quot;.
 </LongDescription>
+        <BinaryEncoding>
+          <SizeInBits>
+            <FixedValue>48</FixedValue>
+          </SizeInBits>
+        </BinaryEncoding>
         <EntryList>
           <ParameterRefEntry parameterRef="ccsds_packet_id">
             <LocationInContainerInBits referenceLocation="previousEntry">
@@ -123,7 +128,7 @@ The first 8 bytes of a Space Packet are known as the
         <LongDescription>
 Represents a Space Packet as defined in CCSDS 133.0-B-1
 
-The first 8 bytes of a Space Packet are known as the
+The first 6 bytes of a Space Packet are known as the
 &quot;Primary Header&quot;.
 </LongDescription>
         <ArgumentList>

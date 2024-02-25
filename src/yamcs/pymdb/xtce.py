@@ -1316,6 +1316,12 @@ class XTCE12Generator:
         if extra:
             self.add_ancillary_data(el, extra)
 
+        if container.bits is not None:
+            encoding_el = ET.SubElement(el, "BinaryEncoding")
+            size_el = ET.SubElement(encoding_el, "SizeInBits")
+            fv_el = ET.SubElement(size_el, "FixedValue")
+            fv_el.text = str(container.bits)
+
         self.add_packet_entry_list(el, container)
 
     def add_expression_condition(

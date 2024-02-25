@@ -92,6 +92,11 @@ All remaining ports, from 48 to 63, are ephemeral ports used for
 outgoing connections. The bits from 28 to 31 are used for marking
 packets with HMAC, XTEA encryption, RDP header and CRC32 checksum.
 </LongDescription>
+        <BinaryEncoding>
+          <SizeInBits>
+            <FixedValue>32</FixedValue>
+          </SizeInBits>
+        </BinaryEncoding>
         <EntryList>
           <ParameterRefEntry parameterRef="csp_pri">
             <LocationInContainerInBits referenceLocation="previousEntry">
