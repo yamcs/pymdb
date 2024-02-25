@@ -63,28 +63,36 @@ class System:
         """
         Containers directly belonging to this system
         """
-        return list(self._containers_by_name.values())
+        copy = list(self._containers_by_name.values())
+        copy.sort()
+        return copy
 
     @property
     def commands(self) -> list[Command]:
         """
         Commands directly belonging to this system
         """
-        return list(self._commands_by_name.values())
+        copy = list(self._commands_by_name.values())
+        copy.sort()
+        return copy
 
     @property
     def parameters(self) -> list[Parameter]:
         """
         Parameters directly belonging to this system
         """
-        return list(self._parameters_by_name.values())
+        copy = list(self._parameters_by_name.values())
+        copy.sort()
+        return copy
 
     @property
     def subsystems(self) -> list[Subsystem]:
         """
         Subsystems directly belonging to this system
         """
-        return list(self._subsystems_by_name.values())
+        copy = list(self._subsystems_by_name.values())
+        copy.sort()
+        return copy
 
     def remove_parameter(self, name: str) -> bool:
         """
@@ -181,6 +189,9 @@ class System:
             indent=indent,
             top_comment=top_comment,
         )
+
+    def __lt__(self, other: System) -> bool:
+        return self.qualified_name < other.qualified_name
 
     def __str__(self) -> str:
         return self.qualified_name

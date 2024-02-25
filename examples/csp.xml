@@ -6,6 +6,23 @@ See https://github.com/yamcs/pymdb
 <SpaceSystem xmlns="http://www.omg.org/spec/XTCE/20180204" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.omg.org/spec/XTCE/20180204 https://www.omg.org/spec/XTCE/20180204/SpaceSystem.xsd" name="Spacecraft">
   <TelemetryMetaData>
     <ParameterTypeSet>
+      <BooleanParameterType name="csp_crc" zeroStringValue="False" oneStringValue="True">
+        <IntegerDataEncoding sizeInBits="1" encoding="unsigned"/>
+      </BooleanParameterType>
+      <IntegerParameterType name="csp_dport" signed="false" sizeInBits="32">
+        <IntegerDataEncoding sizeInBits="6" encoding="unsigned"/>
+      </IntegerParameterType>
+      <EnumeratedParameterType name="csp_dst">
+        <IntegerDataEncoding sizeInBits="5" encoding="unsigned"/>
+        <EnumerationList>
+          <Enumeration value="0" label="EPS"/>
+          <Enumeration value="2" label="COM"/>
+          <Enumeration value="3" label="ADCS"/>
+        </EnumerationList>
+      </EnumeratedParameterType>
+      <BooleanParameterType name="csp_hmac" zeroStringValue="False" oneStringValue="True">
+        <IntegerDataEncoding sizeInBits="1" encoding="unsigned"/>
+      </BooleanParameterType>
       <EnumeratedParameterType name="csp_pri">
         <IntegerDataEncoding sizeInBits="2" encoding="unsigned"/>
         <EnumerationList>
@@ -15,6 +32,12 @@ See https://github.com/yamcs/pymdb
           <Enumeration value="3" label="LOW"/>
         </EnumerationList>
       </EnumeratedParameterType>
+      <BooleanParameterType name="csp_rdp" zeroStringValue="False" oneStringValue="True">
+        <IntegerDataEncoding sizeInBits="1" encoding="unsigned"/>
+      </BooleanParameterType>
+      <IntegerParameterType name="csp_sport" signed="false" sizeInBits="32">
+        <IntegerDataEncoding sizeInBits="6" encoding="unsigned"/>
+      </IntegerParameterType>
       <EnumeratedParameterType name="csp_src">
         <IntegerDataEncoding sizeInBits="5" encoding="unsigned"/>
         <EnumerationList>
@@ -23,59 +46,36 @@ See https://github.com/yamcs/pymdb
           <Enumeration value="3" label="ADCS"/>
         </EnumerationList>
       </EnumeratedParameterType>
-      <EnumeratedParameterType name="csp_dst">
-        <IntegerDataEncoding sizeInBits="5" encoding="unsigned"/>
-        <EnumerationList>
-          <Enumeration value="0" label="EPS"/>
-          <Enumeration value="2" label="COM"/>
-          <Enumeration value="3" label="ADCS"/>
-        </EnumerationList>
-      </EnumeratedParameterType>
-      <IntegerParameterType name="csp_dport" signed="false" sizeInBits="32">
-        <IntegerDataEncoding sizeInBits="6" encoding="unsigned"/>
-      </IntegerParameterType>
-      <IntegerParameterType name="csp_sport" signed="false" sizeInBits="32">
-        <IntegerDataEncoding sizeInBits="6" encoding="unsigned"/>
-      </IntegerParameterType>
-      <BooleanParameterType name="csp_hmac" zeroStringValue="False" oneStringValue="True">
-        <IntegerDataEncoding sizeInBits="1" encoding="unsigned"/>
-      </BooleanParameterType>
       <BooleanParameterType name="csp_xtea" zeroStringValue="False" oneStringValue="True">
-        <IntegerDataEncoding sizeInBits="1" encoding="unsigned"/>
-      </BooleanParameterType>
-      <BooleanParameterType name="csp_rdp" zeroStringValue="False" oneStringValue="True">
-        <IntegerDataEncoding sizeInBits="1" encoding="unsigned"/>
-      </BooleanParameterType>
-      <BooleanParameterType name="csp_crc" zeroStringValue="False" oneStringValue="True">
         <IntegerDataEncoding sizeInBits="1" encoding="unsigned"/>
       </BooleanParameterType>
     </ParameterTypeSet>
     <ParameterSet>
-      <Parameter name="csp_pri" parameterTypeRef="csp_pri" shortDescription="Message priority">
-        <ParameterProperties dataSource="telemetered"/>
-      </Parameter>
-      <Parameter name="csp_src" parameterTypeRef="csp_src" shortDescription="Source">
-        <ParameterProperties dataSource="telemetered"/>
-      </Parameter>
-      <Parameter name="csp_dst" parameterTypeRef="csp_dst" shortDescription="Destination">
+      <Parameter name="csp_crc" parameterTypeRef="csp_crc" shortDescription="Use CRC32 checksum">
         <ParameterProperties dataSource="telemetered"/>
       </Parameter>
       <Parameter name="csp_dport" parameterTypeRef="csp_dport" shortDescription="Destination port">
         <ParameterProperties dataSource="telemetered"/>
       </Parameter>
-      <Parameter name="csp_sport" parameterTypeRef="csp_sport" shortDescription="Source port">
+      <Parameter name="csp_dst" parameterTypeRef="csp_dst" shortDescription="Destination">
         <ParameterProperties dataSource="telemetered"/>
       </Parameter>
       <Parameter name="csp_hmac" parameterTypeRef="csp_hmac" shortDescription="Use HMAC verification">
         <ParameterProperties dataSource="telemetered"/>
       </Parameter>
-      <Parameter name="csp_xtea" parameterTypeRef="csp_xtea" shortDescription="Use XTEA encryption">
+      <Parameter name="csp_pri" parameterTypeRef="csp_pri" shortDescription="Message priority">
         <ParameterProperties dataSource="telemetered"/>
       </Parameter>
       <Parameter name="csp_rdp" parameterTypeRef="csp_rdp" shortDescription="Use RDP protocol">
         <ParameterProperties dataSource="telemetered"/>
       </Parameter>
-      <Parameter name="csp_crc" parameterTypeRef="csp_crc" shortDescription="Use CRC32 checksum">
+      <Parameter name="csp_sport" parameterTypeRef="csp_sport" shortDescription="Source port">
+        <ParameterProperties dataSource="telemetered"/>
+      </Parameter>
+      <Parameter name="csp_src" parameterTypeRef="csp_src" shortDescription="Source">
+        <ParameterProperties dataSource="telemetered"/>
+      </Parameter>
+      <Parameter name="csp_xtea" parameterTypeRef="csp_xtea" shortDescription="Use XTEA encryption">
         <ParameterProperties dataSource="telemetered"/>
       </Parameter>
     </ParameterSet>

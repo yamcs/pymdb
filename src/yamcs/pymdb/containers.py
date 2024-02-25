@@ -190,5 +190,8 @@ class Container:
 
         self.bits = max_pos
 
+    def __lt__(self, other: Container) -> bool:
+        return self.qualified_name < other.qualified_name
+
     def __str__(self) -> str:
         return self.qualified_name

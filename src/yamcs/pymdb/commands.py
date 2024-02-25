@@ -576,5 +576,8 @@ class Command:
     def entries(self, entries: Sequence[CommandEntry]):
         self._entries = list(entries)
 
+    def __lt__(self, other: Command) -> bool:
+        return self.qualified_name < other.qualified_name
+
     def __str__(self) -> str:
         return self.qualified_name

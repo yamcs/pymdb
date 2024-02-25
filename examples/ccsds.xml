@@ -30,6 +30,12 @@ See https://github.com/yamcs/pymdb
       <IntegerParameterType name="ccsds_packet_id__apid" signed="false" sizeInBits="32">
         <IntegerDataEncoding sizeInBits="11" encoding="unsigned" byteOrder="mostSignificantByteFirst"/>
       </IntegerParameterType>
+      <IntegerParameterType name="ccsds_packet_length" signed="false" sizeInBits="32">
+        <UnitSet>
+          <Unit form="calibrated">Octets</Unit>
+        </UnitSet>
+        <IntegerDataEncoding sizeInBits="16" encoding="unsigned" byteOrder="mostSignificantByteFirst"/>
+      </IntegerParameterType>
       <AggregateParameterType name="ccsds_packet_sequence">
         <MemberList>
           <Member name="group_flags" typeRef="ccsds_packet_sequence__group_flags"/>
@@ -48,21 +54,15 @@ See https://github.com/yamcs/pymdb
       <IntegerParameterType name="ccsds_packet_sequence__source_sequence_count" signed="false" sizeInBits="32">
         <IntegerDataEncoding sizeInBits="14" encoding="unsigned" byteOrder="mostSignificantByteFirst"/>
       </IntegerParameterType>
-      <IntegerParameterType name="ccsds_packet_length" signed="false" sizeInBits="32">
-        <UnitSet>
-          <Unit form="calibrated">Octets</Unit>
-        </UnitSet>
-        <IntegerDataEncoding sizeInBits="16" encoding="unsigned" byteOrder="mostSignificantByteFirst"/>
-      </IntegerParameterType>
     </ParameterTypeSet>
     <ParameterSet>
       <Parameter name="ccsds_packet_id" parameterTypeRef="ccsds_packet_id" shortDescription="First word of the primary CCSDS header">
         <ParameterProperties dataSource="telemetered"/>
       </Parameter>
-      <Parameter name="ccsds_packet_sequence" parameterTypeRef="ccsds_packet_sequence" shortDescription="Second word of the primary CCSDS header">
+      <Parameter name="ccsds_packet_length" parameterTypeRef="ccsds_packet_length">
         <ParameterProperties dataSource="telemetered"/>
       </Parameter>
-      <Parameter name="ccsds_packet_length" parameterTypeRef="ccsds_packet_length">
+      <Parameter name="ccsds_packet_sequence" parameterTypeRef="ccsds_packet_sequence" shortDescription="Second word of the primary CCSDS header">
         <ParameterProperties dataSource="telemetered"/>
       </Parameter>
     </ParameterSet>
@@ -101,20 +101,8 @@ The first 6 bytes of a Space Packet are known as the
   </TelemetryMetaData>
   <CommandMetaData>
     <ArgumentTypeSet>
-      <BooleanArgumentType name="ccsds_space_packet__ccsds_secondary_header" zeroStringValue="Not Present" oneStringValue="Present">
-        <IntegerDataEncoding sizeInBits="1" encoding="unsigned"/>
-      </BooleanArgumentType>
-      <IntegerArgumentType name="ccsds_space_packet__ccsds_apid" signed="false" sizeInBits="32">
-        <IntegerDataEncoding sizeInBits="11" encoding="unsigned" byteOrder="mostSignificantByteFirst"/>
-      </IntegerArgumentType>
       <IntegerArgumentType name="MyProjectPacket__command_id" signed="false" sizeInBits="32">
         <IntegerDataEncoding sizeInBits="16" encoding="unsigned" byteOrder="mostSignificantByteFirst"/>
-      </IntegerArgumentType>
-      <IntegerArgumentType name="SwitchVoltageOn__battery" signed="false" sizeInBits="32">
-        <IntegerDataEncoding sizeInBits="16" encoding="unsigned" byteOrder="mostSignificantByteFirst"/>
-        <ValidRangeSet validRangeAppliesToCalibrated="true">
-          <ValidRange minInclusive="1" maxInclusive="3"/>
-        </ValidRangeSet>
       </IntegerArgumentType>
       <IntegerArgumentType name="SwitchVoltageOff__battery" signed="false" sizeInBits="32">
         <IntegerDataEncoding sizeInBits="16" encoding="unsigned" byteOrder="mostSignificantByteFirst"/>
@@ -122,8 +110,100 @@ The first 6 bytes of a Space Packet are known as the
           <ValidRange minInclusive="1" maxInclusive="3"/>
         </ValidRangeSet>
       </IntegerArgumentType>
+      <IntegerArgumentType name="SwitchVoltageOn__battery" signed="false" sizeInBits="32">
+        <IntegerDataEncoding sizeInBits="16" encoding="unsigned" byteOrder="mostSignificantByteFirst"/>
+        <ValidRangeSet validRangeAppliesToCalibrated="true">
+          <ValidRange minInclusive="1" maxInclusive="3"/>
+        </ValidRangeSet>
+      </IntegerArgumentType>
+      <BooleanArgumentType name="ccsds_space_packet__ccsds_secondary_header" zeroStringValue="Not Present" oneStringValue="Present">
+        <IntegerDataEncoding sizeInBits="1" encoding="unsigned"/>
+      </BooleanArgumentType>
+      <IntegerArgumentType name="ccsds_space_packet__ccsds_apid" signed="false" sizeInBits="32">
+        <IntegerDataEncoding sizeInBits="11" encoding="unsigned" byteOrder="mostSignificantByteFirst"/>
+      </IntegerArgumentType>
     </ArgumentTypeSet>
     <MetaCommandSet>
+      <MetaCommand name="MyProjectPacket" abstract="true">
+        <BaseMetaCommand metaCommandRef="ccsds_space_packet">
+          <ArgumentAssignmentList>
+            <ArgumentAssignment argumentName="ccsds_secondary_header" argumentValue="NotPresent"/>
+            <ArgumentAssignment argumentName="ccsds_apid" argumentValue="101"/>
+          </ArgumentAssignmentList>
+        </BaseMetaCommand>
+        <ArgumentList>
+          <Argument name="command_id" argumentTypeRef="MyProjectPacket__command_id"/>
+        </ArgumentList>
+        <CommandContainer name="MyProjectPacket">
+          <EntryList>
+            <ArgumentRefEntry argumentRef="command_id">
+              <LocationInContainerInBits referenceLocation="previousEntry">
+                <FixedValue>0</FixedValue>
+              </LocationInContainerInBits>
+            </ArgumentRefEntry>
+          </EntryList>
+          <BaseContainer containerRef="ccsds_space_packet"/>
+        </CommandContainer>
+        <DefaultSignificance consequenceLevel="normal"/>
+        <VerifierSet/>
+      </MetaCommand>
+      <MetaCommand name="Reboot" abstract="false">
+        <BaseMetaCommand metaCommandRef="MyProjectPacket">
+          <ArgumentAssignmentList>
+            <ArgumentAssignment argumentName="command_id" argumentValue="1"/>
+          </ArgumentAssignmentList>
+        </BaseMetaCommand>
+        <CommandContainer name="Reboot">
+          <EntryList/>
+          <BaseContainer containerRef="MyProjectPacket"/>
+        </CommandContainer>
+        <DefaultSignificance consequenceLevel="normal"/>
+        <VerifierSet/>
+      </MetaCommand>
+      <MetaCommand name="SwitchVoltageOff" abstract="false" shortDescription="Switches a battery off">
+        <BaseMetaCommand metaCommandRef="MyProjectPacket">
+          <ArgumentAssignmentList>
+            <ArgumentAssignment argumentName="command_id" argumentValue="3"/>
+          </ArgumentAssignmentList>
+        </BaseMetaCommand>
+        <ArgumentList>
+          <Argument name="battery" argumentTypeRef="SwitchVoltageOff__battery" shortDescription="Number of the battery"/>
+        </ArgumentList>
+        <CommandContainer name="SwitchVoltageOff">
+          <EntryList>
+            <ArgumentRefEntry argumentRef="battery">
+              <LocationInContainerInBits referenceLocation="previousEntry">
+                <FixedValue>0</FixedValue>
+              </LocationInContainerInBits>
+            </ArgumentRefEntry>
+          </EntryList>
+          <BaseContainer containerRef="MyProjectPacket"/>
+        </CommandContainer>
+        <DefaultSignificance consequenceLevel="normal"/>
+        <VerifierSet/>
+      </MetaCommand>
+      <MetaCommand name="SwitchVoltageOn" abstract="false" shortDescription="Switches a battery on">
+        <BaseMetaCommand metaCommandRef="MyProjectPacket">
+          <ArgumentAssignmentList>
+            <ArgumentAssignment argumentName="command_id" argumentValue="2"/>
+          </ArgumentAssignmentList>
+        </BaseMetaCommand>
+        <ArgumentList>
+          <Argument name="battery" argumentTypeRef="SwitchVoltageOn__battery" shortDescription="Number of the battery"/>
+        </ArgumentList>
+        <CommandContainer name="SwitchVoltageOn">
+          <EntryList>
+            <ArgumentRefEntry argumentRef="battery">
+              <LocationInContainerInBits referenceLocation="previousEntry">
+                <FixedValue>0</FixedValue>
+              </LocationInContainerInBits>
+            </ArgumentRefEntry>
+          </EntryList>
+          <BaseContainer containerRef="MyProjectPacket"/>
+        </CommandContainer>
+        <DefaultSignificance consequenceLevel="normal"/>
+        <VerifierSet/>
+      </MetaCommand>
       <MetaCommand name="ccsds_space_packet" abstract="true" shortDescription="CCSDS 133.0-B-1 Space Packet">
         <LongDescription>
 Represents a Space Packet as defined in CCSDS 133.0-B-1
@@ -173,86 +253,6 @@ The first 6 bytes of a Space Packet are known as the
               </LocationInContainerInBits>
             </FixedValueEntry>
           </EntryList>
-        </CommandContainer>
-        <DefaultSignificance consequenceLevel="normal"/>
-        <VerifierSet/>
-      </MetaCommand>
-      <MetaCommand name="MyProjectPacket" abstract="true">
-        <BaseMetaCommand metaCommandRef="ccsds_space_packet">
-          <ArgumentAssignmentList>
-            <ArgumentAssignment argumentName="ccsds_secondary_header" argumentValue="NotPresent"/>
-            <ArgumentAssignment argumentName="ccsds_apid" argumentValue="101"/>
-          </ArgumentAssignmentList>
-        </BaseMetaCommand>
-        <ArgumentList>
-          <Argument name="command_id" argumentTypeRef="MyProjectPacket__command_id"/>
-        </ArgumentList>
-        <CommandContainer name="MyProjectPacket">
-          <EntryList>
-            <ArgumentRefEntry argumentRef="command_id">
-              <LocationInContainerInBits referenceLocation="previousEntry">
-                <FixedValue>0</FixedValue>
-              </LocationInContainerInBits>
-            </ArgumentRefEntry>
-          </EntryList>
-          <BaseContainer containerRef="ccsds_space_packet"/>
-        </CommandContainer>
-        <DefaultSignificance consequenceLevel="normal"/>
-        <VerifierSet/>
-      </MetaCommand>
-      <MetaCommand name="Reboot" abstract="false">
-        <BaseMetaCommand metaCommandRef="MyProjectPacket">
-          <ArgumentAssignmentList>
-            <ArgumentAssignment argumentName="command_id" argumentValue="1"/>
-          </ArgumentAssignmentList>
-        </BaseMetaCommand>
-        <CommandContainer name="Reboot">
-          <EntryList/>
-          <BaseContainer containerRef="MyProjectPacket"/>
-        </CommandContainer>
-        <DefaultSignificance consequenceLevel="normal"/>
-        <VerifierSet/>
-      </MetaCommand>
-      <MetaCommand name="SwitchVoltageOn" abstract="false" shortDescription="Switches a battery on">
-        <BaseMetaCommand metaCommandRef="MyProjectPacket">
-          <ArgumentAssignmentList>
-            <ArgumentAssignment argumentName="command_id" argumentValue="2"/>
-          </ArgumentAssignmentList>
-        </BaseMetaCommand>
-        <ArgumentList>
-          <Argument name="battery" argumentTypeRef="SwitchVoltageOn__battery" shortDescription="Number of the battery"/>
-        </ArgumentList>
-        <CommandContainer name="SwitchVoltageOn">
-          <EntryList>
-            <ArgumentRefEntry argumentRef="battery">
-              <LocationInContainerInBits referenceLocation="previousEntry">
-                <FixedValue>0</FixedValue>
-              </LocationInContainerInBits>
-            </ArgumentRefEntry>
-          </EntryList>
-          <BaseContainer containerRef="MyProjectPacket"/>
-        </CommandContainer>
-        <DefaultSignificance consequenceLevel="normal"/>
-        <VerifierSet/>
-      </MetaCommand>
-      <MetaCommand name="SwitchVoltageOff" abstract="false" shortDescription="Switches a battery off">
-        <BaseMetaCommand metaCommandRef="MyProjectPacket">
-          <ArgumentAssignmentList>
-            <ArgumentAssignment argumentName="command_id" argumentValue="3"/>
-          </ArgumentAssignmentList>
-        </BaseMetaCommand>
-        <ArgumentList>
-          <Argument name="battery" argumentTypeRef="SwitchVoltageOff__battery" shortDescription="Number of the battery"/>
-        </ArgumentList>
-        <CommandContainer name="SwitchVoltageOff">
-          <EntryList>
-            <ArgumentRefEntry argumentRef="battery">
-              <LocationInContainerInBits referenceLocation="previousEntry">
-                <FixedValue>0</FixedValue>
-              </LocationInContainerInBits>
-            </ArgumentRefEntry>
-          </EntryList>
-          <BaseContainer containerRef="MyProjectPacket"/>
         </CommandContainer>
         <DefaultSignificance consequenceLevel="normal"/>
         <VerifierSet/>
