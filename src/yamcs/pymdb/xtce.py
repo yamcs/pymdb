@@ -159,6 +159,7 @@ class XTCE12Generator:
                 self.add_argument_type(
                     set_el,
                     name=f"{command.name}__{argument.name}",
+                    default=argument.default,
                     data_type=argument,
                 )
 
@@ -489,28 +490,34 @@ class XTCE12Generator:
 
         el = ET.SubElement(parent, "ParameterTypeSet")
         for parameter in system.parameters:
-            self.add_parameter_type(el, parameter.name, parameter)
+            self.add_parameter_type(
+                el,
+                parameter.name,
+                parameter.initial_value,
+                parameter,
+            )
 
     def add_argument_type(
         self,
         parent: ET.Element,
         name: str,
+        default: Any,
         data_type: DataType,
     ):
         if isinstance(data_type, AbsoluteTimeDataType):
             self.add_absolute_time_argument_type(parent, name, data_type)
         elif isinstance(data_type, BinaryDataType):
-            self.add_binary_argument_type(parent, name, data_type)
+            self.add_binary_argument_type(parent, name, default, data_type)
         elif isinstance(data_type, BooleanDataType):
-            self.add_boolean_argument_type(parent, name, data_type)
+            self.add_boolean_argument_type(parent, name, default, data_type)
         elif isinstance(data_type, EnumeratedDataType):
-            self.add_enumerated_argument_type(parent, name, data_type)
+            self.add_enumerated_argument_type(parent, name, default, data_type)
         elif isinstance(data_type, FloatDataType):
-            self.add_float_argument_type(parent, name, data_type)
+            self.add_float_argument_type(parent, name, default, data_type)
         elif isinstance(data_type, IntegerDataType):
-            self.add_integer_argument_type(parent, name, data_type)
+            self.add_integer_argument_type(parent, name, default, data_type)
         elif isinstance(data_type, StringDataType):
-            self.add_string_argument_type(parent, name, data_type)
+            self.add_string_argument_type(parent, name, default, data_type)
         else:
             raise ExportError(f"Unexpected data type {data_type.__class__}")
 
@@ -541,12 +548,13 @@ class XTCE12Generator:
         self,
         parent: ET.Element,
         name: str,
+        default: Any,
         data_type: BinaryDataType,
     ):
         el = ET.SubElement(parent, "BinaryArgumentType")
         el.attrib["name"] = name
-        if data_type.initial_value:
-            el.attrib["initialValue"] = _to_xml_value(data_type.initial_value)
+        if default:
+            el.attrib["initialValue"] = _to_xml_value(default)
 
         # Non-standard options recognized by Yamcs
         opts = []
@@ -570,20 +578,21 @@ class XTCE12Generator:
         self,
         parent: ET.Element,
         name: str,
+        default: Any,
         data_type: BooleanDataType,
     ):
         el = ET.SubElement(parent, "BooleanArgumentType")
         el.attrib["name"] = name
 
-        if data_type.initial_value is not None:
-            if isinstance(data_type.initial_value, bool):
+        if default is not None:
+            if isinstance(default, bool):
                 el.attrib["initialValue"] = (
                     data_type.one_string_value
-                    if data_type.initial_value
+                    if default
                     else data_type.zero_string_value
                 )
             else:
-                el.attrib["initialValue"] = str(data_type.initial_value)
+                el.attrib["initialValue"] = str(default)
 
         el.attrib["zeroStringValue"] = data_type.zero_string_value
         el.attrib["oneStringValue"] = data_type.one_string_value
@@ -601,13 +610,14 @@ class XTCE12Generator:
         self,
         parent: ET.Element,
         name: str,
+        default: Any,
         data_type: EnumeratedDataType,
     ):
         el = ET.SubElement(parent, "EnumeratedArgumentType")
         el.attrib["name"] = name
 
-        if data_type.initial_value:
-            el.attrib["initialValue"] = str(data_type.initial_value)
+        if default:
+            el.attrib["initialValue"] = str(default)
 
         if data_type.units:
             unit_set_el = ET.SubElement(el, "UnitSet")
@@ -624,14 +634,15 @@ class XTCE12Generator:
         self,
         parent: ET.Element,
         name: str,
+        default: Any,
         data_type: FloatDataType,
     ):
         el = ET.SubElement(parent, "FloatArgumentType")
         el.attrib["name"] = name
         el.attrib["sizeInBits"] = str(data_type.bits)
 
-        if data_type.initial_value is not None:
-            el.attrib["initialValue"] = str(data_type.initial_value)
+        if default is not None:
+            el.attrib["initialValue"] = str(default)
 
         if data_type.units:
             unit_set_el = ET.SubElement(el, "UnitSet")
@@ -660,6 +671,7 @@ class XTCE12Generator:
         self,
         parent: ET.Element,
         name: str,
+        default: Any,
         data_type: IntegerDataType,
     ):
         el = ET.SubElement(parent, "IntegerArgumentType")
@@ -667,8 +679,8 @@ class XTCE12Generator:
         el.attrib["signed"] = _to_xml_value(data_type.signed)
         el.attrib["sizeInBits"] = str(data_type.bits)
 
-        if data_type.initial_value is not None:
-            el.attrib["initialValue"] = _to_xml_value(data_type.initial_value)
+        if default is not None:
+            el.attrib["initialValue"] = _to_xml_value(default)
 
         if data_type.units:
             unit_set_el = ET.SubElement(el, "UnitSet")
@@ -692,12 +704,13 @@ class XTCE12Generator:
         self,
         parent: ET.Element,
         name: str,
+        default: Any,
         data_type: StringDataType,
     ):
         el = ET.SubElement(parent, "StringArgumentType")
         el.attrib["name"] = name
-        if data_type.initial_value is not None:
-            el.attrib["initialValue"] = _to_xml_value(data_type.initial_value)
+        if default is not None:
+            el.attrib["initialValue"] = _to_xml_value(default)
 
         if data_type.encoding:
             self.add_data_encoding(el, data_type.encoding)
@@ -713,6 +726,7 @@ class XTCE12Generator:
         self,
         parent: ET.Element,
         name: str,
+        initial_value: Any,
         data_type: DataType,
     ):
         if isinstance(data_type, AbsoluteTimeDataType):
@@ -722,17 +736,17 @@ class XTCE12Generator:
         elif isinstance(data_type, ArrayDataType):
             self.add_array_parameter_type(parent, name, data_type)
         elif isinstance(data_type, BinaryDataType):
-            self.add_binary_parameter_type(parent, name, data_type)
+            self.add_binary_parameter_type(parent, name, initial_value, data_type)
         elif isinstance(data_type, BooleanDataType):
-            self.add_boolean_parameter_type(parent, name, data_type)
+            self.add_boolean_parameter_type(parent, name, initial_value, data_type)
         elif isinstance(data_type, EnumeratedDataType):
-            self.add_enumerated_parameter_type(parent, name, data_type)
+            self.add_enumerated_parameter_type(parent, name, initial_value, data_type)
         elif isinstance(data_type, FloatDataType):
-            self.add_float_parameter_type(parent, name, data_type)
+            self.add_float_parameter_type(parent, name, initial_value, data_type)
         elif isinstance(data_type, IntegerDataType):
-            self.add_integer_parameter_type(parent, name, data_type)
+            self.add_integer_parameter_type(parent, name, initial_value, data_type)
         elif isinstance(data_type, StringDataType):
-            self.add_string_parameter_type(parent, name, data_type)
+            self.add_string_parameter_type(parent, name, initial_value, data_type)
         else:
             raise ExportError(f"Unexpected data type {data_type.__class__}")
 
@@ -754,7 +768,12 @@ class XTCE12Generator:
             member_el.attrib["name"] = str(member.name)
             member_el.attrib["typeRef"] = member_type_name
 
-            self.add_parameter_type(parent, member_type_name, member)
+            self.add_parameter_type(
+                parent,
+                member_type_name,
+                member.initial_value,
+                member,
+            )
 
     def add_array_parameter_type(
         self,
@@ -775,7 +794,7 @@ class XTCE12Generator:
         end_idx_el = ET.SubElement(dim_el, "EndingIndex")
         ET.SubElement(end_idx_el, "FixedValue").text = str(data_type.length - 1)
 
-        self.add_parameter_type(parent, element_type_name, data_type.data_type)
+        self.add_parameter_type(parent, element_type_name, None, data_type.data_type)
 
     def add_absolute_time_parameter_type(
         self,
@@ -808,12 +827,13 @@ class XTCE12Generator:
         self,
         parent: ET.Element,
         name: str,
+        initial_value: Any,
         data_type: BinaryDataType,
     ):
         el = ET.SubElement(parent, "BinaryParameterType")
         el.attrib["name"] = name
-        if data_type.initial_value:
-            el.attrib["initialValue"] = _to_xml_value(data_type.initial_value)
+        if initial_value:
+            el.attrib["initialValue"] = _to_xml_value(initial_value)
 
         if data_type.units:
             unit_set_el = ET.SubElement(el, "UnitSet")
@@ -828,20 +848,21 @@ class XTCE12Generator:
         self,
         parent: ET.Element,
         name: str,
+        initial_value: Any,
         data_type: BooleanDataType,
     ):
         el = ET.SubElement(parent, "BooleanParameterType")
         el.attrib["name"] = name
 
-        if data_type.initial_value is not None:
-            if isinstance(data_type.initial_value, bool):
+        if initial_value is not None:
+            if isinstance(initial_value, bool):
                 el.attrib["initialValue"] = (
                     data_type.one_string_value
-                    if data_type.initial_value
+                    if initial_value
                     else data_type.zero_string_value
                 )
             else:
-                el.attrib["initialValue"] = str(data_type.initial_value)
+                el.attrib["initialValue"] = str(initial_value)
 
         el.attrib["zeroStringValue"] = data_type.zero_string_value
         el.attrib["oneStringValue"] = data_type.one_string_value
@@ -859,13 +880,14 @@ class XTCE12Generator:
         self,
         parent: ET.Element,
         name: str,
+        initial_value: Any,
         data_type: EnumeratedDataType,
     ):
         el = ET.SubElement(parent, "EnumeratedParameterType")
         el.attrib["name"] = name
 
-        if data_type.initial_value:
-            el.attrib["initialValue"] = data_type.initial_value
+        if initial_value:
+            el.attrib["initialValue"] = initial_value
 
         if data_type.units:
             unit_set_el = ET.SubElement(el, "UnitSet")
@@ -895,14 +917,15 @@ class XTCE12Generator:
         self,
         parent: ET.Element,
         name: str,
+        initial_value: Any,
         data_type: FloatDataType,
     ):
         el = ET.SubElement(parent, "FloatParameterType")
         el.attrib["name"] = name
         el.attrib["sizeInBits"] = str(data_type.bits)
 
-        if data_type.initial_value is not None:
-            el.attrib["initialValue"] = str(data_type.initial_value)
+        if initial_value is not None:
+            el.attrib["initialValue"] = str(initial_value)
 
         if data_type.units:
             unit_set_el = ET.SubElement(el, "UnitSet")
@@ -936,12 +959,13 @@ class XTCE12Generator:
         self,
         parent: ET.Element,
         name: str,
+        initial_value: Any,
         data_type: IntegerDataType,
     ):
         el = ET.SubElement(parent, "IntegerParameterType")
         el.attrib["name"] = name
-        if data_type.initial_value is not None:
-            el.attrib["initialValue"] = str(data_type.initial_value)
+        if initial_value is not None:
+            el.attrib["initialValue"] = str(initial_value)
         el.attrib["signed"] = _to_xml_value(data_type.signed)
         el.attrib["sizeInBits"] = str(data_type.bits)
 
@@ -971,12 +995,13 @@ class XTCE12Generator:
         self,
         parent: ET.Element,
         name: str,
+        initial_value: Any,
         data_type: StringDataType,
     ):
         el = ET.SubElement(parent, "StringParameterType")
         el.attrib["name"] = name
-        if data_type.initial_value is not None:
-            el.attrib["initialValue"] = str(data_type.initial_value)
+        if initial_value is not None:
+            el.attrib["initialValue"] = str(initial_value)
 
         if data_type.encoding:
             self.add_data_encoding(el, data_type.encoding)

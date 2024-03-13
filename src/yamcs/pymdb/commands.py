@@ -80,7 +80,7 @@ class Argument(DataType):
         self,
         name: str,
         *,
-        initial_value: Any = None,
+        default: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
@@ -90,9 +90,11 @@ class Argument(DataType):
         self.name: str = name
         """Short name of this argument"""
 
+        self.default: Any = default
+        """Default value"""
+
         DataType.__init__(
             self,
-            initial_value=initial_value,
             short_description=short_description,
             long_description=long_description,
             extra=extra,
@@ -110,7 +112,7 @@ class AbsoluteTimeArgument(Argument, AbsoluteTimeDataType):
         name: str,
         reference: Epoch,
         *,
-        initial_value: Any = None,
+        default: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
@@ -124,7 +126,7 @@ class AbsoluteTimeArgument(Argument, AbsoluteTimeDataType):
         Argument.__init__(
             self,
             name=name,
-            initial_value=initial_value,
+            default=default,
             short_description=short_description,
             long_description=long_description,
             extra=extra,
@@ -139,7 +141,7 @@ class AggregateArgument(Argument, AggregateDataType):
         name: str,
         members: list[Member],
         *,
-        initial_value: Any = None,
+        default: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
@@ -152,7 +154,7 @@ class AggregateArgument(Argument, AggregateDataType):
         Argument.__init__(
             self,
             name=name,
-            initial_value=initial_value,
+            default=default,
             short_description=short_description,
             long_description=long_description,
             extra=extra,
@@ -167,7 +169,7 @@ class ArrayArgument(Argument, ArrayDataType):
         data_type: DataType,
         length: int,
         *,
-        initial_value: Any = None,
+        default: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
@@ -181,7 +183,7 @@ class ArrayArgument(Argument, ArrayDataType):
         Argument.__init__(
             self,
             name=name,
-            initial_value=initial_value,
+            default=default,
             short_description=short_description,
             long_description=long_description,
             extra=extra,
@@ -196,7 +198,7 @@ class BinaryArgument(Argument, BinaryDataType):
         *,
         min_length: int | None = None,
         max_length: int | None = None,
-        initial_value: Any = None,
+        default: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
@@ -211,7 +213,7 @@ class BinaryArgument(Argument, BinaryDataType):
         Argument.__init__(
             self,
             name=name,
-            initial_value=initial_value,
+            default=default,
             short_description=short_description,
             long_description=long_description,
             extra=extra,
@@ -227,7 +229,7 @@ class BooleanArgument(Argument, BooleanDataType):
         *,
         zero_string_value: str = "False",
         one_string_value: str = "True",
-        initial_value: Any = None,
+        default: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
@@ -242,7 +244,7 @@ class BooleanArgument(Argument, BooleanDataType):
         Argument.__init__(
             self,
             name=name,
-            initial_value=initial_value,
+            default=default,
             short_description=short_description,
             long_description=long_description,
             extra=extra,
@@ -257,7 +259,7 @@ class EnumeratedArgument(Argument, EnumeratedDataType):
         name: str,
         choices: Choices,
         *,
-        initial_value: Any = None,
+        default: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
@@ -271,7 +273,7 @@ class EnumeratedArgument(Argument, EnumeratedDataType):
         Argument.__init__(
             self,
             name=name,
-            initial_value=initial_value,
+            default=default,
             short_description=short_description,
             long_description=long_description,
             extra=extra,
@@ -290,7 +292,7 @@ class FloatArgument(Argument, FloatDataType):
         minimum_inclusive: bool = True,
         maximum: float | None = None,
         maximum_inclusive: bool = True,
-        initial_value: Any = None,
+        default: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
@@ -310,7 +312,7 @@ class FloatArgument(Argument, FloatDataType):
         Argument.__init__(
             self,
             name=name,
-            initial_value=initial_value,
+            default=default,
             short_description=short_description,
             long_description=long_description,
             extra=extra,
@@ -328,7 +330,7 @@ class IntegerArgument(Argument, IntegerDataType):
         bits: int = 32,
         minimum: int | None = None,
         maximum: int | None = None,
-        initial_value: Any = None,
+        default: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
@@ -347,7 +349,7 @@ class IntegerArgument(Argument, IntegerDataType):
         Argument.__init__(
             self,
             name=name,
-            initial_value=initial_value,
+            default=default,
             short_description=short_description,
             long_description=long_description,
             extra=extra,
@@ -363,7 +365,7 @@ class StringArgument(Argument, StringDataType):
         *,
         min_length: int | None = None,
         max_length: int | None = None,
-        initial_value: Any = None,
+        default: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
@@ -378,7 +380,7 @@ class StringArgument(Argument, StringDataType):
         Argument.__init__(
             self,
             name=name,
-            initial_value=initial_value,
+            default=default,
             short_description=short_description,
             long_description=long_description,
             extra=extra,

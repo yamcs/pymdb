@@ -20,16 +20,12 @@ Choices: TypeAlias = list[tuple[int, str] | tuple[int, str, str]] | Type[Enum]
 class DataType:
     def __init__(
         self,
-        initial_value: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
         units: str | None = None,
         encoding: DataEncoding | None = None,
     ) -> None:
-        self.initial_value: Any = initial_value
-        """Default value"""
-
         self.short_description: str | None = short_description
         """Oneline description"""
 
@@ -53,7 +49,6 @@ class AbsoluteTimeDataType(DataType):
     def __init__(
         self,
         reference: Epoch | AbsoluteTimeParameter,
-        initial_value: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
@@ -62,7 +57,6 @@ class AbsoluteTimeDataType(DataType):
     ) -> None:
         DataType.__init__(
             self,
-            initial_value=initial_value,
             short_description=short_description,
             long_description=long_description,
             extra=extra,
@@ -76,7 +70,6 @@ class AggregateDataType(DataType):
     def __init__(
         self,
         members: list[Member],
-        initial_value: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
@@ -85,7 +78,6 @@ class AggregateDataType(DataType):
     ) -> None:
         DataType.__init__(
             self,
-            initial_value=initial_value,
             short_description=short_description,
             long_description=long_description,
             extra=extra,
@@ -106,7 +98,6 @@ class ArrayDataType(DataType):
         self,
         data_type: DataType,
         length: int,
-        initial_value: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
@@ -114,7 +105,6 @@ class ArrayDataType(DataType):
     ) -> None:
         DataType.__init__(
             self,
-            initial_value=initial_value,
             short_description=short_description,
             long_description=long_description,
             extra=extra,
@@ -129,7 +119,6 @@ class BinaryDataType(DataType):
         self,
         min_length: int | None = None,
         max_length: int | None = None,
-        initial_value: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
@@ -138,7 +127,6 @@ class BinaryDataType(DataType):
     ) -> None:
         DataType.__init__(
             self,
-            initial_value=initial_value,
             short_description=short_description,
             long_description=long_description,
             extra=extra,
@@ -158,7 +146,6 @@ class BooleanDataType(DataType):
         self,
         zero_string_value: str = "False",
         one_string_value: str = "True",
-        initial_value: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
@@ -167,7 +154,6 @@ class BooleanDataType(DataType):
     ) -> None:
         DataType.__init__(
             self,
-            initial_value=initial_value,
             short_description=short_description,
             long_description=long_description,
             extra=extra,
@@ -183,7 +169,6 @@ class EnumeratedDataType(DataType):
     def __init__(
         self,
         choices: Choices,
-        initial_value: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
@@ -192,7 +177,6 @@ class EnumeratedDataType(DataType):
     ) -> None:
         DataType.__init__(
             self,
-            initial_value=initial_value,
             short_description=short_description,
             long_description=long_description,
             extra=extra,
@@ -223,7 +207,6 @@ class FloatDataType(DataType):
         minimum_inclusive: bool = True,
         maximum: float | None = None,
         maximum_inclusive: bool = True,
-        initial_value: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
@@ -233,7 +216,6 @@ class FloatDataType(DataType):
     ) -> None:
         DataType.__init__(
             self,
-            initial_value=initial_value,
             short_description=short_description,
             long_description=long_description,
             extra=extra,
@@ -266,7 +248,6 @@ class IntegerDataType(DataType):
         bits: int = 32,
         minimum: int | None = None,
         maximum: int | None = None,
-        initial_value: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
@@ -276,7 +257,6 @@ class IntegerDataType(DataType):
     ) -> None:
         DataType.__init__(
             self,
-            initial_value=initial_value,
             short_description=short_description,
             long_description=long_description,
             extra=extra,
@@ -303,7 +283,6 @@ class StringDataType(DataType):
         self,
         min_length: int | None = None,
         max_length: int | None = None,
-        initial_value: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
@@ -312,7 +291,6 @@ class StringDataType(DataType):
     ) -> None:
         DataType.__init__(
             self,
-            initial_value=initial_value,
             short_description=short_description,
             long_description=long_description,
             extra=extra,
@@ -340,7 +318,6 @@ class Member(DataType):
     ) -> None:
         DataType.__init__(
             self,
-            initial_value=initial_value,
             short_description=short_description,
             long_description=long_description,
             extra=extra,
@@ -349,6 +326,10 @@ class Member(DataType):
         )
 
         self.name: str = name
+        """Member name"""
+
+        self.initial_value: Any = initial_value
+        """Initial value"""
 
 
 class AbsoluteTimeMember(Member, AbsoluteTimeDataType):

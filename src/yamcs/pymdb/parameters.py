@@ -157,7 +157,6 @@ class Parameter(DataType):
     ) -> None:
         DataType.__init__(
             self,
-            initial_value=initial_value,
             short_description=short_description,
             long_description=long_description,
             extra=extra,
@@ -178,6 +177,9 @@ class Parameter(DataType):
         The nature of the source entity for which this parameter receives a
         value
         """
+
+        self.initial_value: Any = initial_value
+        """Initial value"""
 
         self.persistent: bool = persistent
         """

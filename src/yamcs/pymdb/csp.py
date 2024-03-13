@@ -172,7 +172,7 @@ def add_csp_header(
             (2, "NORMAL"),
             (3, "LOW"),
         ],
-        initial_value="NORMAL",
+        default="NORMAL",
         encoding=uint2_t,
     )
 
@@ -200,28 +200,28 @@ def add_csp_header(
     tc_hmac = BooleanArgument(
         name=f"{prefix}hmac",
         short_description="Use HMAC verification",
-        initial_value=False,
+        default=False,
         encoding=uint1_t,
     )
 
     tc_xtea = BooleanArgument(
         name=f"{prefix}xtea",
         short_description="Use XTEA encryption",
-        initial_value=False,
+        default=False,
         encoding=uint1_t,
     )
 
     tc_rdp = BooleanArgument(
         name=f"{prefix}rdp",
         short_description="Use RDP protocol",
-        initial_value=False,
+        default=False,
         encoding=uint1_t,
     )
 
     tc_crc = BooleanArgument(
         name=f"{prefix}crc",
         short_description="Use CRC32 checksum",
-        initial_value=False,
+        default=False,
         encoding=uint1_t,
     )
 
