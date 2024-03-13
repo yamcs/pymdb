@@ -57,13 +57,13 @@ See https://github.com/yamcs/pymdb
     </ParameterTypeSet>
     <ParameterSet>
       <Parameter name="ccsds_packet_id" parameterTypeRef="ccsds_packet_id" shortDescription="First word of the primary CCSDS header">
-        <ParameterProperties dataSource="telemetered"/>
+        <ParameterProperties dataSource="telemetered" persistence="false"/>
       </Parameter>
       <Parameter name="ccsds_packet_length" parameterTypeRef="ccsds_packet_length">
-        <ParameterProperties dataSource="telemetered"/>
+        <ParameterProperties dataSource="telemetered" persistence="false"/>
       </Parameter>
       <Parameter name="ccsds_packet_sequence" parameterTypeRef="ccsds_packet_sequence" shortDescription="Second word of the primary CCSDS header">
-        <ParameterProperties dataSource="telemetered"/>
+        <ParameterProperties dataSource="telemetered" persistence="false"/>
       </Parameter>
     </ParameterSet>
     <ContainerSet>

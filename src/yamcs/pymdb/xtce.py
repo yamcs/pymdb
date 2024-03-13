@@ -1287,6 +1287,8 @@ class XTCE12Generator:
             else:
                 raise ExportError(f"Unexpected data source {parameter.data_source}")
 
+            props_el.attrib["persistence"] = "true" if parameter.persistent else "false"
+
     def add_container_set(self, parent: ET.Element, system: System):
         if not system.containers:
             return

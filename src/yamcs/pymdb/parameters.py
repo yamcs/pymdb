@@ -148,6 +148,7 @@ class Parameter(DataType):
         aliases: dict[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
         initial_value: Any = None,
+        persistent: bool = False,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
@@ -176,6 +177,15 @@ class Parameter(DataType):
         """
         The nature of the source entity for which this parameter receives a
         value
+        """
+
+        self.persistent: bool = persistent
+        """
+        If true, the parameter's latest value is restored in case of a
+        restart of the Yamcs system.
+
+        If :attr:`initial_value` is set too, attr:`initial_value` is only
+        used once (when there is no other value to persist).
         """
 
         if name in system._parameters_by_name:
@@ -218,6 +228,7 @@ class AbsoluteTimeParameter(Parameter, AbsoluteTimeDataType):
         aliases: dict[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
         initial_value: Any = None,
+        persistent: bool = False,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
@@ -235,6 +246,7 @@ class AbsoluteTimeParameter(Parameter, AbsoluteTimeDataType):
             aliases=aliases,
             data_source=data_source,
             initial_value=initial_value,
+            persistent=persistent,
             short_description=short_description,
             long_description=long_description,
             extra=extra,
@@ -257,6 +269,7 @@ class AggregateParameter(Parameter, AggregateDataType):
         aliases: dict[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
         initial_value: Any = None,
+        persistent: bool = False,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
@@ -273,6 +286,7 @@ class AggregateParameter(Parameter, AggregateDataType):
             aliases=aliases,
             data_source=data_source,
             initial_value=initial_value,
+            persistent=persistent,
             short_description=short_description,
             long_description=long_description,
             extra=extra,
@@ -295,6 +309,7 @@ class ArrayParameter(Parameter, ArrayDataType):
         aliases: dict[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
         initial_value: Any = None,
+        persistent: bool = False,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
@@ -312,6 +327,7 @@ class ArrayParameter(Parameter, ArrayDataType):
             aliases=aliases,
             data_source=data_source,
             initial_value=initial_value,
+            persistent=persistent,
             short_description=short_description,
             long_description=long_description,
             extra=extra,
@@ -333,6 +349,7 @@ class BinaryParameter(Parameter, BinaryDataType):
         aliases: dict[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
         initial_value: Any = None,
+        persistent: bool = False,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
@@ -351,6 +368,7 @@ class BinaryParameter(Parameter, BinaryDataType):
             aliases=aliases,
             data_source=data_source,
             initial_value=initial_value,
+            persistent=persistent,
             short_description=short_description,
             long_description=long_description,
             extra=extra,
@@ -373,6 +391,7 @@ class BooleanParameter(Parameter, BooleanDataType):
         aliases: dict[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
         initial_value: Any = None,
+        persistent: bool = False,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
@@ -391,6 +410,7 @@ class BooleanParameter(Parameter, BooleanDataType):
             aliases=aliases,
             data_source=data_source,
             initial_value=initial_value,
+            persistent=persistent,
             short_description=short_description,
             long_description=long_description,
             extra=extra,
@@ -413,6 +433,7 @@ class EnumeratedParameter(Parameter, EnumeratedDataType):
         aliases: dict[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
         initial_value: Any = None,
+        persistent: bool = False,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
@@ -430,6 +451,7 @@ class EnumeratedParameter(Parameter, EnumeratedDataType):
             aliases=aliases,
             data_source=data_source,
             initial_value=initial_value,
+            persistent=persistent,
             short_description=short_description,
             long_description=long_description,
             extra=extra,
@@ -458,6 +480,7 @@ class FloatParameter(Parameter, FloatDataType):
         aliases: dict[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
         initial_value: Any = None,
+        persistent: bool = False,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
@@ -481,6 +504,7 @@ class FloatParameter(Parameter, FloatDataType):
             aliases=aliases,
             data_source=data_source,
             initial_value=initial_value,
+            persistent=persistent,
             short_description=short_description,
             long_description=long_description,
             extra=extra,
@@ -505,6 +529,7 @@ class IntegerParameter(Parameter, IntegerDataType):
         aliases: dict[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
         initial_value: Any = None,
+        persistent: bool = False,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
@@ -527,6 +552,7 @@ class IntegerParameter(Parameter, IntegerDataType):
             aliases=aliases,
             data_source=data_source,
             initial_value=initial_value,
+            persistent=persistent,
             short_description=short_description,
             long_description=long_description,
             extra=extra,
@@ -549,6 +575,7 @@ class StringParameter(Parameter, StringDataType):
         aliases: dict[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
         initial_value: Any = None,
+        persistent: bool = False,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
@@ -567,6 +594,7 @@ class StringParameter(Parameter, StringDataType):
             aliases=aliases,
             data_source=data_source,
             initial_value=initial_value,
+            persistent=persistent,
             short_description=short_description,
             long_description=long_description,
             extra=extra,

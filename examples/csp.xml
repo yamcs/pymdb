@@ -52,31 +52,31 @@ See https://github.com/yamcs/pymdb
     </ParameterTypeSet>
     <ParameterSet>
       <Parameter name="csp_crc" parameterTypeRef="csp_crc" shortDescription="Use CRC32 checksum">
-        <ParameterProperties dataSource="telemetered"/>
+        <ParameterProperties dataSource="telemetered" persistence="false"/>
       </Parameter>
       <Parameter name="csp_dport" parameterTypeRef="csp_dport" shortDescription="Destination port">
-        <ParameterProperties dataSource="telemetered"/>
+        <ParameterProperties dataSource="telemetered" persistence="false"/>
       </Parameter>
       <Parameter name="csp_dst" parameterTypeRef="csp_dst" shortDescription="Destination">
-        <ParameterProperties dataSource="telemetered"/>
+        <ParameterProperties dataSource="telemetered" persistence="false"/>
       </Parameter>
       <Parameter name="csp_hmac" parameterTypeRef="csp_hmac" shortDescription="Use HMAC verification">
-        <ParameterProperties dataSource="telemetered"/>
+        <ParameterProperties dataSource="telemetered" persistence="false"/>
       </Parameter>
       <Parameter name="csp_pri" parameterTypeRef="csp_pri" shortDescription="Message priority">
-        <ParameterProperties dataSource="telemetered"/>
+        <ParameterProperties dataSource="telemetered" persistence="false"/>
       </Parameter>
       <Parameter name="csp_rdp" parameterTypeRef="csp_rdp" shortDescription="Use RDP protocol">
-        <ParameterProperties dataSource="telemetered"/>
+        <ParameterProperties dataSource="telemetered" persistence="false"/>
       </Parameter>
       <Parameter name="csp_sport" parameterTypeRef="csp_sport" shortDescription="Source port">
-        <ParameterProperties dataSource="telemetered"/>
+        <ParameterProperties dataSource="telemetered" persistence="false"/>
       </Parameter>
       <Parameter name="csp_src" parameterTypeRef="csp_src" shortDescription="Source">
-        <ParameterProperties dataSource="telemetered"/>
+        <ParameterProperties dataSource="telemetered" persistence="false"/>
       </Parameter>
       <Parameter name="csp_xtea" parameterTypeRef="csp_xtea" shortDescription="Use XTEA encryption">
-        <ParameterProperties dataSource="telemetered"/>
+        <ParameterProperties dataSource="telemetered" persistence="false"/>
       </Parameter>
     </ParameterSet>
     <ContainerSet>
