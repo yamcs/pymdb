@@ -1,11 +1,4 @@
-from yamcs.pymdb import (
-    ArgumentEntry,
-    Command,
-    IntegerArgument,
-    System,
-    ccsds,
-    uint16_t,
-)
+from yamcs.pymdb import ArgumentEntry, Command, IntegerArgument, System, ccsds, uint16_t
 
 spacecraft = System("Spacecraft")
 ccsds_header = ccsds.add_ccsds_header(spacecraft)

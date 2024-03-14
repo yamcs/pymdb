@@ -7,6 +7,7 @@ from enum import Enum
 from typing import TYPE_CHECKING, Any, Mapping, cast
 from xml.dom import minidom
 
+from yamcs.pymdb.alarms import AlarmLevel, ThresholdAlarm
 from yamcs.pymdb.algorithms import JavaAlgorithm
 from yamcs.pymdb.ancillary import AncillaryData
 from yamcs.pymdb.calibrators import Calibrator, Interpolate, Polynomial
@@ -27,17 +28,26 @@ from yamcs.pymdb.containers import (
 )
 from yamcs.pymdb.datatypes import (
     AbsoluteTimeDataType,
+    AbsoluteTimeMember,
     AggregateDataType,
+    AggregateMember,
     ArrayDataType,
+    ArrayMember,
     BinaryDataType,
+    BinaryMember,
     BooleanDataType,
+    BooleanMember,
     Choices,
     DataType,
     EnumeratedDataType,
+    EnumeratedMember,
     Epoch,
     FloatDataType,
+    FloatMember,
     IntegerDataType,
+    IntegerMember,
     StringDataType,
+    StringMember,
 )
 from yamcs.pymdb.encodings import (
     BinaryDataEncoding,
@@ -66,10 +76,17 @@ from yamcs.pymdb.expressions import (
     ParameterMember,
 )
 from yamcs.pymdb.parameters import (
-    AlarmLevel,
+    AbsoluteTimeParameter,
+    AggregateParameter,
+    ArrayParameter,
+    BinaryParameter,
+    BooleanParameter,
     DataSource,
     EnumeratedParameter,
+    FloatParameter,
+    IntegerParameter,
     Parameter,
+    StringParameter,
 )
 from yamcs.pymdb.verifiers import (
     AcceptedVerifier,
@@ -490,12 +507,70 @@ class XTCE12Generator:
 
         el = ET.SubElement(parent, "ParameterTypeSet")
         for parameter in system.parameters:
-            self.add_parameter_type(
-                el,
-                parameter.name,
-                parameter.initial_value,
-                parameter,
-            )
+            if isinstance(parameter, AbsoluteTimeParameter):
+                self.add_absolute_time_parameter_type(
+                    el,
+                    name=parameter.name,
+                    data_type=parameter,
+                )
+            elif isinstance(parameter, AggregateParameter):
+                self.add_aggregate_parameter_type(
+                    el,
+                    name=parameter.name,
+                    data_type=parameter,
+                )
+            elif isinstance(parameter, ArrayParameter):
+                self.add_array_parameter_type(
+                    el,
+                    name=parameter.name,
+                    data_type=parameter,
+                )
+            elif isinstance(parameter, BinaryParameter):
+                self.add_binary_parameter_type(
+                    el,
+                    name=parameter.name,
+                    initial_value=parameter.initial_value,
+                    data_type=parameter,
+                )
+            elif isinstance(parameter, BooleanParameter):
+                self.add_boolean_parameter_type(
+                    el,
+                    name=parameter.name,
+                    initial_value=parameter.initial_value,
+                    data_type=parameter,
+                )
+            elif isinstance(parameter, EnumeratedParameter):
+                self.add_enumerated_parameter_type(
+                    el,
+                    name=parameter.name,
+                    initial_value=parameter.initial_value,
+                    data_type=parameter,
+                )
+            elif isinstance(parameter, FloatParameter):
+                self.add_float_parameter_type(
+                    el,
+                    name=parameter.name,
+                    initial_value=parameter.initial_value,
+                    alarm=parameter.alarm,
+                    data_type=parameter,
+                )
+            elif isinstance(parameter, IntegerParameter):
+                self.add_integer_parameter_type(
+                    el,
+                    name=parameter.name,
+                    initial_value=parameter.initial_value,
+                    alarm=parameter.alarm,
+                    data_type=parameter,
+                )
+            elif isinstance(parameter, StringParameter):
+                self.add_string_parameter_type(
+                    el,
+                    name=parameter.name,
+                    initial_value=parameter.initial_value,
+                    data_type=parameter,
+                )
+            else:
+                raise ExportError(f"Unexpected parameter type {parameter.__class__}")
 
     def add_argument_type(
         self,
@@ -722,34 +797,6 @@ class XTCE12Generator:
             if data_type.max_length is not None:
                 range_el.attrib["maxInclusive"] = str(data_type.max_length)
 
-    def add_parameter_type(
-        self,
-        parent: ET.Element,
-        name: str,
-        initial_value: Any,
-        data_type: DataType,
-    ):
-        if isinstance(data_type, AbsoluteTimeDataType):
-            self.add_absolute_time_parameter_type(parent, name, data_type)
-        elif isinstance(data_type, AggregateDataType):
-            self.add_aggregate_parameter_type(parent, name, data_type)
-        elif isinstance(data_type, ArrayDataType):
-            self.add_array_parameter_type(parent, name, data_type)
-        elif isinstance(data_type, BinaryDataType):
-            self.add_binary_parameter_type(parent, name, initial_value, data_type)
-        elif isinstance(data_type, BooleanDataType):
-            self.add_boolean_parameter_type(parent, name, initial_value, data_type)
-        elif isinstance(data_type, EnumeratedDataType):
-            self.add_enumerated_parameter_type(parent, name, initial_value, data_type)
-        elif isinstance(data_type, FloatDataType):
-            self.add_float_parameter_type(parent, name, initial_value, data_type)
-        elif isinstance(data_type, IntegerDataType):
-            self.add_integer_parameter_type(parent, name, initial_value, data_type)
-        elif isinstance(data_type, StringDataType):
-            self.add_string_parameter_type(parent, name, initial_value, data_type)
-        else:
-            raise ExportError(f"Unexpected data type {data_type.__class__}")
-
     def add_aggregate_parameter_type(
         self,
         parent: ET.Element,
@@ -768,12 +815,70 @@ class XTCE12Generator:
             member_el.attrib["name"] = str(member.name)
             member_el.attrib["typeRef"] = member_type_name
 
-            self.add_parameter_type(
-                parent,
-                member_type_name,
-                member.initial_value,
-                member,
-            )
+            if isinstance(member, AbsoluteTimeMember):
+                self.add_absolute_time_parameter_type(
+                    parent,
+                    name=member_type_name,
+                    data_type=member,
+                )
+            elif isinstance(member, AggregateMember):
+                self.add_aggregate_parameter_type(
+                    parent,
+                    name=member_type_name,
+                    data_type=member,
+                )
+            elif isinstance(member, ArrayMember):
+                self.add_array_parameter_type(
+                    parent,
+                    name=member_type_name,
+                    data_type=member,
+                )
+            elif isinstance(member, BinaryMember):
+                self.add_binary_parameter_type(
+                    parent,
+                    name=member_type_name,
+                    initial_value=member.initial_value,
+                    data_type=member,
+                )
+            elif isinstance(member, BooleanMember):
+                self.add_boolean_parameter_type(
+                    parent,
+                    name=member_type_name,
+                    initial_value=member.initial_value,
+                    data_type=member,
+                )
+            elif isinstance(member, EnumeratedMember):
+                self.add_enumerated_parameter_type(
+                    parent,
+                    name=member_type_name,
+                    initial_value=member.initial_value,
+                    data_type=member,
+                )
+            elif isinstance(member, FloatMember):
+                self.add_float_parameter_type(
+                    parent,
+                    name=member_type_name,
+                    initial_value=member.initial_value,
+                    alarm=None,
+                    data_type=member,
+                )
+            elif isinstance(member, IntegerMember):
+                self.add_integer_parameter_type(
+                    parent,
+                    name=member_type_name,
+                    initial_value=member.initial_value,
+                    alarm=None,
+                    data_type=member,
+                )
+            elif isinstance(member, StringMember):
+                self.add_string_parameter_type(
+                    parent,
+                    name=member_type_name,
+                    initial_value=member.initial_value,
+                    data_type=member,
+                )
+            else:
+                raise ExportError(f"Unexpected member type {member.__class__}")
 
     def add_array_parameter_type(
         self,
@@ -794,7 +899,71 @@ class XTCE12Generator:
         end_idx_el = ET.SubElement(dim_el, "EndingIndex")
         ET.SubElement(end_idx_el, "FixedValue").text = str(data_type.length - 1)
 
-        self.add_parameter_type(parent, element_type_name, None, data_type.data_type)
+        el_type = data_type.data_type
+        if isinstance(el_type, AbsoluteTimeDataType):
+            self.add_absolute_time_parameter_type(
+                parent,
+                name=element_type_name,
+                data_type=el_type,
+            )
+        elif isinstance(el_type, AggregateDataType):
+            self.add_aggregate_parameter_type(
+                parent,
+                name=element_type_name,
+                data_type=el_type,
+            )
+        elif isinstance(el_type, ArrayDataType):
+            self.add_array_parameter_type(
+                parent,
+                name=element_type_name,
+                data_type=el_type,
+            )
+        elif isinstance(el_type, BinaryDataType):
+            self.add_binary_parameter_type(
+                parent,
+                name=element_type_name,
+                initial_value=None,
+                data_type=el_type,
+            )
+        elif isinstance(el_type, BooleanDataType):
+            self.add_boolean_parameter_type(
+                parent,
+                name=element_type_name,
+                initial_value=None,
+                data_type=el_type,
+            )
+        elif isinstance(el_type, EnumeratedDataType):
+            self.add_enumerated_parameter_type(
+                parent,
+                name=element_type_name,
+                initial_value=None,
+                data_type=el_type,
+            )
+        elif isinstance(el_type, FloatDataType):
+            self.add_float_parameter_type(
+                parent,
+                name=element_type_name,
+                initial_value=None,
+                alarm=None,
+                data_type=el_type,
+            )
+        elif isinstance(el_type, IntegerDataType):
+            self.add_integer_parameter_type(
+                parent,
+                name=element_type_name,
+                initial_value=None,
+                alarm=None,
+                data_type=el_type,
+            )
+        elif isinstance(el_type, StringDataType):
+            self.add_string_parameter_type(
+                parent,
+                name=element_type_name,
+                initial_value=None,
+                data_type=el_type,
+            )
+        else:
+            raise ExportError(f"Unexpected data type {el_type.__class__}")
 
     def add_absolute_time_parameter_type(
         self,
@@ -904,6 +1073,7 @@ class XTCE12Generator:
             if data_type.alarm:
                 alarm = data_type.alarm
                 alarm_el = ET.SubElement(el, "DefaultAlarm")
+                alarm_el.attrib["minViolations"] = str(alarm.minimum_violations)
                 alarm_el.attrib["defaultAlarmLevel"] = self.alarm_level_to_text(
                     alarm.default_level
                 )
@@ -918,6 +1088,7 @@ class XTCE12Generator:
         parent: ET.Element,
         name: str,
         initial_value: Any,
+        alarm: ThresholdAlarm | None,
         data_type: FloatDataType,
     ):
         el = ET.SubElement(parent, "FloatParameterType")
@@ -955,11 +1126,17 @@ class XTCE12Generator:
                 else:
                     range_el.attrib["maxExclusive"] = str(data_type.maximum)
 
+        if alarm:
+            alarm_el = ET.SubElement(el, "DefaultAlarm")
+            alarm_el.attrib["minViolations"] = str(alarm.minimum_violations)
+            self.add_static_alarm_ranges(alarm_el, alarm)
+
     def add_integer_parameter_type(
         self,
         parent: ET.Element,
         name: str,
         initial_value: Any,
+        alarm: ThresholdAlarm | None,
         data_type: IntegerDataType,
     ):
         el = ET.SubElement(parent, "IntegerParameterType")
@@ -991,6 +1168,11 @@ class XTCE12Generator:
             if data_type.maximum is not None:
                 range_el.attrib["maxInclusive"] = str(data_type.maximum)
 
+        if alarm:
+            alarm_el = ET.SubElement(el, "DefaultAlarm")
+            alarm_el.attrib["minViolations"] = str(alarm.minimum_violations)
+            self.add_static_alarm_ranges(alarm_el, alarm)
+
     def add_string_parameter_type(
         self,
         parent: ET.Element,
@@ -1021,6 +1203,69 @@ class XTCE12Generator:
             return "severe"
         else:
             raise Exception("Unexpected alarm level")
+
+    def add_static_alarm_ranges(self, parent: ET.Element, alarm: ThresholdAlarm):
+        ranges_el = ET.SubElement(parent, "StaticAlarmRanges")
+        if alarm.watch_low is not None or alarm.watch_high is not None:
+            range_el = ET.SubElement(ranges_el, "WatchRange")
+            if alarm.watch_low is not None:
+                if alarm.watch_low_exclusive:
+                    range_el.attrib["minExclusive"] = str(alarm.watch_low)
+                else:
+                    range_el.attrib["minInclusive"] = str(alarm.watch_low)
+            if alarm.watch_high is not None:
+                if alarm.watch_high_exclusive:
+                    range_el.attrib["maxExclusive"] = str(alarm.watch_high)
+                else:
+                    range_el.attrib["maxInclusive"] = str(alarm.watch_high)
+        if alarm.warning_low is not None or alarm.warning_high is not None:
+            range_el = ET.SubElement(ranges_el, "WarningRange")
+            if alarm.warning_low is not None:
+                if alarm.warning_low_exclusive:
+                    range_el.attrib["minExclusive"] = str(alarm.warning_low)
+                else:
+                    range_el.attrib["minInclusive"] = str(alarm.warning_low)
+            if alarm.warning_high is not None:
+                if alarm.warning_high_exclusive:
+                    range_el.attrib["maxExclusive"] = str(alarm.warning_high)
+                else:
+                    range_el.attrib["maxInclusive"] = str(alarm.warning_high)
+        if alarm.distress_low is not None or alarm.distress_high is not None:
+            range_el = ET.SubElement(ranges_el, "DistressRange")
+            if alarm.distress_low is not None:
+                if alarm.distress_low_exclusive:
+                    range_el.attrib["minExclusive"] = str(alarm.distress_low)
+                else:
+                    range_el.attrib["minInclusive"] = str(alarm.distress_low)
+            if alarm.distress_high is not None:
+                if alarm.distress_high_exclusive:
+                    range_el.attrib["maxExclusive"] = str(alarm.distress_high)
+                else:
+                    range_el.attrib["maxInclusive"] = str(alarm.distress_high)
+        if alarm.critical_low is not None or alarm.critical_high is not None:
+            range_el = ET.SubElement(ranges_el, "CriticalRange")
+            if alarm.critical_low is not None:
+                if alarm.critical_low_exclusive:
+                    range_el.attrib["minExclusive"] = str(alarm.critical_low)
+                else:
+                    range_el.attrib["minInclusive"] = str(alarm.critical_low)
+            if alarm.critical_high is not None:
+                if alarm.critical_high_exclusive:
+                    range_el.attrib["maxExclusive"] = str(alarm.critical_high)
+                else:
+                    range_el.attrib["maxInclusive"] = str(alarm.critical_high)
+        if alarm.severe_low is not None or alarm.severe_high is not None:
+            range_el = ET.SubElement(ranges_el, "SevereRange")
+            if alarm.severe_low is not None:
+                if alarm.severe_low_exclusive:
+                    range_el.attrib["minExclusive"] = str(alarm.severe_low)
+                else:
+                    range_el.attrib["minInclusive"] = str(alarm.severe_low)
+            if alarm.severe_high is not None:
+                if alarm.severe_high_exclusive:
+                    range_el.attrib["maxExclusive"] = str(alarm.severe_high)
+                else:
+                    range_el.attrib["maxInclusive"] = str(alarm.severe_high)
 
     def add_data_encoding(
         self,
