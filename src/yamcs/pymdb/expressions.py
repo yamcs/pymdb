@@ -56,11 +56,11 @@ class OrExpression(Expression):
 class EqExpression(Expression):
     def __init__(
         self,
-        ref: Parameter | ParameterMember,
+        ref: Parameter | ParameterMember | str,
         value: Any,
         calibrated: bool = True,
     ):
-        self.ref: Parameter | ParameterMember = ref
+        self.ref: Parameter | ParameterMember | str = ref
         self.value: Any = value
         self.calibrated: bool = calibrated
 
@@ -68,11 +68,11 @@ class EqExpression(Expression):
 class NeExpression(Expression):
     def __init__(
         self,
-        ref: Parameter | ParameterMember,
+        ref: Parameter | ParameterMember | str,
         value: Any,
         calibrated: bool = True,
     ):
-        self.ref: Parameter | ParameterMember = ref
+        self.ref: Parameter | ParameterMember | str = ref
         self.value: Any = value
         self.calibrated: bool = calibrated
 
@@ -80,11 +80,11 @@ class NeExpression(Expression):
 class LtExpression(Expression):
     def __init__(
         self,
-        ref: Parameter | ParameterMember,
+        ref: Parameter | ParameterMember | str,
         value: Any,
         calibrated: bool = True,
     ):
-        self.ref: Parameter | ParameterMember = ref
+        self.ref: Parameter | ParameterMember | str = ref
         self.value: Any = value
         self.calibrated: bool = calibrated
 
@@ -92,11 +92,11 @@ class LtExpression(Expression):
 class LteExpression(Expression):
     def __init__(
         self,
-        ref: Parameter | ParameterMember,
+        ref: Parameter | ParameterMember | str,
         value: Any,
         calibrated: bool = True,
     ):
-        self.ref: Parameter | ParameterMember = ref
+        self.ref: Parameter | ParameterMember | str = ref
         self.value: Any = value
         self.calibrated: bool = calibrated
 
@@ -104,11 +104,11 @@ class LteExpression(Expression):
 class GtExpression(Expression):
     def __init__(
         self,
-        ref: Parameter | ParameterMember,
+        ref: Parameter | ParameterMember | str,
         value: Any,
         calibrated: bool = True,
     ):
-        self.ref: Parameter | ParameterMember = ref
+        self.ref: Parameter | ParameterMember | str = ref
         self.value: Any = value
         self.calibrated: bool = calibrated
 
@@ -116,36 +116,36 @@ class GtExpression(Expression):
 class GteExpression(Expression):
     def __init__(
         self,
-        ref: Parameter | ParameterMember,
+        ref: Parameter | ParameterMember | str,
         value: Any,
         calibrated: bool = True,
     ):
-        self.ref: Parameter | ParameterMember = ref
+        self.ref: Parameter | ParameterMember | str = ref
         self.value: Any = value
         self.calibrated: bool = calibrated
 
 
-def eq(ref: Parameter | ParameterMember, value: Any, calibrated=True):
+def eq(ref: Parameter | ParameterMember | str, value: Any, calibrated=True):
     return EqExpression(ref, value, calibrated)
 
 
-def ne(ref: Parameter | ParameterMember, value: Any, calibrated=True):
+def ne(ref: Parameter | ParameterMember | str, value: Any, calibrated=True):
     return NeExpression(ref, value, calibrated)
 
 
-def lt(ref: Parameter | ParameterMember, value: Any, calibrated=True):
+def lt(ref: Parameter | ParameterMember | str, value: Any, calibrated=True):
     return LtExpression(ref, value, calibrated)
 
 
-def lte(ref: Parameter | ParameterMember, value: Any, calibrated=True):
+def lte(ref: Parameter | ParameterMember | str, value: Any, calibrated=True):
     return LteExpression(ref, value, calibrated)
 
 
-def gt(ref: Parameter | ParameterMember, value: Any, calibrated=True):
+def gt(ref: Parameter | ParameterMember | str, value: Any, calibrated=True):
     return GtExpression(ref, value, calibrated)
 
 
-def gte(ref: Parameter | ParameterMember, value: Any, calibrated=True):
+def gte(ref: Parameter | ParameterMember | str, value: Any, calibrated=True):
     return GteExpression(ref, value, calibrated)
 
 

@@ -1671,7 +1671,7 @@ class XTCE12Generator:
         self,
         parent: ET.Element,
         system: System,
-        ref: Parameter | ParameterMember,
+        ref: Parameter | ParameterMember | str,
         value: Any,
         operator: str,
         calibrated: bool,
@@ -1679,14 +1679,14 @@ class XTCE12Generator:
         condition_el = ET.SubElement(parent, "Condition")
 
         pref_el = ET.SubElement(condition_el, "ParameterInstanceRef")
-        data_type: DataType
+        data_type: DataType | None
         if isinstance(ref, Parameter):
             data_type = ref
             pref_el.attrib["parameterRef"] = self.make_ref(
                 ref.qualified_name,
                 start=system,
             )
-        else:  # ParameterMember
+        elif isinstance(ref, ParameterMember):
             data_type = ref.path[-1]
             parameter_ref = self.make_ref(
                 ref.parameter.qualified_name,
@@ -1695,6 +1695,9 @@ class XTCE12Generator:
             for member in ref.path:
                 parameter_ref += "/" + member.name
             pref_el.attrib["parameterRef"] = parameter_ref
+        else:  # str
+            data_type = None
+            pref_el.attrib["parameterRef"] = self.make_ref(ref, start=system)
         pref_el.attrib["useCalibratedValue"] = _to_xml_value(calibrated)
 
         ET.SubElement(condition_el, "ComparisonOperator").text = operator
@@ -1802,15 +1805,23 @@ class XTCE12Generator:
     def add_base_container(
         self,
         parent: ET.Element,
-        base_container: Container,
+        base_container: Container | str,
         container: Container,
     ):
         el = ET.SubElement(parent, "BaseContainer")
 
-        el.attrib["containerRef"] = self.make_ref(
-            base_container.qualified_name,
-            start=container.system,
-        )
+        if isinstance(base_container, Container):
+            el.attrib["containerRef"] = self.make_ref(
+                target=base_container.qualified_name,
+                start=container.system,
+            )
+        elif isinstance(base_container, str):
+            el.attrib["containerRef"] = self.make_ref(
+                target=base_container,
+                start=container.system,
+            )
+        else:
+            raise ExportError("Unexpected container parent")
 
         if container.restriction_criteria:
             criteria_el = ET.SubElement(el, "RestrictionCriteria")

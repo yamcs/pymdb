@@ -72,7 +72,7 @@ class Container:
         name: str,
         entries: list[ParameterEntry | ContainerEntry] | None = None,
         *,
-        parent: Container | None = None,
+        parent: Container | str | None = None,
         abstract: bool = False,
         restriction_criteria: Expression | None = None,
         aliases: dict[str, str] | None = None,
@@ -120,7 +120,7 @@ class Container:
         """
 
         self.entries: list[ParameterEntry | ContainerEntry] = entries or []
-        self.parent: Container | None = parent
+        self.parent: Container | str | None = parent
         self.abstract: bool = abstract
         self.restriction_criteria: Expression | None = restriction_criteria
 
