@@ -397,7 +397,7 @@ class ArgumentEntry:
         short_description: str | None = None,
         absolute: bool = False,
         location_in_bits: int = 0,
-        include_condition: Expression | None = None,
+        condition: Expression | None = None,
     ) -> None:
         self.argument: Argument = argument
 
@@ -406,7 +406,7 @@ class ArgumentEntry:
 
         self.absolute: bool = absolute
         self.location_in_bits: int = location_in_bits
-        self.include_condition: Expression | None = include_condition
+        self.condition: Expression | None = condition
 
 
 class FixedValueEntry:
@@ -418,7 +418,7 @@ class FixedValueEntry:
         short_description: str | None = None,
         absolute: bool = False,
         location_in_bits: int = 0,
-        include_condition: Expression | None = None,
+        condition: Expression | None = None,
         bits: int | None = None,
     ) -> None:
         self.binary: bytes = binary
@@ -430,7 +430,7 @@ class FixedValueEntry:
 
         self.absolute: bool = absolute
         self.location_in_bits: int = location_in_bits
-        self.include_condition: Expression | None = include_condition
+        self.condition: Expression | None = condition
         self.bits: int | None = bits
 
 

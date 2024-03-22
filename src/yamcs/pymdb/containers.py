@@ -18,7 +18,7 @@ class ParameterEntry:
         *,
         absolute: bool = False,
         short_description: str | None = None,
-        include_condition: Expression | None = None,
+        condition: Expression | None = None,
     ) -> None:
         self.parameter: Parameter = parameter
 
@@ -27,7 +27,7 @@ class ParameterEntry:
 
         self.absolute: bool = absolute
         self.location_in_bits: int = location_in_bits
-        self.include_condition: Expression | None = include_condition
+        self.condition: Expression | None = condition
 
     def __str__(self) -> str:
         return self.parameter.__str__()
@@ -40,7 +40,7 @@ class ContainerEntry:
         short_description: str | None = None,
         absolute: bool = False,
         location_in_bits: int = 0,
-        include_condition: Expression | None = None,
+        condition: Expression | None = None,
     ) -> None:
         self.container: Container = container
 
@@ -49,7 +49,7 @@ class ContainerEntry:
 
         self.absolute: bool = absolute
         self.location_in_bits: int = location_in_bits
-        self.include_condition: Expression | None = include_condition
+        self.condition: Expression | None = condition
 
     def __str__(self) -> str:
         return self.container.__str__()

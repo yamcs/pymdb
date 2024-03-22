@@ -447,13 +447,13 @@ class XTCE12Generator:
         fv_el = ET.SubElement(loc_el, "FixedValue")
         fv_el.text = str(entry.location_in_bits)
 
-        if entry.include_condition:
+        if entry.condition:
             cond_el = ET.SubElement(el, "IncludeCondition")
             expr_el = ET.SubElement(cond_el, "BooleanExpression")
             self.add_expression_condition(
                 expr_el,
                 system=command.system,
-                expression=entry.include_condition,
+                expression=entry.condition,
             )
 
     def add_argument_ref_entry(
@@ -478,13 +478,13 @@ class XTCE12Generator:
         fv_el = ET.SubElement(loc_el, "FixedValue")
         fv_el.text = str(entry.location_in_bits)
 
-        if entry.include_condition:
+        if entry.condition:
             cond_el = ET.SubElement(el, "IncludeCondition")
             expr_el = ET.SubElement(cond_el, "BooleanExpression")
             self.add_expression_condition(
                 expr_el,
                 system=command.system,
-                expression=entry.include_condition,
+                expression=entry.condition,
             )
 
     def add_telemetry_metadata(self, parent: ET.Element, system: System):
@@ -1755,13 +1755,13 @@ class XTCE12Generator:
         fv_el = ET.SubElement(loc_el, "FixedValue")
         fv_el.text = str(entry.location_in_bits)
 
-        if entry.include_condition:
+        if entry.condition:
             cond_el = ET.SubElement(el, "IncludeCondition")
             expr_el = ET.SubElement(cond_el, "BooleanExpression")
             self.add_expression_condition(
                 expr_el,
                 system=container.system,
-                expression=entry.include_condition,
+                expression=entry.condition,
             )
 
     def add_container_ref_entry(
@@ -1788,13 +1788,13 @@ class XTCE12Generator:
         fv_el = ET.SubElement(loc_el, "FixedValue")
         fv_el.text = str(entry.location_in_bits)
 
-        if entry.include_condition:
+        if entry.condition:
             cond_el = ET.SubElement(el, "IncludeCondition")
             expr_el = ET.SubElement(cond_el, "BooleanExpression")
             self.add_expression_condition(
                 expr_el,
                 system=container.system,
-                expression=entry.include_condition,
+                expression=entry.condition,
             )
 
     def make_ref(self, target: str, start: System):
