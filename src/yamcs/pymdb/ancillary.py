@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import NamedTuple
 
 
@@ -16,7 +17,7 @@ class AncillaryDataItem(NamedTuple):
 
 
 class AncillaryData:
-    def __init__(self, items: dict[str, str] | None = None) -> None:
+    def __init__(self, items: Mapping[str, str] | None = None) -> None:
         self._items: list[AncillaryDataItem] = []
         if items:
             for k, v in items.items():

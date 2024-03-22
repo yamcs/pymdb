@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
 from datetime import datetime
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Any, Literal
@@ -85,13 +86,13 @@ class Parameter(DataType):
         system: System,
         name: str,
         *,
-        aliases: dict[str, str] | None = None,
+        aliases: Mapping[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
         initial_value: Any = None,
         persistent: bool = False,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         units: str | None = None,
         encoding: DataEncoding | None = None,
     ) -> None:
@@ -109,7 +110,7 @@ class Parameter(DataType):
         self.system: System = system
         """System this parameter belongs to"""
 
-        self.aliases: dict[str, str] = aliases or {}
+        self.aliases: dict[str, str] = dict(aliases or {})
         """Alternative names, keyed by namespace"""
 
         self.data_source: DataSource = data_source
@@ -167,13 +168,13 @@ class AbsoluteTimeParameter(Parameter, AbsoluteTimeDataType):
         system: System,
         name: str,
         reference: Epoch | datetime | AbsoluteTimeParameter,
-        aliases: dict[str, str] | None = None,
+        aliases: Mapping[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
         initial_value: Any = None,
         persistent: bool = False,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         units: str | None = None,
         encoding: TimeEncoding | None = None,
     ) -> None:
@@ -207,14 +208,14 @@ class AggregateParameter(Parameter, AggregateDataType):
         self,
         system: System,
         name: str,
-        members: list[Member],
-        aliases: dict[str, str] | None = None,
+        members: Sequence[Member],
+        aliases: Mapping[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
         initial_value: Any = None,
         persistent: bool = False,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         encoding: DataEncoding | None = None,
     ) -> None:
         AggregateDataType.__init__(
@@ -248,13 +249,13 @@ class ArrayParameter(Parameter, ArrayDataType):
         name: str,
         data_type: DataType,
         length: int,
-        aliases: dict[str, str] | None = None,
+        aliases: Mapping[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
         initial_value: Any = None,
         persistent: bool = False,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         encoding: DataEncoding | None = None,
     ) -> None:
         ArrayDataType.__init__(
@@ -288,13 +289,13 @@ class BinaryParameter(Parameter, BinaryDataType):
         name: str,
         min_length: int | None = None,
         max_length: int | None = None,
-        aliases: dict[str, str] | None = None,
+        aliases: Mapping[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
         initial_value: Any = None,
         persistent: bool = False,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         units: str | None = None,
         encoding: DataEncoding | None = None,
     ) -> None:
@@ -330,13 +331,13 @@ class BooleanParameter(Parameter, BooleanDataType):
         name: str,
         zero_string_value: str = "False",
         one_string_value: str = "True",
-        aliases: dict[str, str] | None = None,
+        aliases: Mapping[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
         initial_value: Any = None,
         persistent: bool = False,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         units: str | None = None,
         encoding: DataEncoding | None = None,
     ) -> None:
@@ -372,13 +373,13 @@ class EnumeratedParameter(Parameter, EnumeratedDataType):
         name: str,
         choices: Choices,
         alarm: EnumerationAlarm | None = None,
-        aliases: dict[str, str] | None = None,
+        aliases: Mapping[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
         initial_value: Any = None,
         persistent: bool = False,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         units: str | None = None,
         encoding: DataEncoding | None = None,
     ) -> None:
@@ -414,18 +415,18 @@ class FloatParameter(Parameter, FloatDataType):
         self,
         system: System,
         name: str,
-        bits: Literal[32] | Literal[64] = 32,
+        bits: Literal[32, 64] = 32,
         minimum: float | None = None,
         minimum_inclusive: bool = True,
         maximum: float | None = None,
         maximum_inclusive: bool = True,
-        aliases: dict[str, str] | None = None,
+        aliases: Mapping[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
         initial_value: Any = None,
         persistent: bool = False,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         units: str | None = None,
         encoding: DataEncoding | None = None,
         calibrator: Calibrator | None = None,
@@ -472,13 +473,13 @@ class IntegerParameter(Parameter, IntegerDataType):
         bits: int = 32,
         minimum: int | None = None,
         maximum: int | None = None,
-        aliases: dict[str, str] | None = None,
+        aliases: Mapping[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
         initial_value: Any = None,
         persistent: bool = False,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         units: str | None = None,
         encoding: DataEncoding | None = None,
         calibrator: Calibrator | None = None,
@@ -522,13 +523,13 @@ class StringParameter(Parameter, StringDataType):
         name: str,
         min_length: int | None = None,
         max_length: int | None = None,
-        aliases: dict[str, str] | None = None,
+        aliases: Mapping[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
         initial_value: Any = None,
         persistent: bool = False,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         units: str | None = None,
         encoding: DataEncoding | None = None,
     ) -> None:

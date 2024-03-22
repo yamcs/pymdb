@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Any, Literal
 
@@ -83,7 +83,7 @@ class Argument(DataType):
         default: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         units: str | None = None,
         encoding: DataEncoding | None = None,
     ) -> None:
@@ -115,7 +115,7 @@ class AbsoluteTimeArgument(Argument, AbsoluteTimeDataType):
         default: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         units: str | None = None,
         encoding: TimeEncoding | None = None,
     ) -> None:
@@ -139,12 +139,12 @@ class AggregateArgument(Argument, AggregateDataType):
     def __init__(
         self,
         name: str,
-        members: list[Member],
+        members: Sequence[Member],
         *,
         default: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         encoding: DataEncoding | None = None,
     ) -> None:
         AggregateDataType.__init__(
@@ -172,7 +172,7 @@ class ArrayArgument(Argument, ArrayDataType):
         default: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         encoding: DataEncoding | None = None,
     ) -> None:
         ArrayDataType.__init__(
@@ -201,7 +201,7 @@ class BinaryArgument(Argument, BinaryDataType):
         default: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         units: str | None = None,
         encoding: DataEncoding | None = None,
     ) -> None:
@@ -232,7 +232,7 @@ class BooleanArgument(Argument, BooleanDataType):
         default: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         units: str | None = None,
         encoding: DataEncoding | None = None,
     ) -> None:
@@ -262,7 +262,7 @@ class EnumeratedArgument(Argument, EnumeratedDataType):
         default: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         units: str | None = None,
         encoding: DataEncoding | None = None,
     ) -> None:
@@ -286,7 +286,7 @@ class FloatArgument(Argument, FloatDataType):
     def __init__(
         self,
         name: str,
-        bits: Literal[32] | Literal[64] = 32,
+        bits: Literal[32, 64] = 32,
         *,
         minimum: float | None = None,
         minimum_inclusive: bool = True,
@@ -295,7 +295,7 @@ class FloatArgument(Argument, FloatDataType):
         default: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         units: str | None = None,
         encoding: DataEncoding | None = None,
         calibrator: Calibrator | None = None,
@@ -333,7 +333,7 @@ class IntegerArgument(Argument, IntegerDataType):
         default: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         units: str | None = None,
         encoding: DataEncoding | None = None,
         calibrator: Calibrator | None = None,
@@ -368,7 +368,7 @@ class StringArgument(Argument, StringDataType):
         default: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         units: str | None = None,
         encoding: DataEncoding | None = None,
     ) -> None:
@@ -443,14 +443,14 @@ class Command:
         system: System,
         name: str,
         *,
-        aliases: dict[str, str] | None = None,
+        aliases: Mapping[str, str] | None = None,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         abstract: bool = False,
         parent: Command | None = None,
         restriction_criteria: Expression | None = None,
-        assignments: dict[str, Any] | None = None,
+        assignments: Mapping[str, Any] | None = None,
         arguments: Sequence[Argument] | None = None,
         entries: Sequence[CommandEntry] | None = None,
         level: CommandLevel = CommandLevel.NORMAL,
@@ -478,7 +478,7 @@ class Command:
         self.parent = parent
         self.restriction_criteria = restriction_criteria
         self.assignments = assignments or {}
-        self.arguments: list[Argument] = list(arguments) if arguments else []
+        self.arguments: list[Argument] = list(arguments or [])
         self._entries: list[CommandEntry] | None = (
             list(entries) if entries is not None else None
         )

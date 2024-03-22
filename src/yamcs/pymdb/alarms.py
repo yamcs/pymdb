@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from enum import Enum, auto
 
 
@@ -57,7 +58,7 @@ class EnumerationAlarm(Alarm):
 
     def __init__(
         self,
-        states: dict[str, AlarmLevel],
+        states: Mapping[str, AlarmLevel],
         *,
         default_level: AlarmLevel = AlarmLevel.NORMAL,
         minimum_violations: int = 1,
@@ -66,7 +67,7 @@ class EnumerationAlarm(Alarm):
             self,
             minimum_violations=minimum_violations,
         )
-        self.states: dict[str, AlarmLevel] = states
+        self.states: dict[str, AlarmLevel] = dict(states)
         """
         Alarm levels, keyed by enumeration label
         """

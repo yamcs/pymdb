@@ -3,9 +3,10 @@ from __future__ import annotations
 import os
 import xml.etree.ElementTree as ET
 from binascii import hexlify
+from collections.abc import Mapping
 from datetime import datetime, timezone
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Mapping, cast
+from typing import TYPE_CHECKING, Any, cast
 from xml.dom import minidom
 
 from yamcs.pymdb.alarms import AlarmLevel, ThresholdAlarm

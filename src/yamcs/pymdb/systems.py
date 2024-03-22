@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
+
 from yamcs.pymdb import xtce
 from yamcs.pymdb.commands import Command
 from yamcs.pymdb.containers import Container
@@ -22,15 +24,15 @@ class System:
     def __init__(
         self,
         name: str,
-        aliases: dict[str, str] | None = None,
+        aliases: Mapping[str, str] | None = None,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
     ):
         self.name: str = name
         """Short name of this system"""
 
-        self.aliases: dict[str, str] = aliases or {}
+        self.aliases: dict[str, str] = dict(aliases or {})
         """Alternative names, keyed by namespace"""
 
         self.short_description: str | None = short_description
@@ -39,7 +41,7 @@ class System:
         self.long_description: str | None = long_description
         """Multiline description"""
 
-        self.extra: dict[str, str] = extra or {}
+        self.extra: dict[str, str] = dict(extra or {})
         """Arbitrary information, keyed by name"""
 
         self._commands_by_name: dict[str, Command] = {}
@@ -207,10 +209,10 @@ class Subsystem(System):
         self,
         system: System,
         name: str,
-        aliases: dict[str, str] | None = None,
+        aliases: Mapping[str, str] | None = None,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
     ):
         super().__init__(
             name=name,

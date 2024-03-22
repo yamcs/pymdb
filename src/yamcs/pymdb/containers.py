@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Mapping, Sequence
+from collections.abc import Mapping, Sequence
+from typing import TYPE_CHECKING
 
 from yamcs.pymdb.datatypes import AggregateDataType, ArrayDataType
 
@@ -83,7 +84,7 @@ class Container:
         self.system: System = system
         """System this container belongs to"""
 
-        self.aliases: Mapping[str, str] = aliases or {}
+        self.aliases: dict[str, str] = dict(aliases or {})
         """Alternative names, keyed by namespace"""
 
         self.short_description: str | None = short_description
@@ -92,7 +93,7 @@ class Container:
         self.long_description: str | None = long_description
         """Multiline description"""
 
-        self.extra: Mapping[str, str] = extra or {}
+        self.extra: dict[str, str] = dict(extra or {})
         """Arbitrary information, keyed by name"""
 
         self.bits: int | None = bits
@@ -114,7 +115,7 @@ class Container:
         stored to Yamcs.
         """
 
-        self.entries: Sequence[ParameterEntry | ContainerEntry] = entries or []
+        self.entries: list[ParameterEntry | ContainerEntry] = list(entries or [])
         self.parent: Container | str | None = parent
         self.abstract: bool = abstract
         self.restriction_criteria: Expression | None = restriction_criteria

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
 from typing import TYPE_CHECKING
 
 from yamcs.pymdb.ancillary import AncillaryData
@@ -30,12 +31,12 @@ class JavaAlgorithm:
         self,
         java: str,
         *,
-        inputs: list[InputParameter] | None = None,
-        extra: dict[str, str] | AncillaryData | None = None,
+        inputs: Sequence[InputParameter] | None = None,
+        extra: Mapping[str, str] | AncillaryData | None = None,
     ):
         self.java: str = java
 
-        self.inputs: list[InputParameter] = inputs or []
+        self.inputs: list[InputParameter] = list(inputs or [])
         """Parameter inputs available to the algorithm"""
 
         self.extra: AncillaryData

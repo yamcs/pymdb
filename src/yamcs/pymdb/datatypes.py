@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
 from datetime import datetime
 from enum import Enum, auto
-from typing import TYPE_CHECKING, Any, Literal, Type, TypeAlias
+from typing import TYPE_CHECKING, Any, Literal, TypeAlias
 
 from yamcs.pymdb.encodings import DataEncoding, TimeEncoding
 
@@ -18,7 +19,7 @@ class Epoch(Enum):
     UNIX = auto()
 
 
-Choices: TypeAlias = list[tuple[int, str] | tuple[int, str, str]] | Type[Enum]
+Choices: TypeAlias = list[tuple[int, str] | tuple[int, str, str]] | type[Enum]
 
 
 class DataType:
@@ -26,7 +27,7 @@ class DataType:
         self,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         units: str | None = None,
         encoding: DataEncoding | None = None,
     ) -> None:
@@ -36,7 +37,7 @@ class DataType:
         self.long_description: str | None = long_description
         """Multiline description"""
 
-        self.extra: dict[str, str] = extra or {}
+        self.extra: dict[str, str] = dict(extra or {})
         """Arbitrary information, keyed by name"""
 
         self.units: str | None = units
@@ -55,7 +56,7 @@ class AbsoluteTimeDataType(DataType):
         reference: Epoch | datetime | AbsoluteTimeParameter,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         units: str | None = None,
         encoding: TimeEncoding | None = None,
     ) -> None:
@@ -73,10 +74,10 @@ class AbsoluteTimeDataType(DataType):
 class AggregateDataType(DataType):
     def __init__(
         self,
-        members: list[Member],
+        members: Sequence[Member],
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         units: str | None = None,
         encoding: DataEncoding | None = None,
     ) -> None:
@@ -88,7 +89,7 @@ class AggregateDataType(DataType):
             units=units,
             encoding=encoding,
         )
-        self.members: list[Member] = members
+        self.members: list[Member] = list(members)
 
     def find_member(self, name: str) -> Member:
         for member in self.members:
@@ -104,7 +105,7 @@ class ArrayDataType(DataType):
         length: int,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         encoding: DataEncoding | None = None,
     ) -> None:
         DataType.__init__(
@@ -125,7 +126,7 @@ class BinaryDataType(DataType):
         max_length: int | None = None,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         units: str | None = None,
         encoding: DataEncoding | None = None,
     ) -> None:
@@ -152,7 +153,7 @@ class BooleanDataType(DataType):
         one_string_value: str = "True",
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         units: str | None = None,
         encoding: DataEncoding | None = None,
     ) -> None:
@@ -175,7 +176,7 @@ class EnumeratedDataType(DataType):
         choices: Choices,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         units: str | None = None,
         encoding: DataEncoding | None = None,
     ) -> None:
@@ -206,14 +207,14 @@ class EnumeratedDataType(DataType):
 class FloatDataType(DataType):
     def __init__(
         self,
-        bits: Literal[32] | Literal[64] = 32,
+        bits: Literal[32, 64] = 32,
         minimum: float | None = None,
         minimum_inclusive: bool = True,
         maximum: float | None = None,
         maximum_inclusive: bool = True,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         units: str | None = None,
         encoding: DataEncoding | None = None,
         calibrator: Calibrator | None = None,
@@ -227,7 +228,7 @@ class FloatDataType(DataType):
             encoding=encoding,
         )
 
-        self.bits: Literal[32] | Literal[64] = bits
+        self.bits: Literal[32, 64] = bits
 
         self.minimum: float | None = minimum
         """Minimum valid engineering value"""
@@ -254,7 +255,7 @@ class IntegerDataType(DataType):
         maximum: int | None = None,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         units: str | None = None,
         encoding: DataEncoding | None = None,
         calibrator: Calibrator | None = None,
@@ -289,7 +290,7 @@ class StringDataType(DataType):
         max_length: int | None = None,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         units: str | None = None,
         encoding: DataEncoding | None = None,
     ) -> None:
@@ -316,7 +317,7 @@ class Member(DataType):
         initial_value: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         units: str | None = None,
         encoding: DataEncoding | None = None,
     ) -> None:
@@ -344,7 +345,7 @@ class AbsoluteTimeMember(Member, AbsoluteTimeDataType):
         initial_value: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         units: str | None = None,
         encoding: TimeEncoding | None = None,
     ) -> None:
@@ -368,11 +369,11 @@ class AggregateMember(Member, AggregateDataType):
     def __init__(
         self,
         name: str,
-        members: list[Member],
+        members: Sequence[Member],
         initial_value: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         encoding: DataEncoding | None = None,
     ) -> None:
         AggregateDataType.__init__(
@@ -399,7 +400,7 @@ class ArrayMember(Member, ArrayDataType):
         initial_value: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         encoding: DataEncoding | None = None,
     ) -> None:
         ArrayDataType.__init__(
@@ -427,7 +428,7 @@ class BinaryMember(Member, BinaryDataType):
         initial_value: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         units: str | None = None,
         encoding: DataEncoding | None = None,
     ) -> None:
@@ -457,7 +458,7 @@ class BooleanMember(Member, BooleanDataType):
         initial_value: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         units: str | None = None,
         encoding: DataEncoding | None = None,
     ) -> None:
@@ -486,7 +487,7 @@ class EnumeratedMember(Member, EnumeratedDataType):
         initial_value: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         units: str | None = None,
         encoding: DataEncoding | None = None,
     ) -> None:
@@ -510,7 +511,7 @@ class FloatMember(Member, FloatDataType):
     def __init__(
         self,
         name: str,
-        bits: Literal[32] | Literal[64] = 32,
+        bits: Literal[32, 64] = 32,
         minimum: float | None = None,
         minimum_inclusive: bool = True,
         maximum: float | None = None,
@@ -518,7 +519,7 @@ class FloatMember(Member, FloatDataType):
         initial_value: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         units: str | None = None,
         encoding: DataEncoding | None = None,
         calibrator: Calibrator | None = None,
@@ -555,7 +556,7 @@ class IntegerMember(Member, IntegerDataType):
         initial_value: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         units: str | None = None,
         encoding: DataEncoding | None = None,
         calibrator: Calibrator | None = None,
@@ -589,7 +590,7 @@ class StringMember(Member, StringDataType):
         initial_value: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         units: str | None = None,
         encoding: DataEncoding | None = None,
     ) -> None:
