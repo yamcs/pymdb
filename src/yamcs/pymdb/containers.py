@@ -76,6 +76,7 @@ class Container:
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
         bits: int | None = None,
+        rate: float | None = None,
         hint_partition: bool = False,
     ):
         self.name: str = name
@@ -107,6 +108,17 @@ class Container:
 
         If this container extends base container(s), their size should be
         included.
+        """
+
+        self.rate: float | None = rate
+        """
+        Expected rate in seconds.
+
+        This is used by Yamcs to determine parameter expiration. A parameter's
+        realtime value is considered expired when ``1.9 * rate`` has passed
+        without a new update (where ``1.9`` is a configurable tolerance multiplier).
+
+        If ``None``, the contained parameters are not checked for expiration.
         """
 
         self.hint_partition: bool = hint_partition

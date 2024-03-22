@@ -1670,6 +1670,10 @@ class XTCE12Generator:
         if extra:
             self.add_ancillary_data(el, extra)
 
+        if container.rate is not None:
+            rate_el = ET.SubElement(el, "DefaultRateInStream")
+            rate_el.attrib["maximumValue"] = _to_xml_value(container.rate)
+
         if container.bits is not None:
             encoding_el = ET.SubElement(el, "BinaryEncoding")
             size_el = ET.SubElement(encoding_el, "SizeInBits")
