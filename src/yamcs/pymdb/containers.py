@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from typing import TYPE_CHECKING
 
-from yamcs.pymdb.datatypes import AggregateDataType, ArrayDataType
+from yamcs.pymdb.datatypes import AggregateDataType, ArrayDataType, DynamicInteger
 
 if TYPE_CHECKING:
     from yamcs.pymdb.expressions import Expression
@@ -163,6 +163,8 @@ class Container:
                     length = parameter.length
                     encoding = parameter.data_type.encoding
                     if encoding and encoding.bits:
+                        if isinstance(length, DynamicInteger):
+                            raise Exception("Cannot determine dynamic integer value")
                         bits = length * encoding.bits
                 elif isinstance(parameter, AggregateDataType):
                     raise NotImplementedError()

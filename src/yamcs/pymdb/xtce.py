@@ -36,6 +36,7 @@ from yamcs.pymdb.datatypes import (
     BooleanMember,
     Choices,
     DataType,
+    DynamicInteger,
     EnumeratedDataType,
     EnumeratedMember,
     Epoch,
@@ -920,8 +921,26 @@ class XTCE12Generator:
         dim_el = ET.SubElement(dims_el, "Dimension")
         start_idx_el = ET.SubElement(dim_el, "StartingIndex")
         ET.SubElement(start_idx_el, "FixedValue").text = "0"
+
         end_idx_el = ET.SubElement(dim_el, "EndingIndex")
-        ET.SubElement(end_idx_el, "FixedValue").text = str(data_type.length - 1)
+        if isinstance(data_type.length, DynamicInteger):
+            dyn_el = ET.SubElement(end_idx_el, "DynamicValue")
+            ref_el = ET.SubElement(dyn_el, "ParameterInstanceRef")
+            parameter = data_type.length.parameter
+            if isinstance(parameter, Parameter):
+                ref_el.attrib["parameterRef"] = self.make_ref(
+                    parameter.qualified_name,
+                    start=system,
+                )
+            else:
+                ref_el.attrib["parameterRef"] = self.make_ref(
+                    parameter,
+                    start=system,
+                )
+            adj_el = ET.SubElement(dyn_el, "LinearAdjustment")
+            adj_el.attrib["intercept"] = "-1"
+        else:
+            ET.SubElement(end_idx_el, "FixedValue").text = str(data_type.length - 1)
 
         el_type = data_type.data_type
         if isinstance(el_type, AbsoluteTimeDataType):

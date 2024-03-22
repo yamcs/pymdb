@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Any, Literal, TypeAlias
@@ -9,7 +10,7 @@ from yamcs.pymdb.encodings import DataEncoding, TimeEncoding
 
 if TYPE_CHECKING:
     from yamcs.pymdb.calibrators import Calibrator
-    from yamcs.pymdb.parameters import AbsoluteTimeParameter
+    from yamcs.pymdb.parameters import AbsoluteTimeParameter, IntegerParameter
 
 
 class Epoch(Enum):
@@ -20,6 +21,17 @@ class Epoch(Enum):
 
 
 Choices: TypeAlias = list[tuple[int, str] | tuple[int, str, str]] | type[Enum]
+
+
+@dataclass
+class DynamicInteger:
+    parameter: IntegerParameter | str
+    """
+    Retrieve the value of this parameter.
+
+    The parameter may be specified as ``str``, which is intended for referencing
+    a parameter that is not managed with PyMDB.
+    """
 
 
 class DataType:
@@ -102,7 +114,7 @@ class ArrayDataType(DataType):
     def __init__(
         self,
         data_type: DataType,
-        length: int,
+        length: int | DynamicInteger,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
@@ -116,7 +128,7 @@ class ArrayDataType(DataType):
             encoding=encoding,
         )
         self.data_type: DataType = data_type
-        self.length: int = length
+        self.length: int | DynamicInteger = length
 
 
 class BinaryDataType(DataType):
