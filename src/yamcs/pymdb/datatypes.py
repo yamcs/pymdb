@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Any, Literal, Type, TypeAlias
 
@@ -11,6 +12,9 @@ if TYPE_CHECKING:
 
 
 class Epoch(Enum):
+    GPS = auto()
+    J2000 = auto()
+    TAI = auto()
     UNIX = auto()
 
 
@@ -48,7 +52,7 @@ class DataType:
 class AbsoluteTimeDataType(DataType):
     def __init__(
         self,
-        reference: Epoch | AbsoluteTimeParameter,
+        reference: Epoch | datetime | AbsoluteTimeParameter,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: dict[str, str] | None = None,
@@ -63,7 +67,7 @@ class AbsoluteTimeDataType(DataType):
             units=units,
             encoding=encoding,
         )
-        self.reference: Epoch | AbsoluteTimeParameter = reference
+        self.reference: Epoch | datetime | AbsoluteTimeParameter = reference
 
 
 class AggregateDataType(DataType):
@@ -336,7 +340,7 @@ class AbsoluteTimeMember(Member, AbsoluteTimeDataType):
     def __init__(
         self,
         name: str,
-        reference: Epoch | AbsoluteTimeParameter,
+        reference: Epoch | datetime | AbsoluteTimeParameter,
         initial_value: Any = None,
         short_description: str | None = None,
         long_description: str | None = None,

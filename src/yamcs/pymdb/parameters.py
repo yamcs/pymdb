@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Any, Literal
 
@@ -165,7 +166,7 @@ class AbsoluteTimeParameter(Parameter, AbsoluteTimeDataType):
         self,
         system: System,
         name: str,
-        reference: Epoch | AbsoluteTimeParameter,
+        reference: Epoch | datetime | AbsoluteTimeParameter,
         aliases: dict[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
         initial_value: Any = None,

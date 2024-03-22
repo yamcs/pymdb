@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import xml.etree.ElementTree as ET
 from binascii import hexlify
+from datetime import datetime, timezone
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Mapping, cast
 from xml.dom import minidom
@@ -981,10 +982,23 @@ class XTCE12Generator:
 
         if isinstance(data_type.reference, Epoch):
             epoch_el = ET.SubElement(ref_el, "Epoch")
-            if data_type.reference == Epoch.UNIX:
+            if data_type.reference == Epoch.GPS:
+                epoch_el.text = "GPS"
+            elif data_type.reference == Epoch.J2000:
+                epoch_el.text = "J2000"
+            elif data_type.reference == Epoch.TAI:
+                epoch_el.text = "TAI"
+            elif data_type.reference == Epoch.UNIX:
                 epoch_el.text = "UNIX"
             else:
                 raise Exception(f"Unexpected epoch {data_type.reference}")
+        elif isinstance(data_type.reference, datetime):
+            epoch_el = ET.SubElement(ref_el, "Epoch")
+            if data_type.reference.tzinfo:
+                utctime = data_type.reference.astimezone(tz=timezone.utc)
+                epoch_el.text = utctime.isoformat().replace("+00:00", "Z")
+            else:
+                epoch_el.text = data_type.reference.isoformat() + "Z"
         else:
             offset_el = ET.SubElement(ref_el, "OffsetFrom")
             offset_el.attrib["parameterRef"] = self.make_ref(
