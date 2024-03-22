@@ -265,38 +265,3 @@ class Subsystem(System):
                 parent = None
 
         return path
-
-
-class YamcsSystem:
-
-    _instance = System(name="yamcs")
-
-    @staticmethod
-    def get_parameter(qualified_name: str):
-        """
-        Create a new parameter object for the given name.
-
-        This can be used when referencing an item under the built-in
-        /yamcs system.
-
-        :param qualified_name: Fully qualified name under the /yamcs system.
-        """
-        if not qualified_name.startswith("/" + YamcsSystem._instance.name + "/"):
-            raise Exception(
-                "Qualified name should start with '/{}/'. Got: '{}'".format(
-                    YamcsSystem._instance.name, qualified_name
-                )
-            )
-        parts = qualified_name.split("/")
-
-        system = YamcsSystem._instance
-        for part in parts[2:-1]:
-            try:
-                system = system.find_subsystem(part)
-            except KeyError:
-                system = Subsystem(system, name=part)
-
-        try:
-            return system.find_parameter(parts[-1])
-        except KeyError:
-            return Parameter(system, name=parts[-1])

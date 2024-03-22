@@ -172,6 +172,7 @@ class XTCE12Generator:
                 # Make an argument type unique to each command
                 self.add_argument_type(
                     set_el,
+                    system,
                     name=f"{command.name}__{argument.name}",
                     default=argument.default,
                     data_type=argument,
@@ -337,7 +338,9 @@ class XTCE12Generator:
             expr_el = ET.SubElement(el, "BooleanExpression")
             self.add_expression_condition(expr_el, command.system, check.expression)
         elif isinstance(check, AlgorithmCheck):
-            self.add_input_only_algorithm(el, "CustomAlgorithm", check.algorithm)
+            self.add_input_only_algorithm(
+                el, command.system, "CustomAlgorithm", check.algorithm
+            )
         else:
             raise ExportError(f"Unexpected check {check.__class__}")
 
@@ -503,24 +506,28 @@ class XTCE12Generator:
             if isinstance(parameter, AbsoluteTimeParameter):
                 self.add_absolute_time_parameter_type(
                     el,
+                    system,
                     name=parameter.name,
                     data_type=parameter,
                 )
             elif isinstance(parameter, AggregateParameter):
                 self.add_aggregate_parameter_type(
                     el,
+                    system,
                     name=parameter.name,
                     data_type=parameter,
                 )
             elif isinstance(parameter, ArrayParameter):
                 self.add_array_parameter_type(
                     el,
+                    system,
                     name=parameter.name,
                     data_type=parameter,
                 )
             elif isinstance(parameter, BinaryParameter):
                 self.add_binary_parameter_type(
                     el,
+                    system,
                     name=parameter.name,
                     initial_value=parameter.initial_value,
                     data_type=parameter,
@@ -528,6 +535,7 @@ class XTCE12Generator:
             elif isinstance(parameter, BooleanParameter):
                 self.add_boolean_parameter_type(
                     el,
+                    system,
                     name=parameter.name,
                     initial_value=parameter.initial_value,
                     data_type=parameter,
@@ -535,6 +543,7 @@ class XTCE12Generator:
             elif isinstance(parameter, EnumeratedParameter):
                 self.add_enumerated_parameter_type(
                     el,
+                    system,
                     name=parameter.name,
                     initial_value=parameter.initial_value,
                     data_type=parameter,
@@ -542,6 +551,7 @@ class XTCE12Generator:
             elif isinstance(parameter, FloatParameter):
                 self.add_float_parameter_type(
                     el,
+                    system,
                     name=parameter.name,
                     initial_value=parameter.initial_value,
                     alarm=parameter.alarm,
@@ -550,6 +560,7 @@ class XTCE12Generator:
             elif isinstance(parameter, IntegerParameter):
                 self.add_integer_parameter_type(
                     el,
+                    system,
                     name=parameter.name,
                     initial_value=parameter.initial_value,
                     alarm=parameter.alarm,
@@ -558,6 +569,7 @@ class XTCE12Generator:
             elif isinstance(parameter, StringParameter):
                 self.add_string_parameter_type(
                     el,
+                    system,
                     name=parameter.name,
                     initial_value=parameter.initial_value,
                     data_type=parameter,
@@ -568,30 +580,32 @@ class XTCE12Generator:
     def add_argument_type(
         self,
         parent: ET.Element,
+        system: System,
         name: str,
         default: Any,
         data_type: DataType,
     ):
         if isinstance(data_type, AbsoluteTimeDataType):
-            self.add_absolute_time_argument_type(parent, name, data_type)
+            self.add_absolute_time_argument_type(parent, system, name, data_type)
         elif isinstance(data_type, BinaryDataType):
-            self.add_binary_argument_type(parent, name, default, data_type)
+            self.add_binary_argument_type(parent, system, name, default, data_type)
         elif isinstance(data_type, BooleanDataType):
-            self.add_boolean_argument_type(parent, name, default, data_type)
+            self.add_boolean_argument_type(parent, system, name, default, data_type)
         elif isinstance(data_type, EnumeratedDataType):
-            self.add_enumerated_argument_type(parent, name, default, data_type)
+            self.add_enumerated_argument_type(parent, system, name, default, data_type)
         elif isinstance(data_type, FloatDataType):
-            self.add_float_argument_type(parent, name, default, data_type)
+            self.add_float_argument_type(parent, system, name, default, data_type)
         elif isinstance(data_type, IntegerDataType):
-            self.add_integer_argument_type(parent, name, default, data_type)
+            self.add_integer_argument_type(parent, system, name, default, data_type)
         elif isinstance(data_type, StringDataType):
-            self.add_string_argument_type(parent, name, default, data_type)
+            self.add_string_argument_type(parent, system, name, default, data_type)
         else:
             raise ExportError(f"Unexpected data type {data_type.__class__}")
 
     def add_absolute_time_argument_type(
         self,
         parent: ET.Element,
+        system: System,
         name: str,
         data_type: AbsoluteTimeDataType,
     ):
@@ -599,7 +613,7 @@ class XTCE12Generator:
         el.attrib["name"] = name
 
         if data_type.encoding:
-            self.add_data_encoding(el, data_type.encoding)
+            self.add_data_encoding(el, system, data_type.encoding)
 
         ref_el = ET.SubElement(el, "ReferenceTime")
 
@@ -615,6 +629,7 @@ class XTCE12Generator:
     def add_binary_argument_type(
         self,
         parent: ET.Element,
+        system: System,
         name: str,
         default: Any,
         data_type: BinaryDataType,
@@ -640,11 +655,12 @@ class XTCE12Generator:
             unit_el.text = data_type.units
 
         if data_type.encoding:
-            self.add_data_encoding(el, data_type.encoding)
+            self.add_data_encoding(el, system, data_type.encoding)
 
     def add_boolean_argument_type(
         self,
         parent: ET.Element,
+        system: System,
         name: str,
         default: Any,
         data_type: BooleanDataType,
@@ -672,11 +688,12 @@ class XTCE12Generator:
             unit_el.text = data_type.units
 
         if data_type.encoding:
-            self.add_data_encoding(el, data_type.encoding)
+            self.add_data_encoding(el, system, data_type.encoding)
 
     def add_enumerated_argument_type(
         self,
         parent: ET.Element,
+        system: System,
         name: str,
         default: Any,
         data_type: EnumeratedDataType,
@@ -694,13 +711,14 @@ class XTCE12Generator:
             unit_el.text = data_type.units
 
         if data_type.encoding:
-            self.add_data_encoding(el, data_type.encoding)
+            self.add_data_encoding(el, system, data_type.encoding)
 
         self.add_enumeration_list(el, data_type.choices)
 
     def add_float_argument_type(
         self,
         parent: ET.Element,
+        system: System,
         name: str,
         default: Any,
         data_type: FloatDataType,
@@ -719,7 +737,7 @@ class XTCE12Generator:
             unit_el.text = data_type.units
 
         if data_type.encoding:
-            self.add_data_encoding(el, data_type.encoding)
+            self.add_data_encoding(el, system, data_type.encoding)
 
         if data_type.minimum is not None or data_type.maximum is not None:
             range_el = ET.SubElement(el, "ValidRange")
@@ -738,6 +756,7 @@ class XTCE12Generator:
     def add_integer_argument_type(
         self,
         parent: ET.Element,
+        system: System,
         name: str,
         default: Any,
         data_type: IntegerDataType,
@@ -757,7 +776,7 @@ class XTCE12Generator:
             unit_el.text = data_type.units
 
         if data_type.encoding:
-            self.add_data_encoding(el, data_type.encoding)
+            self.add_data_encoding(el, system, data_type.encoding)
 
         if data_type.minimum is not None or data_type.maximum is not None:
             set_el = ET.SubElement(el, "ValidRangeSet")
@@ -771,6 +790,7 @@ class XTCE12Generator:
     def add_string_argument_type(
         self,
         parent: ET.Element,
+        system: System,
         name: str,
         default: Any,
         data_type: StringDataType,
@@ -781,7 +801,7 @@ class XTCE12Generator:
             el.attrib["initialValue"] = _to_xml_value(default)
 
         if data_type.encoding:
-            self.add_data_encoding(el, data_type.encoding)
+            self.add_data_encoding(el, system, data_type.encoding)
 
         if data_type.min_length is not None or data_type.max_length is not None:
             range_el = ET.SubElement(el, "SizeRangeInCharacters")
@@ -793,6 +813,7 @@ class XTCE12Generator:
     def add_aggregate_parameter_type(
         self,
         parent: ET.Element,
+        system: System,
         name: str,
         data_type: AggregateDataType,
     ):
@@ -811,24 +832,28 @@ class XTCE12Generator:
             if isinstance(member, AbsoluteTimeMember):
                 self.add_absolute_time_parameter_type(
                     parent,
+                    system,
                     name=member_type_name,
                     data_type=member,
                 )
             elif isinstance(member, AggregateMember):
                 self.add_aggregate_parameter_type(
                     parent,
+                    system,
                     name=member_type_name,
                     data_type=member,
                 )
             elif isinstance(member, ArrayMember):
                 self.add_array_parameter_type(
                     parent,
+                    system,
                     name=member_type_name,
                     data_type=member,
                 )
             elif isinstance(member, BinaryMember):
                 self.add_binary_parameter_type(
                     parent,
+                    system,
                     name=member_type_name,
                     initial_value=member.initial_value,
                     data_type=member,
@@ -836,6 +861,7 @@ class XTCE12Generator:
             elif isinstance(member, BooleanMember):
                 self.add_boolean_parameter_type(
                     parent,
+                    system,
                     name=member_type_name,
                     initial_value=member.initial_value,
                     data_type=member,
@@ -843,6 +869,7 @@ class XTCE12Generator:
             elif isinstance(member, EnumeratedMember):
                 self.add_enumerated_parameter_type(
                     parent,
+                    system,
                     name=member_type_name,
                     initial_value=member.initial_value,
                     data_type=member,
@@ -850,6 +877,7 @@ class XTCE12Generator:
             elif isinstance(member, FloatMember):
                 self.add_float_parameter_type(
                     parent,
+                    system,
                     name=member_type_name,
                     initial_value=member.initial_value,
                     alarm=None,
@@ -858,6 +886,7 @@ class XTCE12Generator:
             elif isinstance(member, IntegerMember):
                 self.add_integer_parameter_type(
                     parent,
+                    system,
                     name=member_type_name,
                     initial_value=member.initial_value,
                     alarm=None,
@@ -866,6 +895,7 @@ class XTCE12Generator:
             elif isinstance(member, StringMember):
                 self.add_string_parameter_type(
                     parent,
+                    system,
                     name=member_type_name,
                     initial_value=member.initial_value,
                     data_type=member,
@@ -876,6 +906,7 @@ class XTCE12Generator:
     def add_array_parameter_type(
         self,
         parent: ET.Element,
+        system: System,
         name: str,
         data_type: ArrayDataType,
     ):
@@ -896,24 +927,28 @@ class XTCE12Generator:
         if isinstance(el_type, AbsoluteTimeDataType):
             self.add_absolute_time_parameter_type(
                 parent,
+                system,
                 name=element_type_name,
                 data_type=el_type,
             )
         elif isinstance(el_type, AggregateDataType):
             self.add_aggregate_parameter_type(
                 parent,
+                system,
                 name=element_type_name,
                 data_type=el_type,
             )
         elif isinstance(el_type, ArrayDataType):
             self.add_array_parameter_type(
                 parent,
+                system,
                 name=element_type_name,
                 data_type=el_type,
             )
         elif isinstance(el_type, BinaryDataType):
             self.add_binary_parameter_type(
                 parent,
+                system,
                 name=element_type_name,
                 initial_value=None,
                 data_type=el_type,
@@ -921,6 +956,7 @@ class XTCE12Generator:
         elif isinstance(el_type, BooleanDataType):
             self.add_boolean_parameter_type(
                 parent,
+                system,
                 name=element_type_name,
                 initial_value=None,
                 data_type=el_type,
@@ -928,6 +964,7 @@ class XTCE12Generator:
         elif isinstance(el_type, EnumeratedDataType):
             self.add_enumerated_parameter_type(
                 parent,
+                system,
                 name=element_type_name,
                 initial_value=None,
                 data_type=el_type,
@@ -935,6 +972,7 @@ class XTCE12Generator:
         elif isinstance(el_type, FloatDataType):
             self.add_float_parameter_type(
                 parent,
+                system,
                 name=element_type_name,
                 initial_value=None,
                 alarm=None,
@@ -943,6 +981,7 @@ class XTCE12Generator:
         elif isinstance(el_type, IntegerDataType):
             self.add_integer_parameter_type(
                 parent,
+                system,
                 name=element_type_name,
                 initial_value=None,
                 alarm=None,
@@ -951,6 +990,7 @@ class XTCE12Generator:
         elif isinstance(el_type, StringDataType):
             self.add_string_parameter_type(
                 parent,
+                system,
                 name=element_type_name,
                 initial_value=None,
                 data_type=el_type,
@@ -961,6 +1001,7 @@ class XTCE12Generator:
     def add_absolute_time_parameter_type(
         self,
         parent: ET.Element,
+        system: System,
         name: str,
         data_type: AbsoluteTimeDataType,
     ):
@@ -968,7 +1009,7 @@ class XTCE12Generator:
         el.attrib["name"] = name
 
         if data_type.encoding:
-            self.add_data_encoding(el, data_type.encoding)
+            self.add_data_encoding(el, system, data_type.encoding)
 
         ref_el = ET.SubElement(el, "ReferenceTime")
 
@@ -1001,6 +1042,7 @@ class XTCE12Generator:
     def add_binary_parameter_type(
         self,
         parent: ET.Element,
+        system: System,
         name: str,
         initial_value: Any,
         data_type: BinaryDataType,
@@ -1017,11 +1059,12 @@ class XTCE12Generator:
             unit_el.text = data_type.units
 
         if data_type.encoding:
-            self.add_data_encoding(el, data_type.encoding)
+            self.add_data_encoding(el, system, data_type.encoding)
 
     def add_boolean_parameter_type(
         self,
         parent: ET.Element,
+        system: System,
         name: str,
         initial_value: Any,
         data_type: BooleanDataType,
@@ -1049,11 +1092,12 @@ class XTCE12Generator:
             unit_el.text = data_type.units
 
         if data_type.encoding:
-            self.add_data_encoding(el, data_type.encoding)
+            self.add_data_encoding(el, system, data_type.encoding)
 
     def add_enumerated_parameter_type(
         self,
         parent: ET.Element,
+        system: System,
         name: str,
         initial_value: Any,
         data_type: EnumeratedDataType,
@@ -1071,7 +1115,7 @@ class XTCE12Generator:
             unit_el.text = data_type.units
 
         if data_type.encoding:
-            self.add_data_encoding(el, data_type.encoding)
+            self.add_data_encoding(el, system, data_type.encoding)
 
         self.add_enumeration_list(el, data_type.choices)
 
@@ -1092,6 +1136,7 @@ class XTCE12Generator:
     def add_float_parameter_type(
         self,
         parent: ET.Element,
+        system: System,
         name: str,
         initial_value: Any,
         alarm: ThresholdAlarm | None,
@@ -1111,7 +1156,7 @@ class XTCE12Generator:
             unit_el.text = data_type.units
 
         if data_type.encoding:
-            self.add_data_encoding(el, data_type.encoding, data_type.calibrator)
+            self.add_data_encoding(el, system, data_type.encoding, data_type.calibrator)
 
         if data_type.calibrator and not data_type.encoding:
             raise ExportError(
@@ -1140,6 +1185,7 @@ class XTCE12Generator:
     def add_integer_parameter_type(
         self,
         parent: ET.Element,
+        system: System,
         name: str,
         initial_value: Any,
         alarm: ThresholdAlarm | None,
@@ -1159,7 +1205,7 @@ class XTCE12Generator:
             unit_el.text = data_type.units
 
         if data_type.encoding:
-            self.add_data_encoding(el, data_type.encoding, data_type.calibrator)
+            self.add_data_encoding(el, system, data_type.encoding, data_type.calibrator)
 
         if data_type.calibrator and not data_type.encoding:
             raise ExportError(
@@ -1182,6 +1228,7 @@ class XTCE12Generator:
     def add_string_parameter_type(
         self,
         parent: ET.Element,
+        system: System,
         name: str,
         initial_value: Any,
         data_type: StringDataType,
@@ -1192,7 +1239,7 @@ class XTCE12Generator:
             el.attrib["initialValue"] = str(initial_value)
 
         if data_type.encoding:
-            self.add_data_encoding(el, data_type.encoding)
+            self.add_data_encoding(el, system, data_type.encoding)
 
     def alarm_level_to_text(self, level: AlarmLevel):
         if level == AlarmLevel.NORMAL:
@@ -1276,6 +1323,7 @@ class XTCE12Generator:
     def add_data_encoding(
         self,
         parent: ET.Element,
+        system: System,
         encoding: DataEncoding,
         calibrator: Calibrator | None = None,
     ):
@@ -1284,7 +1332,7 @@ class XTCE12Generator:
         elif isinstance(encoding, IntegerTimeEncoding):
             self.add_integer_time_encoding(parent, encoding)
         elif isinstance(encoding, BinaryDataEncoding):
-            self.add_binary_data_encoding(parent, encoding)
+            self.add_binary_data_encoding(parent, system, encoding)
         elif isinstance(encoding, IntegerDataEncoding):
             self.add_integer_data_encoding(parent, encoding, calibrator)
         elif isinstance(encoding, FloatDataEncoding):
@@ -1295,7 +1343,7 @@ class XTCE12Generator:
             raise Exception("Unexpected encoding")
 
     def add_binary_data_encoding(
-        self, parent: ET.Element, encoding: BinaryDataEncoding
+        self, parent: ET.Element, system: System, encoding: BinaryDataEncoding
     ):
         el = ET.SubElement(parent, "BinaryDataEncoding")
         size_el = ET.SubElement(el, "SizeInBits")
@@ -1340,16 +1388,16 @@ class XTCE12Generator:
 
         if encoding.decoder:
             self.add_input_only_algorithm(
-                el, "FromBinaryTransformAlgorithm", encoding.decoder
+                el, system, "FromBinaryTransformAlgorithm", encoding.decoder
             )
 
         if encoding.encoder:
             self.add_input_only_algorithm(
-                el, "ToBinaryTransformAlgorithm", encoding.encoder
+                el, system, "ToBinaryTransformAlgorithm", encoding.encoder
             )
 
     def add_input_only_algorithm(
-        self, parent: ET.Element, tag: str, algorithm: JavaAlgorithm
+        self, parent: ET.Element, system: System, tag: str, algorithm: JavaAlgorithm
     ):
         el = ET.SubElement(parent, tag)
         if isinstance(algorithm, JavaAlgorithm):
@@ -1364,7 +1412,16 @@ class XTCE12Generator:
                 inputset_el = ET.SubElement(el, "InputSet")
                 for input in algorithm.inputs:
                     ref_el = ET.SubElement(inputset_el, "InputParameterInstanceRef")
-                    ref_el.attrib["parameterRef"] = input.parameter.qualified_name
+                    if isinstance(input.parameter, Parameter):
+                        ref_el.attrib["parameterRef"] = self.make_ref(
+                            input.parameter.qualified_name,
+                            start=system,
+                        )
+                    else:
+                        ref_el.attrib["parameterRef"] = self.make_ref(
+                            input.parameter,
+                            start=system,
+                        )
                     if input.name:
                         ref_el.attrib["inputName"] = input.name
         else:

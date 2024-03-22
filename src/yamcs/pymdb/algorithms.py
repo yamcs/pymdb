@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 class InputParameter:
     def __init__(
         self,
-        parameter: Parameter,
+        parameter: Parameter | str,
         *,
         name: str | None = None,
     ):
