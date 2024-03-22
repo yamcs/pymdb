@@ -21,12 +21,7 @@ from yamcs.pymdb.commands import (
     EnumeratedArgument,
     FixedValueEntry,
 )
-from yamcs.pymdb.containers import (
-    Container,
-    ContainerEntry,
-    ParameterEntry,
-    ReferenceLocation,
-)
+from yamcs.pymdb.containers import Container, ContainerEntry, ParameterEntry
 from yamcs.pymdb.datatypes import (
     AbsoluteTimeDataType,
     AbsoluteTimeMember,
@@ -375,7 +370,7 @@ class XTCE12Generator:
         if argument.long_description:
             ET.SubElement(el, "LongDescription").text = argument.long_description
 
-    def add_aliases(self, parent: ET.Element, aliases: dict[str, str]):
+    def add_aliases(self, parent: ET.Element, aliases: Mapping[str, str]):
         aliases_el = ET.SubElement(parent, "AliasSet")
         for k, v in aliases.items():
             alias_el = ET.SubElement(aliases_el, "Alias")
@@ -444,12 +439,10 @@ class XTCE12Generator:
 
         loc_el = ET.SubElement(el, "LocationInContainerInBits")
 
-        if entry.reference_location == ReferenceLocation.PREVIOUS_ENTRY:
-            loc_el.attrib["referenceLocation"] = "previousEntry"
-        elif entry.reference_location == ReferenceLocation.CONTAINER_START:
+        if entry.absolute:
             loc_el.attrib["referenceLocation"] = "containerStart"
         else:
-            raise Exception("Unexpected reference location")
+            loc_el.attrib["referenceLocation"] = "previousEntry"
 
         fv_el = ET.SubElement(loc_el, "FixedValue")
         fv_el.text = str(entry.location_in_bits)
@@ -477,12 +470,10 @@ class XTCE12Generator:
 
         loc_el = ET.SubElement(el, "LocationInContainerInBits")
 
-        if entry.reference_location == ReferenceLocation.PREVIOUS_ENTRY:
-            loc_el.attrib["referenceLocation"] = "previousEntry"
-        elif entry.reference_location == ReferenceLocation.CONTAINER_START:
+        if entry.absolute:
             loc_el.attrib["referenceLocation"] = "containerStart"
         else:
-            raise Exception("Unexpected reference location")
+            loc_el.attrib["referenceLocation"] = "previousEntry"
 
         fv_el = ET.SubElement(loc_el, "FixedValue")
         fv_el.text = str(entry.location_in_bits)
@@ -1756,12 +1747,10 @@ class XTCE12Generator:
 
         loc_el = ET.SubElement(el, "LocationInContainerInBits")
 
-        if entry.reference_location == ReferenceLocation.PREVIOUS_ENTRY:
-            loc_el.attrib["referenceLocation"] = "previousEntry"
-        elif entry.reference_location == ReferenceLocation.CONTAINER_START:
+        if entry.absolute:
             loc_el.attrib["referenceLocation"] = "containerStart"
         else:
-            raise Exception("Unexpected reference location")
+            loc_el.attrib["referenceLocation"] = "previousEntry"
 
         fv_el = ET.SubElement(loc_el, "FixedValue")
         fv_el.text = str(entry.location_in_bits)
@@ -1791,12 +1780,10 @@ class XTCE12Generator:
 
         loc_el = ET.SubElement(el, "LocationInContainerInBits")
 
-        if entry.reference_location == ReferenceLocation.PREVIOUS_ENTRY:
-            loc_el.attrib["referenceLocation"] = "previousEntry"
-        elif entry.reference_location == ReferenceLocation.CONTAINER_START:
+        if entry.absolute:
             loc_el.attrib["referenceLocation"] = "containerStart"
         else:
-            raise Exception("Unexpected reference location")
+            loc_el.attrib["referenceLocation"] = "previousEntry"
 
         fv_el = ET.SubElement(loc_el, "FixedValue")
         fv_el.text = str(entry.location_in_bits)

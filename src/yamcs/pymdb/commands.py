@@ -4,7 +4,7 @@ from collections.abc import Sequence
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Any, Literal
 
-from yamcs.pymdb.containers import ParameterEntry, ReferenceLocation
+from yamcs.pymdb.containers import ParameterEntry
 from yamcs.pymdb.datatypes import (
     AbsoluteTimeDataType,
     AggregateDataType,
@@ -395,7 +395,7 @@ class ArgumentEntry:
         argument: Argument,
         *,
         short_description: str | None = None,
-        reference_location: ReferenceLocation = ReferenceLocation.PREVIOUS_ENTRY,
+        absolute: bool = False,
         location_in_bits: int = 0,
         include_condition: Expression | None = None,
     ) -> None:
@@ -404,7 +404,7 @@ class ArgumentEntry:
         self.short_description: str | None = short_description
         """Oneline description"""
 
-        self.reference_location: ReferenceLocation = reference_location
+        self.absolute: bool = absolute
         self.location_in_bits: int = location_in_bits
         self.include_condition: Expression | None = include_condition
 
@@ -416,7 +416,7 @@ class FixedValueEntry:
         name: str | None = None,
         *,
         short_description: str | None = None,
-        reference_location: ReferenceLocation = ReferenceLocation.PREVIOUS_ENTRY,
+        absolute: bool = False,
         location_in_bits: int = 0,
         include_condition: Expression | None = None,
         bits: int | None = None,
@@ -428,7 +428,7 @@ class FixedValueEntry:
         self.short_description: str | None = short_description
         """Onleine description"""
 
-        self.reference_location: ReferenceLocation = reference_location
+        self.absolute: bool = absolute
         self.location_in_bits: int = location_in_bits
         self.include_condition: Expression | None = include_condition
         self.bits: int | None = bits

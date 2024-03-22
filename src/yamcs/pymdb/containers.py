@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from enum import Enum, auto
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Mapping, Sequence
 
 from yamcs.pymdb.datatypes import AggregateDataType, ArrayDataType
 
@@ -11,18 +10,14 @@ if TYPE_CHECKING:
     from yamcs.pymdb.systems import System
 
 
-class ReferenceLocation(Enum):
-    CONTAINER_START = auto()
-    PREVIOUS_ENTRY = auto()
-
-
 class ParameterEntry:
     def __init__(
         self,
         parameter: Parameter,
-        short_description: str | None = None,
-        reference_location: ReferenceLocation = ReferenceLocation.PREVIOUS_ENTRY,
         location_in_bits: int = 0,
+        *,
+        absolute: bool = False,
+        short_description: str | None = None,
         include_condition: Expression | None = None,
     ) -> None:
         self.parameter: Parameter = parameter
@@ -30,7 +25,7 @@ class ParameterEntry:
         self.short_description: str | None = short_description
         """Oneline description"""
 
-        self.reference_location: ReferenceLocation = reference_location
+        self.absolute: bool = absolute
         self.location_in_bits: int = location_in_bits
         self.include_condition: Expression | None = include_condition
 
@@ -43,7 +38,7 @@ class ContainerEntry:
         self,
         container: Container,
         short_description: str | None = None,
-        reference_location: ReferenceLocation = ReferenceLocation.PREVIOUS_ENTRY,
+        absolute: bool = False,
         location_in_bits: int = 0,
         include_condition: Expression | None = None,
     ) -> None:
@@ -52,7 +47,7 @@ class ContainerEntry:
         self.short_description: str | None = short_description
         """Oneline description"""
 
-        self.reference_location: ReferenceLocation = reference_location
+        self.absolute: bool = absolute
         self.location_in_bits: int = location_in_bits
         self.include_condition: Expression | None = include_condition
 
@@ -70,15 +65,15 @@ class Container:
         self,
         system: System,
         name: str,
-        entries: list[ParameterEntry | ContainerEntry] | None = None,
+        entries: Sequence[ParameterEntry | ContainerEntry] | None = None,
         *,
         parent: Container | str | None = None,
         abstract: bool = False,
         restriction_criteria: Expression | None = None,
-        aliases: dict[str, str] | None = None,
+        aliases: Mapping[str, str] | None = None,
         short_description: str | None = None,
         long_description: str | None = None,
-        extra: dict[str, str] | None = None,
+        extra: Mapping[str, str] | None = None,
         bits: int | None = None,
         hint_partition: bool = False,
     ):
@@ -88,7 +83,7 @@ class Container:
         self.system: System = system
         """System this container belongs to"""
 
-        self.aliases: dict[str, str] = aliases or {}
+        self.aliases: Mapping[str, str] = aliases or {}
         """Alternative names, keyed by namespace"""
 
         self.short_description: str | None = short_description
@@ -97,7 +92,7 @@ class Container:
         self.long_description: str | None = long_description
         """Multiline description"""
 
-        self.extra: dict[str, str] = extra or {}
+        self.extra: Mapping[str, str] = extra or {}
         """Arbitrary information, keyed by name"""
 
         self.bits: int | None = bits
@@ -119,7 +114,7 @@ class Container:
         stored to Yamcs.
         """
 
-        self.entries: list[ParameterEntry | ContainerEntry] = entries or []
+        self.entries: Sequence[ParameterEntry | ContainerEntry] = entries or []
         self.parent: Container | str | None = parent
         self.abstract: bool = abstract
         self.restriction_criteria: Expression | None = restriction_criteria
@@ -177,7 +172,7 @@ class Container:
                     raise Exception(f"Cannot determine size of {entry.parameter}")
 
                 pos = entry.location_in_bits
-                if entry.reference_location == ReferenceLocation.PREVIOUS_ENTRY:
+                if not entry.absolute:
                     pos += prev_pos
 
                 pos += bits
