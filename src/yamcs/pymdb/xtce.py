@@ -1480,12 +1480,12 @@ class XTCE12Generator:
             fixed_el = ET.SubElement(size_el, "Fixed")
             fv_el = ET.SubElement(fixed_el, "FixedValue")
             fv_el.text = str(encoding.bits)
-            if encoding.length_bits:
-                lsize_el = ET.SubElement(size_el, "LeadingSize")
-                lsize_el.attrib["sizeInBitsOfSizeTag"] = str(encoding.length_bits)
             if encoding.termination is not None:
                 termination_el = ET.SubElement(size_el, "TerminationChar")
                 termination_el.text = hexlify(encoding.termination).decode("ascii")
+            if encoding.length_bits:
+                lsize_el = ET.SubElement(size_el, "LeadingSize")
+                lsize_el.attrib["sizeInBitsOfSizeTag"] = str(encoding.length_bits)
         else:
             var_el = ET.SubElement(el, "Variable")
             var_el.attrib["maxSizeInBits"] = str(encoding.max_bits)  # Required
