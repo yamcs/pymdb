@@ -475,7 +475,7 @@ class Command:
         """Arbitrary information, keyed by name"""
 
         self.abstract: bool = abstract
-        self.parent: Command | None = parent
+        self.parent: Command | str | None = parent
         self.restriction_criteria: Expression | None = restriction_criteria
         self.assignments: dict[str, Any] = dict(assignments or {})
         self.arguments: list[Argument] = list(arguments or [])
@@ -551,7 +551,7 @@ class Command:
             if argument.name == name:
                 return argument
 
-        if visit_parents and self.parent:
+        if visit_parents and self.parent and isinstance(self.parent, Command):
             return self.parent.get_argument(name)
         else:
             return None

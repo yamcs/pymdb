@@ -203,10 +203,16 @@ class XTCE12Generator:
 
         if command.parent:
             base_el = ET.SubElement(el, "BaseMetaCommand")
-            base_el.attrib["metaCommandRef"] = self.make_ref(
-                target=command.parent.qualified_name,
-                start=command.system,
-            )
+            if isinstance(command.parent, Command):
+                base_el.attrib["metaCommandRef"] = self.make_ref(
+                    target=command.parent.qualified_name,
+                    start=command.system,
+                )
+            else:
+                base_el.attrib["metaCommandRef"] = self.make_ref(
+                    target=command.parent,
+                    start=command.system,
+                )
 
             if command.assignments:
                 assignments_el = ET.SubElement(base_el, "ArgumentAssignmentList")
@@ -236,10 +242,16 @@ class XTCE12Generator:
 
         if command.parent:
             base_el = ET.SubElement(container_el, "BaseContainer")
-            base_el.attrib["containerRef"] = self.make_ref(
-                target=command.parent.qualified_name,
-                start=command.system,
-            )
+            if isinstance(command.parent, Command):
+                base_el.attrib["containerRef"] = self.make_ref(
+                    target=command.parent.qualified_name,
+                    start=command.system,
+                )
+            else:
+                base_el.attrib["containerRef"] = self.make_ref(
+                    target=command.parent,
+                    start=command.system,
+                )
 
         sign_el = ET.SubElement(el, "DefaultSignificance")
 
