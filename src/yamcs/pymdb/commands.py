@@ -456,28 +456,28 @@ class Command:
         level: CommandLevel = CommandLevel.NORMAL,
         warning_message: str | None = None,
     ):
-        self.name = name
+        self.name: str = name
         """Short name of this command"""
 
-        self.system = system
+        self.system: System = system
         """System this command belongs to"""
 
-        self.aliases = aliases or {}
+        self.aliases: dict[str, str] = dict(aliases or {})
         """Alternative names, keyed by namespace"""
 
-        self.short_description = short_description
+        self.short_description: str | None = short_description
         """Oneline description"""
 
-        self.long_description = long_description
+        self.long_description: str | None = long_description
         """Multiline description"""
 
-        self.extra = extra or {}
+        self.extra: dict[str, str] = dict(extra or {})
         """Arbitrary information, keyed by name"""
 
-        self.abstract = abstract
-        self.parent = parent
-        self.restriction_criteria = restriction_criteria
-        self.assignments = assignments or {}
+        self.abstract: bool = abstract
+        self.parent: Command | None = parent
+        self.restriction_criteria: Expression | None = restriction_criteria
+        self.assignments: dict[str, Any] = dict(assignments or {})
         self.arguments: list[Argument] = list(arguments or [])
         self._entries: list[CommandEntry] | None = (
             list(entries) if entries is not None else None
@@ -492,13 +492,13 @@ class Command:
         self.complete_verifiers: list[CompleteVerifier] = []
         self.failed_verifier: FailedVerifier | None = None
 
-        self.level = level
+        self.level: CommandLevel = level
         """
         The importance of this telecommand in terms of the nature and
         significance of its on-board effect.
         """
 
-        self.warning_message = warning_message
+        self.warning_message: str | None = warning_message
         """Message explaining the importance of this telecommand"""
 
         if name in system._commands_by_name:
@@ -525,7 +525,7 @@ class Command:
         return res
 
     @property
-    def qualified_name(self):
+    def qualified_name(self) -> str:
         """
         Absolute path of this item covering the full system tree. For example,
         an item ``C`` in a subystem ``B`` of a top-level system ``A`` is

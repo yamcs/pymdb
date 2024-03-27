@@ -137,7 +137,7 @@ class Parameter(DataType):
         system._parameters_by_name[name] = self
 
     @property
-    def qualified_name(self):
+    def qualified_name(self) -> str:
         """
         Absolute path of this item covering the full system tree. For example,
         an item ``C`` in a subystem ``B`` of a top-level system ``A`` is
