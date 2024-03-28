@@ -1,6 +1,6 @@
 from yamcs.pymdb.commands import ArrayArgument
 from yamcs.pymdb.datatypes import FloatDataType
-from yamcs.pymdb.encodings import ByteOrder, FloatEncoding, IntegerEncoding
+from yamcs.pymdb.encodings import FloatEncoding, IntegerEncoding
 from yamcs.pymdb.parameters import ArrayParameter
 from yamcs.pymdb.systems import System
 from yamcs.pymdb.verifiers import TerminationAction
@@ -112,11 +112,7 @@ def check_little_endian_only(system: System) -> bool:
 
         encoding = data_type.encoding
         if isinstance(encoding, IntegerEncoding):
-            if (
-                encoding.byte_order != ByteOrder.LITTLE_ENDIAN
-                and encoding.bits
-                and encoding.bits > 8
-            ):
+            if not encoding.little_endian and encoding.bits and encoding.bits > 8:
                 ok = False
                 print(f"Parameter {parameter} is not in little endian")
 
@@ -128,11 +124,7 @@ def check_little_endian_only(system: System) -> bool:
 
             encoding = data_type.encoding
             if isinstance(encoding, IntegerEncoding):
-                if (
-                    encoding.byte_order != ByteOrder.LITTLE_ENDIAN
-                    and encoding.bits
-                    and encoding.bits > 8
-                ):
+                if not encoding.little_endian and encoding.bits and encoding.bits > 8:
                     ok = False
                     print(
                         f"Command {command}: argument {argument.name} "

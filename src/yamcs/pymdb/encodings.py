@@ -4,18 +4,6 @@ from typing import TypeAlias
 from yamcs.pymdb.algorithms import JavaAlgorithm
 
 
-class ByteOrder(Enum):
-    """
-    Byte order (endianness)
-    """
-
-    BIG_ENDIAN = auto()
-    """Big Endian (most significant byte first)"""
-
-    LITTLE_ENDIAN = auto()
-    """Little Endian (least significant byte first)"""
-
-
 class Charset(Enum):
     """String encoding"""
 
@@ -111,11 +99,11 @@ class IntegerEncoding(Encoding):
     def __init__(
         self,
         bits: int,
-        byte_order: ByteOrder = ByteOrder.BIG_ENDIAN,
+        little_endian: bool = False,
         scheme: IntegerEncodingScheme = IntegerEncodingScheme.UNSIGNED,
     ) -> None:
         super().__init__(bits=bits)
-        self.byte_order: ByteOrder = byte_order
+        self.little_endian: bool = little_endian
         self.scheme: IntegerEncodingScheme = scheme
 
 
@@ -123,11 +111,11 @@ class FloatEncoding(Encoding):
     def __init__(
         self,
         bits: int,
-        byte_order: ByteOrder = ByteOrder.BIG_ENDIAN,
+        little_endian: bool = False,
         scheme: FloatEncodingScheme = FloatEncodingScheme.IEEE754_1985,
     ) -> None:
         super().__init__(bits=bits)
-        self.byte_order: ByteOrder = byte_order
+        self.little_endian: bool = little_endian
         self.scheme: FloatEncodingScheme = scheme
 
 
@@ -135,14 +123,14 @@ class FloatTimeEncoding(FloatEncoding):
     def __init__(
         self,
         bits: int,
-        byte_order: ByteOrder = ByteOrder.BIG_ENDIAN,
+        little_endian: bool = False,
         scheme: FloatEncodingScheme = FloatEncodingScheme.IEEE754_1985,
         offset: float = 0,
         scale: float = 1,
     ) -> None:
         super().__init__(
             bits=bits,
-            byte_order=byte_order,
+            little_endian=little_endian,
             scheme=scheme,
         )
         self.offset: float = offset
@@ -153,14 +141,14 @@ class IntegerTimeEncoding(IntegerEncoding):
     def __init__(
         self,
         bits: int,
-        byte_order: ByteOrder = ByteOrder.BIG_ENDIAN,
+        little_endian: bool = False,
         scheme: IntegerEncodingScheme = IntegerEncodingScheme.UNSIGNED,
         offset: float = 0,
         scale: float = 1,
     ) -> None:
         super().__init__(
             bits=bits,
-            byte_order=byte_order,
+            little_endian=little_endian,
             scheme=scheme,
         )
         self.offset: float = offset
@@ -198,208 +186,116 @@ class StringEncoding(Encoding):
         self.termination: bytes = termination
 
 
-uint1_t = IntegerEncoding(
-    bits=1,
-    byte_order=ByteOrder.BIG_ENDIAN,
-    scheme=IntegerEncodingScheme.UNSIGNED,
-)
+uint1_t = IntegerEncoding(bits=1, scheme=IntegerEncodingScheme.UNSIGNED)
 """Unsigned 1-bit integer"""
 
-uint2_t = IntegerEncoding(
-    bits=2,
-    byte_order=ByteOrder.BIG_ENDIAN,
-    scheme=IntegerEncodingScheme.UNSIGNED,
-)
+uint2_t = IntegerEncoding(bits=2, scheme=IntegerEncodingScheme.UNSIGNED)
 """Unsigned 2-bit integer"""
 
-uint3_t = IntegerEncoding(
-    bits=3,
-    byte_order=ByteOrder.BIG_ENDIAN,
-    scheme=IntegerEncodingScheme.UNSIGNED,
-)
+uint3_t = IntegerEncoding(bits=3, scheme=IntegerEncodingScheme.UNSIGNED)
 """Unsigned 3-bit integer"""
 
-uint4_t = IntegerEncoding(
-    bits=4,
-    byte_order=ByteOrder.BIG_ENDIAN,
-    scheme=IntegerEncodingScheme.UNSIGNED,
-)
+uint4_t = IntegerEncoding(bits=4, scheme=IntegerEncodingScheme.UNSIGNED)
 """Unsigned 4-bit integer"""
 
-uint5_t = IntegerEncoding(
-    bits=5,
-    byte_order=ByteOrder.BIG_ENDIAN,
-    scheme=IntegerEncodingScheme.UNSIGNED,
-)
+uint5_t = IntegerEncoding(bits=5, scheme=IntegerEncodingScheme.UNSIGNED)
 """Unsigned 5-bit integer"""
 
-uint6_t = IntegerEncoding(
-    bits=6,
-    byte_order=ByteOrder.BIG_ENDIAN,
-    scheme=IntegerEncodingScheme.UNSIGNED,
-)
+uint6_t = IntegerEncoding(bits=6, scheme=IntegerEncodingScheme.UNSIGNED)
 """Unsigned 6-bit integer"""
 
-uint7_t = IntegerEncoding(
-    bits=7,
-    byte_order=ByteOrder.BIG_ENDIAN,
-    scheme=IntegerEncodingScheme.UNSIGNED,
-)
+uint7_t = IntegerEncoding(bits=7, scheme=IntegerEncodingScheme.UNSIGNED)
 """Unsigned 7-bit integer"""
 
-int8_t = IntegerEncoding(
-    bits=8,
-    byte_order=ByteOrder.BIG_ENDIAN,
-    scheme=IntegerEncodingScheme.TWOS_COMPLEMENT,
-)
+int8_t = IntegerEncoding(bits=8, scheme=IntegerEncodingScheme.TWOS_COMPLEMENT)
 """Signed 8-bit integer in two's complement notation (big endian)"""
 
-uint8_t = IntegerEncoding(
-    bits=8,
-    byte_order=ByteOrder.BIG_ENDIAN,
-    scheme=IntegerEncodingScheme.UNSIGNED,
-)
+uint8_t = IntegerEncoding(bits=8, scheme=IntegerEncodingScheme.UNSIGNED)
 """Unsigned 8-bit integer (big endian)"""
 
-uint8_t = IntegerEncoding(
-    bits=8,
-    byte_order=ByteOrder.BIG_ENDIAN,
-    scheme=IntegerEncodingScheme.UNSIGNED,
-)
+uint8_t = IntegerEncoding(bits=8, scheme=IntegerEncodingScheme.UNSIGNED)
 """Unsigned 8-bit integer"""
 
 bool_t = uint8_t
 """Same as ``uint8_t``. 0=False, 1=True"""
 
-uint9_t = IntegerEncoding(
-    bits=9,
-    byte_order=ByteOrder.BIG_ENDIAN,
-    scheme=IntegerEncodingScheme.UNSIGNED,
-)
+uint9_t = IntegerEncoding(bits=9, scheme=IntegerEncodingScheme.UNSIGNED)
 """Unsigned 9-bit integer"""
 
-uint10_t = IntegerEncoding(
-    bits=10,
-    byte_order=ByteOrder.BIG_ENDIAN,
-    scheme=IntegerEncodingScheme.UNSIGNED,
-)
+uint10_t = IntegerEncoding(bits=10, scheme=IntegerEncodingScheme.UNSIGNED)
 """Unsigned 10-bit integer"""
 
-uint11_t = IntegerEncoding(
-    bits=11,
-    byte_order=ByteOrder.BIG_ENDIAN,
-    scheme=IntegerEncodingScheme.UNSIGNED,
-)
+uint11_t = IntegerEncoding(bits=11, scheme=IntegerEncodingScheme.UNSIGNED)
 """Unsigned 11-bit integer"""
 
-uint12_t = IntegerEncoding(
-    bits=12,
-    byte_order=ByteOrder.BIG_ENDIAN,
-    scheme=IntegerEncodingScheme.UNSIGNED,
-)
+uint12_t = IntegerEncoding(bits=12, scheme=IntegerEncodingScheme.UNSIGNED)
 """Unsigned 12-bit integer"""
 
-uint13_t = IntegerEncoding(
-    bits=13,
-    byte_order=ByteOrder.BIG_ENDIAN,
-    scheme=IntegerEncodingScheme.UNSIGNED,
-)
+uint13_t = IntegerEncoding(bits=13, scheme=IntegerEncodingScheme.UNSIGNED)
 """Unsigned 13-bit integer"""
 
-uint14_t = IntegerEncoding(
-    bits=14,
-    byte_order=ByteOrder.BIG_ENDIAN,
-    scheme=IntegerEncodingScheme.UNSIGNED,
-)
+uint14_t = IntegerEncoding(bits=14, scheme=IntegerEncodingScheme.UNSIGNED)
 """Unsigned 14-bit integer"""
 
-uint15_t = IntegerEncoding(
-    bits=15,
-    byte_order=ByteOrder.BIG_ENDIAN,
-    scheme=IntegerEncodingScheme.UNSIGNED,
-)
+uint15_t = IntegerEncoding(bits=15, scheme=IntegerEncodingScheme.UNSIGNED)
 """Unsigned 15-bit integer"""
 
-int16_t = IntegerEncoding(
-    bits=16,
-    byte_order=ByteOrder.BIG_ENDIAN,
-    scheme=IntegerEncodingScheme.TWOS_COMPLEMENT,
-)
+int16_t = IntegerEncoding(bits=16, scheme=IntegerEncodingScheme.TWOS_COMPLEMENT)
 """Signed 16-bit integer in two's complement notation (big endian)"""
 
 int16le_t = IntegerEncoding(
     bits=16,
-    byte_order=ByteOrder.LITTLE_ENDIAN,
+    little_endian=True,
     scheme=IntegerEncodingScheme.TWOS_COMPLEMENT,
 )
 """Signed 16-bit integer in two's complement notation (little endian)"""
 
-uint16_t = IntegerEncoding(
-    bits=16,
-    byte_order=ByteOrder.BIG_ENDIAN,
-    scheme=IntegerEncodingScheme.UNSIGNED,
-)
+uint16_t = IntegerEncoding(bits=16, scheme=IntegerEncodingScheme.UNSIGNED)
 """Unsigned 16-bit integer (big endian)"""
 
 uint16le_t = IntegerEncoding(
     bits=16,
-    byte_order=ByteOrder.LITTLE_ENDIAN,
+    little_endian=True,
     scheme=IntegerEncodingScheme.UNSIGNED,
 )
 """Unsigned 16-bit integer (little endian)"""
 
-int32_t = IntegerEncoding(
-    bits=32,
-    byte_order=ByteOrder.BIG_ENDIAN,
-    scheme=IntegerEncodingScheme.TWOS_COMPLEMENT,
-)
+int32_t = IntegerEncoding(bits=32, scheme=IntegerEncodingScheme.TWOS_COMPLEMENT)
 """Signed 32-bit integer in two's complement notation (big endian)"""
 
 int32le_t = IntegerEncoding(
     bits=32,
-    byte_order=ByteOrder.LITTLE_ENDIAN,
+    little_endian=True,
     scheme=IntegerEncodingScheme.TWOS_COMPLEMENT,
 )
 """Signed 32-bit integer in two's complement notation (little endian)"""
 
-uint32_t = IntegerEncoding(
-    bits=32,
-    byte_order=ByteOrder.BIG_ENDIAN,
-    scheme=IntegerEncodingScheme.UNSIGNED,
-)
+uint32_t = IntegerEncoding(bits=32, scheme=IntegerEncodingScheme.UNSIGNED)
 """Unsigned 32-bit integer (big endian)"""
 
 uint32le_t = IntegerEncoding(
     bits=32,
-    byte_order=ByteOrder.LITTLE_ENDIAN,
+    little_endian=True,
     scheme=IntegerEncodingScheme.UNSIGNED,
 )
 """Unsigned 32-bit integer (little endian)"""
 
-float32_t = FloatEncoding(
-    bits=32,
-    byte_order=ByteOrder.BIG_ENDIAN,
-    scheme=FloatEncodingScheme.IEEE754_1985,
-)
+float32_t = FloatEncoding(bits=32, scheme=FloatEncodingScheme.IEEE754_1985)
 """32-bit float in IEEE754-1985 encoding (big endian)"""
 
 float32le_t = FloatEncoding(
     bits=32,
-    byte_order=ByteOrder.LITTLE_ENDIAN,
+    little_endian=True,
     scheme=FloatEncodingScheme.IEEE754_1985,
 )
 """32-bit float in IEEE754-1985 encoding (little endian)"""
 
-float64_t = FloatEncoding(
-    bits=64,
-    byte_order=ByteOrder.BIG_ENDIAN,
-    scheme=FloatEncodingScheme.IEEE754_1985,
-)
+float64_t = FloatEncoding(bits=64, scheme=FloatEncodingScheme.IEEE754_1985)
 """64-bit float in IEEE754-1985 encoding (big endian)"""
 
 float64le_t = FloatEncoding(
     bits=64,
-    byte_order=ByteOrder.LITTLE_ENDIAN,
+    little_endian=True,
     scheme=FloatEncodingScheme.IEEE754_1985,
 )
 """64-bit float in IEEE754-1985 encoding (little endian)"""

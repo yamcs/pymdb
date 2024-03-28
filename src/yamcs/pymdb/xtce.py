@@ -49,7 +49,6 @@ from yamcs.pymdb.datatypes import (
 )
 from yamcs.pymdb.encodings import (
     BinaryEncoding,
-    ByteOrder,
     Charset,
     Encoding,
     FloatEncoding,
@@ -1549,10 +1548,10 @@ class XTCE12Generator:
             el.attrib["encoding"] = "onesComplement"
 
         if (encoding.bits is not None) and (encoding.bits > 8):
-            if encoding.byte_order == ByteOrder.BIG_ENDIAN:
-                el.attrib["byteOrder"] = "mostSignificantByteFirst"
-            elif encoding.byte_order == ByteOrder.LITTLE_ENDIAN:
+            if encoding.little_endian:
                 el.attrib["byteOrder"] = "leastSignificantByteFirst"
+            else:
+                el.attrib["byteOrder"] = "mostSignificantByteFirst"
 
         if calibrator:
             self.add_calibrator(el, calibrator)
@@ -1571,10 +1570,10 @@ class XTCE12Generator:
         elif encoding.scheme == FloatEncodingScheme.MILSTD_1750A:
             el.attrib["encoding"] = "MILSTD_1750A"
 
-        if encoding.byte_order == ByteOrder.BIG_ENDIAN:
-            el.attrib["byteOrder"] = "mostSignificantByteFirst"
-        elif encoding.byte_order == ByteOrder.LITTLE_ENDIAN:
+        if encoding.little_endian:
             el.attrib["byteOrder"] = "leastSignificantByteFirst"
+        else:
+            el.attrib["byteOrder"] = "mostSignificantByteFirst"
 
         if calibrator:
             self.add_calibrator(el, calibrator)
