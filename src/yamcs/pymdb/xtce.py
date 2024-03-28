@@ -202,16 +202,10 @@ class XTCE12Generator:
 
         if command.parent:
             base_el = ET.SubElement(el, "BaseMetaCommand")
-            if isinstance(command.parent, Command):
-                base_el.attrib["metaCommandRef"] = self.make_ref(
-                    target=command.parent.qualified_name,
-                    start=command.system,
-                )
-            else:
-                base_el.attrib["metaCommandRef"] = self.make_ref(
-                    target=command.parent,
-                    start=command.system,
-                )
+            base_el.attrib["metaCommandRef"] = self.make_command_ref(
+                target=command.parent,
+                start=command.system,
+            )
 
             if command.assignments:
                 assignments_el = ET.SubElement(base_el, "ArgumentAssignmentList")
@@ -241,16 +235,10 @@ class XTCE12Generator:
 
         if command.parent:
             base_el = ET.SubElement(container_el, "BaseContainer")
-            if isinstance(command.parent, Command):
-                base_el.attrib["containerRef"] = self.make_ref(
-                    target=command.parent.qualified_name,
-                    start=command.system,
-                )
-            else:
-                base_el.attrib["containerRef"] = self.make_ref(
-                    target=command.parent,
-                    start=command.system,
-                )
+            base_el.attrib["containerRef"] = self.make_command_ref(
+                target=command.parent,
+                start=command.system,
+            )
 
         sign_el = ET.SubElement(el, "DefaultSignificance")
 
@@ -342,8 +330,8 @@ class XTCE12Generator:
         check = verifier.check
         if isinstance(check, ContainerCheck):
             ref_el = ET.SubElement(el, "ContainerRef")
-            ref_el.attrib["containerRef"] = self.make_ref(
-                target=check.container.qualified_name,
+            ref_el.attrib["containerRef"] = self.make_container_ref(
+                target=check.container,
                 start=command.system,
             )
         elif isinstance(check, ExpressionCheck):
@@ -370,8 +358,8 @@ class XTCE12Generator:
         ):
             if verifier.return_parameter:
                 ret_el = ET.SubElement(el, "ReturnParmRef")
-                ret_el.attrib["parameterRef"] = self.make_ref(
-                    target=verifier.return_parameter.qualified_name,
+                ret_el.attrib["parameterRef"] = self.make_parameter_ref(
+                    target=verifier.return_parameter,
                     start=command.system,
                 )
 
@@ -939,16 +927,10 @@ class XTCE12Generator:
             dyn_el = ET.SubElement(end_idx_el, "DynamicValue")
             ref_el = ET.SubElement(dyn_el, "ParameterInstanceRef")
             parameter = data_type.length.parameter
-            if isinstance(parameter, Parameter):
-                ref_el.attrib["parameterRef"] = self.make_ref(
-                    parameter.qualified_name,
-                    start=system,
-                )
-            else:
-                ref_el.attrib["parameterRef"] = self.make_ref(
-                    parameter,
-                    start=system,
-                )
+            ref_el.attrib["parameterRef"] = self.make_parameter_ref(
+                parameter,
+                start=system,
+            )
             adj_el = ET.SubElement(dyn_el, "LinearAdjustment")
             adj_el.attrib["intercept"] = "-1"
         else:
@@ -1065,8 +1047,8 @@ class XTCE12Generator:
                 epoch_el.text = data_type.reference.isoformat() + "Z"
         else:
             offset_el = ET.SubElement(ref_el, "OffsetFrom")
-            offset_el.attrib["parameterRef"] = self.make_ref(
-                data_type.reference.qualified_name,
+            offset_el.attrib["parameterRef"] = self.make_parameter_ref(
+                data_type.reference,
                 start=self.system,
             )
 
@@ -1443,16 +1425,10 @@ class XTCE12Generator:
                 inputset_el = ET.SubElement(el, "InputSet")
                 for input in algorithm.inputs:
                     ref_el = ET.SubElement(inputset_el, "InputParameterInstanceRef")
-                    if isinstance(input.parameter, Parameter):
-                        ref_el.attrib["parameterRef"] = self.make_ref(
-                            input.parameter.qualified_name,
-                            start=system,
-                        )
-                    else:
-                        ref_el.attrib["parameterRef"] = self.make_ref(
-                            input.parameter,
-                            start=system,
-                        )
+                    ref_el.attrib["parameterRef"] = self.make_parameter_ref(
+                        input.parameter,
+                        start=system,
+                    )
                     if input.name:
                         ref_el.attrib["inputName"] = input.name
         else:
@@ -1775,29 +1751,17 @@ class XTCE12Generator:
         condition_el = ET.SubElement(parent, "Condition")
 
         pref_el = ET.SubElement(condition_el, "ParameterInstanceRef")
-        data_type: DataType | None
-        if isinstance(ref, Parameter):
-            data_type = ref
-            pref_el.attrib["parameterRef"] = self.make_ref(
-                ref.qualified_name,
-                start=system,
-            )
-        elif isinstance(ref, ParameterMember):
-            data_type = ref.path[-1]
-            parameter_ref = self.make_ref(
-                ref.parameter.qualified_name,
-                start=system,
-            )
-            for member in ref.path:
-                parameter_ref += "/" + member.name
-            pref_el.attrib["parameterRef"] = parameter_ref
-        else:  # str
-            data_type = None
-            pref_el.attrib["parameterRef"] = self.make_ref(ref, start=system)
+        pref_el.attrib["parameterRef"] = self.make_parameter_ref(ref, start=system)
         pref_el.attrib["useCalibratedValue"] = _to_xml_value(calibrated)
 
         ET.SubElement(condition_el, "ComparisonOperator").text = operator
         val_el = ET.SubElement(condition_el, "Value")
+
+        data_type: DataType | None = None
+        if isinstance(ref, Parameter):
+            data_type = ref
+        elif isinstance(ref, ParameterMember):
+            data_type = ref.path[-1]
 
         val_el.text = _to_xml_value(value)
         if isinstance(data_type, BooleanDataType) and isinstance(value, bool):
@@ -1829,8 +1793,8 @@ class XTCE12Generator:
         entry: ParameterEntry,
     ):
         el = ET.SubElement(parent, "ParameterRefEntry")
-        el.attrib["parameterRef"] = self.make_ref(
-            entry.parameter.qualified_name,
+        el.attrib["parameterRef"] = self.make_parameter_ref(
+            entry.parameter,
             start=container.system,
         )
         if entry.short_description:
@@ -1862,8 +1826,8 @@ class XTCE12Generator:
         entry: ContainerEntry,
     ):
         el = ET.SubElement(parent, "ContainerRefEntry")
-        el.attrib["containerRef"] = self.make_ref(
-            entry.container.qualified_name,
+        el.attrib["containerRef"] = self.make_container_ref(
+            entry.container,
             start=container.system,
         )
         if entry.short_description:
@@ -1897,6 +1861,37 @@ class XTCE12Generator:
         else:
             return target
 
+    def make_parameter_ref(
+        self, target: Parameter | ParameterMember | str, start: System
+    ):
+        if isinstance(target, Parameter):
+            return self.make_ref(target.qualified_name, start)
+        elif isinstance(target, ParameterMember):
+            parameter_ref = self.make_ref(target.parameter.qualified_name, start)
+            for member in target.path:
+                parameter_ref += "/" + member.name
+            return parameter_ref
+        elif isinstance(target, str):
+            return self.make_ref(target, start)
+        else:
+            raise ExportError("Unexpected parameter reference")
+
+    def make_container_ref(self, target: Container | str, start: System):
+        if isinstance(target, Container):
+            return self.make_ref(target.qualified_name, start)
+        elif isinstance(target, str):
+            return self.make_ref(target, start)
+        else:
+            raise ExportError("Unexpected container reference")
+
+    def make_command_ref(self, target: Command | str, start: System):
+        if isinstance(target, Command):
+            return self.make_ref(target.qualified_name, start)
+        elif isinstance(target, str):
+            return self.make_ref(target, start)
+        else:
+            raise ExportError("Unexpected command reference")
+
     def add_base_container(
         self,
         parent: ET.Element,
@@ -1905,18 +1900,10 @@ class XTCE12Generator:
     ):
         el = ET.SubElement(parent, "BaseContainer")
 
-        if isinstance(base_container, Container):
-            el.attrib["containerRef"] = self.make_ref(
-                target=base_container.qualified_name,
-                start=container.system,
-            )
-        elif isinstance(base_container, str):
-            el.attrib["containerRef"] = self.make_ref(
-                target=base_container,
-                start=container.system,
-            )
-        else:
-            raise ExportError("Unexpected container parent")
+        el.attrib["containerRef"] = self.make_container_ref(
+            target=base_container,
+            start=container.system,
+        )
 
         if container.condition:
             criteria_el = ET.SubElement(el, "RestrictionCriteria")
