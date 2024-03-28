@@ -260,6 +260,12 @@ uint16le_t = IntegerEncoding(
 )
 """Unsigned 16-bit integer (little endian)"""
 
+int24_t = IntegerEncoding(bits=24, scheme=IntegerEncodingScheme.TWOS_COMPLEMENT)
+"""Signed 24-bit integer in two's complement notation"""
+
+uint24_t = IntegerEncoding(bits=24, scheme=IntegerEncodingScheme.UNSIGNED)
+"""Unsigned 24-bit integer"""
+
 int32_t = IntegerEncoding(bits=32, scheme=IntegerEncodingScheme.TWOS_COMPLEMENT)
 """Signed 32-bit integer in two's complement notation (big endian)"""
 
