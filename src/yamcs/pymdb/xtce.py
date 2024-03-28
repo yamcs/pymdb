@@ -1892,10 +1892,13 @@ class XTCE12Generator:
             )
 
     def make_ref(self, target: str, start: System):
-        if os.path.commonprefix([target, start.qualified_name]) == "/":
-            return target  # abs path
+        if target.startswith("/"):
+            if os.path.commonprefix([target, start.qualified_name]) == "/":
+                return target  # abs path
+            else:
+                return os.path.relpath(target, start=start.qualified_name)
         else:
-            return os.path.relpath(target, start=start.qualified_name)
+            return target
 
     def add_base_container(
         self,
