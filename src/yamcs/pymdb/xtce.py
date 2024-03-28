@@ -1921,13 +1921,13 @@ class XTCE12Generator:
         else:
             raise ExportError("Unexpected container parent")
 
-        if container.restriction_criteria:
+        if container.condition:
             criteria_el = ET.SubElement(el, "RestrictionCriteria")
             expr_el = ET.SubElement(criteria_el, "BooleanExpression")
             self.add_expression_condition(
                 expr_el,
                 system=container.system,
-                expression=container.restriction_criteria,
+                expression=container.condition,
             )
 
     def add_space_systems(self, parent: ET.Element, system: System):

@@ -70,7 +70,7 @@ class Container:
         *,
         parent: Container | str | None = None,
         abstract: bool = False,
-        restriction_criteria: Expression | None = None,
+        condition: Expression | None = None,
         aliases: Mapping[str, str] | None = None,
         short_description: str | None = None,
         long_description: str | None = None,
@@ -130,7 +130,8 @@ class Container:
         self.entries: list[ParameterEntry | ContainerEntry] = list(entries or [])
         self.parent: Container | str | None = parent
         self.abstract: bool = abstract
-        self.restriction_criteria: Expression | None = restriction_criteria
+        self.condition: Expression | None = condition
+        """Restriction criteria for this container."""
 
         if name in system._containers_by_name:
             raise Exception(
