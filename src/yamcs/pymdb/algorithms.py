@@ -54,7 +54,7 @@ This is intended to be used for special use cases where the hex value
 represents the actual string value.
 
 This is intended to be used with a custom transformation for the
-:class:`.BinaryDataEncoding` of a string parameter.
+:class:`.BinaryEncoding` of a string parameter.
 
 The implementation assumes a fixed-size encoding.
 """

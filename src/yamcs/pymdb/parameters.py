@@ -22,7 +22,7 @@ from yamcs.pymdb.datatypes import (
     Member,
     StringDataType,
 )
-from yamcs.pymdb.encodings import DataEncoding, TimeEncoding
+from yamcs.pymdb.encodings import Encoding, TimeEncoding
 
 if TYPE_CHECKING:
     from yamcs.pymdb.calibrators import Calibrator
@@ -95,7 +95,7 @@ class Parameter(DataType):
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
         units: str | None = None,
-        encoding: DataEncoding | None = None,
+        encoding: Encoding | None = None,
     ) -> None:
         DataType.__init__(
             self,
@@ -217,7 +217,7 @@ class AggregateParameter(Parameter, AggregateDataType):
         short_description: str | None = None,
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
-        encoding: DataEncoding | None = None,
+        encoding: Encoding | None = None,
     ) -> None:
         AggregateDataType.__init__(
             self,
@@ -257,7 +257,7 @@ class ArrayParameter(Parameter, ArrayDataType):
         short_description: str | None = None,
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
-        encoding: DataEncoding | None = None,
+        encoding: Encoding | None = None,
     ) -> None:
         ArrayDataType.__init__(
             self,
@@ -298,7 +298,7 @@ class BinaryParameter(Parameter, BinaryDataType):
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
         units: str | None = None,
-        encoding: DataEncoding | None = None,
+        encoding: Encoding | None = None,
     ) -> None:
         BinaryDataType.__init__(
             self,
@@ -340,7 +340,7 @@ class BooleanParameter(Parameter, BooleanDataType):
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
         units: str | None = None,
-        encoding: DataEncoding | None = None,
+        encoding: Encoding | None = None,
     ) -> None:
         BooleanDataType.__init__(
             self,
@@ -382,7 +382,7 @@ class EnumeratedParameter(Parameter, EnumeratedDataType):
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
         units: str | None = None,
-        encoding: DataEncoding | None = None,
+        encoding: Encoding | None = None,
     ) -> None:
         EnumeratedDataType.__init__(
             self,
@@ -429,7 +429,7 @@ class FloatParameter(Parameter, FloatDataType):
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
         units: str | None = None,
-        encoding: DataEncoding | None = None,
+        encoding: Encoding | None = None,
         calibrator: Calibrator | None = None,
         alarm: ThresholdAlarm | None = None,
     ) -> None:
@@ -482,7 +482,7 @@ class IntegerParameter(Parameter, IntegerDataType):
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
         units: str | None = None,
-        encoding: DataEncoding | None = None,
+        encoding: Encoding | None = None,
         calibrator: Calibrator | None = None,
         alarm: ThresholdAlarm | None = None,
     ) -> None:
@@ -532,7 +532,7 @@ class StringParameter(Parameter, StringDataType):
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
         units: str | None = None,
-        encoding: DataEncoding | None = None,
+        encoding: Encoding | None = None,
     ) -> None:
         StringDataType.__init__(
             self,

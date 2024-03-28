@@ -1,6 +1,6 @@
 from yamcs.pymdb.commands import ArrayArgument
 from yamcs.pymdb.datatypes import FloatDataType
-from yamcs.pymdb.encodings import ByteOrder, FloatDataEncoding, IntegerDataEncoding
+from yamcs.pymdb.encodings import ByteOrder, FloatEncoding, IntegerEncoding
 from yamcs.pymdb.parameters import ArrayParameter
 from yamcs.pymdb.systems import System
 from yamcs.pymdb.verifiers import TerminationAction
@@ -78,7 +78,7 @@ def check_float_encoding(system: System) -> bool:
     ok = True
     for data_type in iter_parameter_data_types(system):
         if isinstance(data_type, FloatDataType) and isinstance(
-            data_type.encoding, FloatDataEncoding
+            data_type.encoding, FloatEncoding
         ):
             if data_type.bits == 32 and data_type.encoding.bits == 64:
                 ok = False
@@ -89,7 +89,7 @@ def check_float_encoding(system: System) -> bool:
 
     for command, argument, data_type in iter_argument_data_types(system):
         if isinstance(data_type, FloatDataType) and isinstance(
-            data_type.encoding, FloatDataEncoding
+            data_type.encoding, FloatEncoding
         ):
             if data_type.bits == 32 and data_type.encoding.bits == 64:
                 ok = False
@@ -111,7 +111,7 @@ def check_little_endian_only(system: System) -> bool:
             data_type = parameter.data_type
 
         encoding = data_type.encoding
-        if isinstance(encoding, IntegerDataEncoding):
+        if isinstance(encoding, IntegerEncoding):
             if (
                 encoding.byte_order != ByteOrder.LITTLE_ENDIAN
                 and encoding.bits
@@ -127,7 +127,7 @@ def check_little_endian_only(system: System) -> bool:
                 data_type = argument.data_type
 
             encoding = data_type.encoding
-            if isinstance(encoding, IntegerDataEncoding):
+            if isinstance(encoding, IntegerEncoding):
                 if (
                     encoding.byte_order != ByteOrder.LITTLE_ENDIAN
                     and encoding.bits

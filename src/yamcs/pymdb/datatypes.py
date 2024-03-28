@@ -6,7 +6,7 @@ from datetime import datetime
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Any, Literal, TypeAlias
 
-from yamcs.pymdb.encodings import DataEncoding, TimeEncoding
+from yamcs.pymdb.encodings import Encoding, TimeEncoding
 
 if TYPE_CHECKING:
     from yamcs.pymdb.calibrators import Calibrator
@@ -41,7 +41,7 @@ class DataType:
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
         units: str | None = None,
-        encoding: DataEncoding | None = None,
+        encoding: Encoding | None = None,
     ) -> None:
         self.short_description: str | None = short_description
         """Oneline description"""
@@ -55,7 +55,7 @@ class DataType:
         self.units: str | None = units
         """Engineering units"""
 
-        self.encoding: DataEncoding | None = encoding
+        self.encoding: Encoding | None = encoding
         """
         How this data is sent or received from some non-native, off-platform
         device. (e.g. a spacecraft)
@@ -91,7 +91,7 @@ class AggregateDataType(DataType):
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
         units: str | None = None,
-        encoding: DataEncoding | None = None,
+        encoding: Encoding | None = None,
     ) -> None:
         DataType.__init__(
             self,
@@ -118,7 +118,7 @@ class ArrayDataType(DataType):
         short_description: str | None = None,
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
-        encoding: DataEncoding | None = None,
+        encoding: Encoding | None = None,
     ) -> None:
         DataType.__init__(
             self,
@@ -140,7 +140,7 @@ class BinaryDataType(DataType):
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
         units: str | None = None,
-        encoding: DataEncoding | None = None,
+        encoding: Encoding | None = None,
     ) -> None:
         DataType.__init__(
             self,
@@ -167,7 +167,7 @@ class BooleanDataType(DataType):
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
         units: str | None = None,
-        encoding: DataEncoding | None = None,
+        encoding: Encoding | None = None,
     ) -> None:
         DataType.__init__(
             self,
@@ -190,7 +190,7 @@ class EnumeratedDataType(DataType):
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
         units: str | None = None,
-        encoding: DataEncoding | None = None,
+        encoding: Encoding | None = None,
     ) -> None:
         DataType.__init__(
             self,
@@ -228,7 +228,7 @@ class FloatDataType(DataType):
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
         units: str | None = None,
-        encoding: DataEncoding | None = None,
+        encoding: Encoding | None = None,
         calibrator: Calibrator | None = None,
     ) -> None:
         DataType.__init__(
@@ -269,7 +269,7 @@ class IntegerDataType(DataType):
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
         units: str | None = None,
-        encoding: DataEncoding | None = None,
+        encoding: Encoding | None = None,
         calibrator: Calibrator | None = None,
     ) -> None:
         DataType.__init__(
@@ -304,7 +304,7 @@ class StringDataType(DataType):
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
         units: str | None = None,
-        encoding: DataEncoding | None = None,
+        encoding: Encoding | None = None,
     ) -> None:
         DataType.__init__(
             self,
@@ -331,7 +331,7 @@ class Member(DataType):
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
         units: str | None = None,
-        encoding: DataEncoding | None = None,
+        encoding: Encoding | None = None,
     ) -> None:
         DataType.__init__(
             self,
@@ -386,7 +386,7 @@ class AggregateMember(Member, AggregateDataType):
         short_description: str | None = None,
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
-        encoding: DataEncoding | None = None,
+        encoding: Encoding | None = None,
     ) -> None:
         AggregateDataType.__init__(
             self,
@@ -413,7 +413,7 @@ class ArrayMember(Member, ArrayDataType):
         short_description: str | None = None,
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
-        encoding: DataEncoding | None = None,
+        encoding: Encoding | None = None,
     ) -> None:
         ArrayDataType.__init__(
             self,
@@ -442,7 +442,7 @@ class BinaryMember(Member, BinaryDataType):
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
         units: str | None = None,
-        encoding: DataEncoding | None = None,
+        encoding: Encoding | None = None,
     ) -> None:
         BinaryDataType.__init__(
             self,
@@ -472,7 +472,7 @@ class BooleanMember(Member, BooleanDataType):
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
         units: str | None = None,
-        encoding: DataEncoding | None = None,
+        encoding: Encoding | None = None,
     ) -> None:
         BooleanDataType.__init__(
             self,
@@ -501,7 +501,7 @@ class EnumeratedMember(Member, EnumeratedDataType):
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
         units: str | None = None,
-        encoding: DataEncoding | None = None,
+        encoding: Encoding | None = None,
     ) -> None:
         EnumeratedDataType.__init__(
             self,
@@ -533,7 +533,7 @@ class FloatMember(Member, FloatDataType):
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
         units: str | None = None,
-        encoding: DataEncoding | None = None,
+        encoding: Encoding | None = None,
         calibrator: Calibrator | None = None,
     ) -> None:
         FloatDataType.__init__(
@@ -570,7 +570,7 @@ class IntegerMember(Member, IntegerDataType):
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
         units: str | None = None,
-        encoding: DataEncoding | None = None,
+        encoding: Encoding | None = None,
         calibrator: Calibrator | None = None,
     ) -> None:
         IntegerDataType.__init__(
@@ -604,7 +604,7 @@ class StringMember(Member, StringDataType):
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
         units: str | None = None,
-        encoding: DataEncoding | None = None,
+        encoding: Encoding | None = None,
     ) -> None:
         StringDataType.__init__(
             self,

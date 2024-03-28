@@ -48,17 +48,17 @@ from yamcs.pymdb.datatypes import (
     StringMember,
 )
 from yamcs.pymdb.encodings import (
-    BinaryDataEncoding,
+    BinaryEncoding,
     ByteOrder,
     Charset,
-    DataEncoding,
-    FloatDataEncoding,
-    FloatDataEncodingScheme,
+    Encoding,
+    FloatEncoding,
+    FloatEncodingScheme,
     FloatTimeEncoding,
-    IntegerDataEncoding,
-    IntegerDataEncodingScheme,
+    IntegerEncoding,
+    IntegerEncodingScheme,
     IntegerTimeEncoding,
-    StringDataEncoding,
+    StringEncoding,
 )
 from yamcs.pymdb.exceptions import ExportError
 from yamcs.pymdb.expressions import (
@@ -1356,26 +1356,26 @@ class XTCE12Generator:
         self,
         parent: ET.Element,
         system: System,
-        encoding: DataEncoding,
+        encoding: Encoding,
         calibrator: Calibrator | None = None,
     ):
         if isinstance(encoding, FloatTimeEncoding):
             self.add_float_time_encoding(parent, encoding)
         elif isinstance(encoding, IntegerTimeEncoding):
             self.add_integer_time_encoding(parent, encoding)
-        elif isinstance(encoding, BinaryDataEncoding):
+        elif isinstance(encoding, BinaryEncoding):
             self.add_binary_data_encoding(parent, system, encoding)
-        elif isinstance(encoding, IntegerDataEncoding):
+        elif isinstance(encoding, IntegerEncoding):
             self.add_integer_data_encoding(parent, encoding, calibrator)
-        elif isinstance(encoding, FloatDataEncoding):
+        elif isinstance(encoding, FloatEncoding):
             self.add_float_data_encoding(parent, encoding, calibrator)
-        elif isinstance(encoding, StringDataEncoding):
+        elif isinstance(encoding, StringEncoding):
             self.add_string_data_encoding(parent, encoding)
         else:
             raise Exception("Unexpected encoding")
 
     def add_binary_data_encoding(
-        self, parent: ET.Element, system: System, encoding: BinaryDataEncoding
+        self, parent: ET.Element, system: System, encoding: BinaryEncoding
     ):
         el = ET.SubElement(parent, "BinaryDataEncoding")
         size_el = ET.SubElement(el, "SizeInBits")
@@ -1459,9 +1459,7 @@ class XTCE12Generator:
         else:
             raise Exception("Unexpected algorithm type")
 
-    def add_string_data_encoding(
-        self, parent: ET.Element, encoding: StringDataEncoding
-    ):
+    def add_string_data_encoding(self, parent: ET.Element, encoding: StringEncoding):
         el = ET.SubElement(parent, "StringDataEncoding")
 
         if encoding.charset == Charset.US_ASCII:
@@ -1535,19 +1533,19 @@ class XTCE12Generator:
     def add_integer_data_encoding(
         self,
         parent: ET.Element,
-        encoding: IntegerDataEncoding,
+        encoding: IntegerEncoding,
         calibrator: Calibrator | None,
     ):
         el = ET.SubElement(parent, "IntegerDataEncoding")
         el.attrib["sizeInBits"] = str(encoding.bits)
 
-        if encoding.scheme == IntegerDataEncodingScheme.UNSIGNED:
+        if encoding.scheme == IntegerEncodingScheme.UNSIGNED:
             el.attrib["encoding"] = "unsigned"
-        elif encoding.scheme == IntegerDataEncodingScheme.SIGN_MAGNITUDE:
+        elif encoding.scheme == IntegerEncodingScheme.SIGN_MAGNITUDE:
             el.attrib["encoding"] = "signMagnitude"
-        elif encoding.scheme == IntegerDataEncodingScheme.TWOS_COMPLEMENT:
+        elif encoding.scheme == IntegerEncodingScheme.TWOS_COMPLEMENT:
             el.attrib["encoding"] = "twosComplement"
-        elif encoding.scheme == IntegerDataEncodingScheme.ONES_COMPLEMENT:
+        elif encoding.scheme == IntegerEncodingScheme.ONES_COMPLEMENT:
             el.attrib["encoding"] = "onesComplement"
 
         if (encoding.bits is not None) and (encoding.bits > 8):
@@ -1562,15 +1560,15 @@ class XTCE12Generator:
     def add_float_data_encoding(
         self,
         parent: ET.Element,
-        encoding: FloatDataEncoding,
+        encoding: FloatEncoding,
         calibrator: Calibrator | None,
     ):
         el = ET.SubElement(parent, "FloatDataEncoding")
         el.attrib["sizeInBits"] = str(encoding.bits)
 
-        if encoding.scheme == FloatDataEncodingScheme.IEEE754_1985:
+        if encoding.scheme == FloatEncodingScheme.IEEE754_1985:
             el.attrib["encoding"] = "IEEE754_1985"
-        elif encoding.scheme == FloatDataEncodingScheme.MILSTD_1750A:
+        elif encoding.scheme == FloatEncodingScheme.MILSTD_1750A:
             el.attrib["encoding"] = "MILSTD_1750A"
 
         if encoding.byte_order == ByteOrder.BIG_ENDIAN:

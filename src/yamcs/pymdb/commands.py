@@ -20,7 +20,7 @@ from yamcs.pymdb.datatypes import (
     Member,
     StringDataType,
 )
-from yamcs.pymdb.encodings import DataEncoding, TimeEncoding
+from yamcs.pymdb.encodings import Encoding, TimeEncoding
 from yamcs.pymdb.expressions import Expression
 from yamcs.pymdb.verifiers import (
     AcceptedVerifier,
@@ -85,7 +85,7 @@ class Argument(DataType):
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
         units: str | None = None,
-        encoding: DataEncoding | None = None,
+        encoding: Encoding | None = None,
     ) -> None:
         self.name: str = name
         """Short name of this argument"""
@@ -145,7 +145,7 @@ class AggregateArgument(Argument, AggregateDataType):
         short_description: str | None = None,
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
-        encoding: DataEncoding | None = None,
+        encoding: Encoding | None = None,
     ) -> None:
         AggregateDataType.__init__(
             self,
@@ -173,7 +173,7 @@ class ArrayArgument(Argument, ArrayDataType):
         short_description: str | None = None,
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
-        encoding: DataEncoding | None = None,
+        encoding: Encoding | None = None,
     ) -> None:
         ArrayDataType.__init__(
             self,
@@ -203,7 +203,7 @@ class BinaryArgument(Argument, BinaryDataType):
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
         units: str | None = None,
-        encoding: DataEncoding | None = None,
+        encoding: Encoding | None = None,
     ) -> None:
         BinaryDataType.__init__(
             self,
@@ -234,7 +234,7 @@ class BooleanArgument(Argument, BooleanDataType):
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
         units: str | None = None,
-        encoding: DataEncoding | None = None,
+        encoding: Encoding | None = None,
     ) -> None:
         BooleanDataType.__init__(
             self,
@@ -264,7 +264,7 @@ class EnumeratedArgument(Argument, EnumeratedDataType):
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
         units: str | None = None,
-        encoding: DataEncoding | None = None,
+        encoding: Encoding | None = None,
     ) -> None:
         EnumeratedDataType.__init__(
             self,
@@ -297,7 +297,7 @@ class FloatArgument(Argument, FloatDataType):
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
         units: str | None = None,
-        encoding: DataEncoding | None = None,
+        encoding: Encoding | None = None,
         calibrator: Calibrator | None = None,
     ) -> None:
         FloatDataType.__init__(
@@ -335,7 +335,7 @@ class IntegerArgument(Argument, IntegerDataType):
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
         units: str | None = None,
-        encoding: DataEncoding | None = None,
+        encoding: Encoding | None = None,
         calibrator: Calibrator | None = None,
     ) -> None:
         IntegerDataType.__init__(
@@ -370,7 +370,7 @@ class StringArgument(Argument, StringDataType):
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
         units: str | None = None,
-        encoding: DataEncoding | None = None,
+        encoding: Encoding | None = None,
     ) -> None:
         StringDataType.__init__(
             self,
