@@ -90,7 +90,7 @@ class Parameter(DataType):
         aliases: Mapping[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
         initial_value: Any = None,
-        persistent: bool = False,
+        persistent: bool = True,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
@@ -125,7 +125,7 @@ class Parameter(DataType):
 
         self.persistent: bool = persistent
         """
-        If true, the parameter's latest value is restored in case of a
+        If true, the parameter's last value is restored in case of a
         restart of the Yamcs system.
 
         If :attr:`initial_value` is set too, attr:`initial_value` is only
@@ -172,7 +172,7 @@ class AbsoluteTimeParameter(Parameter, AbsoluteTimeDataType):
         aliases: Mapping[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
         initial_value: Any = None,
-        persistent: bool = False,
+        persistent: bool = True,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
@@ -213,7 +213,7 @@ class AggregateParameter(Parameter, AggregateDataType):
         aliases: Mapping[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
         initial_value: Any = None,
-        persistent: bool = False,
+        persistent: bool = True,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
@@ -253,7 +253,7 @@ class ArrayParameter(Parameter, ArrayDataType):
         aliases: Mapping[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
         initial_value: Any = None,
-        persistent: bool = False,
+        persistent: bool = True,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
@@ -293,7 +293,7 @@ class BinaryParameter(Parameter, BinaryDataType):
         aliases: Mapping[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
         initial_value: Any = None,
-        persistent: bool = False,
+        persistent: bool = True,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
@@ -335,7 +335,7 @@ class BooleanParameter(Parameter, BooleanDataType):
         aliases: Mapping[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
         initial_value: Any = None,
-        persistent: bool = False,
+        persistent: bool = True,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
@@ -377,7 +377,7 @@ class EnumeratedParameter(Parameter, EnumeratedDataType):
         aliases: Mapping[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
         initial_value: Any = None,
-        persistent: bool = False,
+        persistent: bool = True,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
@@ -424,7 +424,7 @@ class FloatParameter(Parameter, FloatDataType):
         aliases: Mapping[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
         initial_value: Any = None,
-        persistent: bool = False,
+        persistent: bool = True,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
@@ -477,7 +477,7 @@ class IntegerParameter(Parameter, IntegerDataType):
         aliases: Mapping[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
         initial_value: Any = None,
-        persistent: bool = False,
+        persistent: bool = True,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
@@ -527,7 +527,7 @@ class StringParameter(Parameter, StringDataType):
         aliases: Mapping[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
         initial_value: Any = None,
-        persistent: bool = False,
+        persistent: bool = True,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
