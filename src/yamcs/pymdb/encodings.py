@@ -1,7 +1,10 @@
-from enum import Enum, auto
-from typing import TypeAlias
+from __future__ import annotations
 
-from yamcs.pymdb.algorithms import JavaAlgorithm
+from enum import Enum, auto
+from typing import TYPE_CHECKING, TypeAlias
+
+if TYPE_CHECKING:
+    from yamcs.pymdb.algorithms import UnnamedAlgorithm
 
 
 class Charset(Enum):
@@ -74,8 +77,8 @@ class BinaryEncoding(Encoding):
         self,
         bits: int | None = None,
         length_bits: int | None = None,
-        encoder: JavaAlgorithm | None = None,
-        decoder: JavaAlgorithm | None = None,
+        encoder: UnnamedAlgorithm | None = None,
+        decoder: UnnamedAlgorithm | None = None,
     ) -> None:
         super().__init__(bits=bits)
 
@@ -84,12 +87,12 @@ class BinaryEncoding(Encoding):
         Length in bits of a leading size tag
         """
 
-        self.encoder: JavaAlgorithm | None = encoder
+        self.encoder: UnnamedAlgorithm | None = encoder
         """
         Custom encoder, when this encoding is used for telecommanding
         """
 
-        self.decoder: JavaAlgorithm | None = decoder
+        self.decoder: UnnamedAlgorithm | None = decoder
         """
         Custom decoder, when this encoding is used for telemetry
         """

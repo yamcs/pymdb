@@ -5,7 +5,7 @@ from enum import Enum, auto
 from typing import TYPE_CHECKING, TypeAlias
 
 if TYPE_CHECKING:
-    from yamcs.pymdb.algorithms import JavaAlgorithm
+    from yamcs.pymdb.algorithms import UnnamedAlgorithm
     from yamcs.pymdb.containers import Container
     from yamcs.pymdb.expressions import Expression
     from yamcs.pymdb.parameters import Parameter
@@ -17,7 +17,7 @@ class TerminationAction(Enum):
 
 
 class AlgorithmCheck:
-    def __init__(self, algorithm: JavaAlgorithm):
+    def __init__(self, algorithm: UnnamedAlgorithm):
         self.algorithm = algorithm
 
 

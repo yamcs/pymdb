@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+from typing import TYPE_CHECKING
 
 from yamcs.pymdb import xtce
-from yamcs.pymdb.commands import Command
-from yamcs.pymdb.containers import Container
-from yamcs.pymdb.parameters import Parameter
+
+if TYPE_CHECKING:
+    from yamcs.pymdb.algorithms import Algorithm
+    from yamcs.pymdb.commands import Command
+    from yamcs.pymdb.containers import Container
+    from yamcs.pymdb.parameters import Parameter
 
 
 class System:
@@ -44,6 +48,7 @@ class System:
         self.extra: dict[str, str] = dict(extra or {})
         """Arbitrary information, keyed by name"""
 
+        self._algorithms_by_name: dict[str, Algorithm] = {}
         self._commands_by_name: dict[str, Command] = {}
         self._containers_by_name: dict[str, Container] = {}
         self._parameters_by_name: dict[str, Parameter] = {}
@@ -84,6 +89,15 @@ class System:
         Parameters directly belonging to this system
         """
         copy = list(self._parameters_by_name.values())
+        copy.sort()
+        return copy
+
+    @property
+    def algorithms(self) -> list[Algorithm]:
+        """
+        Algorithms directly belonging to this system
+        """
+        copy = list(self._algorithms_by_name.values())
         copy.sort()
         return copy
 
@@ -132,6 +146,18 @@ class System:
         except KeyError:
             return False
 
+    def remove_algorithm(self, name: str) -> bool:
+        """
+        Removes an algorithm directly belonging to this system.
+
+        Raises an exception if no such algorithm exists
+        """
+        try:
+            self._algorithms_by_name.pop(name)
+            return True
+        except KeyError:
+            return False
+
     def remove_subsystem(self, name: str) -> bool:
         """
         Removes a subsystem directly belonging to this system.
@@ -167,6 +193,14 @@ class System:
         Raises an exception if no container is found
         """
         return self._containers_by_name[name]
+
+    def find_algorithm(self, name: str) -> Algorithm:
+        """
+        Find an algorithm belonging directly to this system.
+
+        Raises an exception if no algorithm is found
+        """
+        return self._algorithms_by_name[name]
 
     def find_subsystem(self, name: str) -> Subsystem:
         """

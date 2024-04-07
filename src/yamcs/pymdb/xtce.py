@@ -6,11 +6,19 @@ from binascii import hexlify
 from collections.abc import Mapping
 from datetime import datetime, timezone
 from enum import Enum
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, Sequence, cast
 from xml.dom import minidom
 
 from yamcs.pymdb.alarms import AlarmLevel, ThresholdAlarm
-from yamcs.pymdb.algorithms import JavaAlgorithm
+from yamcs.pymdb.algorithms import (
+    Algorithm,
+    ContainerTrigger,
+    InputParameter,
+    OutputParameter,
+    ParameterTrigger,
+    Trigger,
+    UnnamedAlgorithm,
+)
 from yamcs.pymdb.ancillary import AncillaryData
 from yamcs.pymdb.calibrators import Calibrator, Interpolate, Polynomial
 from yamcs.pymdb.commands import (
@@ -496,6 +504,15 @@ class XTCE12Generator:
         self.add_parameter_type_set(el, system)
         self.add_parameter_set(el, system)
         self.add_container_set(el, system)
+        self.add_algorithm_set(el, system)
+
+    def add_algorithm_set(self, parent: ET.Element, system: System):
+        if not system.algorithms:
+            return
+
+        el = ET.SubElement(parent, "AlgorithmSet")
+        for algorithm in system.algorithms:
+            self.add_custom_algorithm(el, system, algorithm)
 
     def add_parameter_type_set(self, parent: ET.Element, system: System):
         if not system.parameters:
@@ -1410,29 +1427,79 @@ class XTCE12Generator:
             )
 
     def add_input_only_algorithm(
-        self, parent: ET.Element, system: System, tag: str, algorithm: JavaAlgorithm
+        self, parent: ET.Element, system: System, tag: str, algorithm: UnnamedAlgorithm
     ):
         el = ET.SubElement(parent, tag)
-        if isinstance(algorithm, JavaAlgorithm):
-            el.attrib["name"] = algorithm.java.replace(".", "_")
-            if algorithm.extra:
-                self.add_ancillary_data(el, algorithm.extra)
-            text_el = ET.SubElement(el, "AlgorithmText")
-            text_el.attrib["language"] = "Java"
-            text_el.text = algorithm.java
+        el.attrib["name"] = "Unnamed"
+        if algorithm.extra:
+            self.add_ancillary_data(el, algorithm.extra)
+        text_el = ET.SubElement(el, "AlgorithmText")
+        text_el.attrib["language"] = algorithm.language
+        text_el.text = algorithm.text
 
-            if algorithm.inputs:
-                inputset_el = ET.SubElement(el, "InputSet")
-                for input in algorithm.inputs:
-                    ref_el = ET.SubElement(inputset_el, "InputParameterInstanceRef")
-                    ref_el.attrib["parameterRef"] = self.make_parameter_ref(
-                        input.parameter,
-                        start=system,
-                    )
-                    if input.name:
-                        ref_el.attrib["inputName"] = input.name
+        self.add_inputs(el, system, algorithm.inputs)
+
+    def add_triggers(
+        self, parent: ET.Element, system: System, triggers: Sequence[Trigger]
+    ):
+        if triggers:
+            triggerset_el = ET.SubElement(parent, "TriggerSet")
+            for trigger in triggers:
+                self.add_trigger(triggerset_el, system, trigger)
+
+    def add_trigger(self, parent: ET.Element, system: System, trigger: Trigger):
+        if isinstance(trigger, ParameterTrigger):
+            el = ET.SubElement(parent, "OnParameterUpdateTrigger")
+            el.attrib["parameterRef"] = self.make_parameter_ref(
+                trigger.parameter, system
+            )
+        elif isinstance(trigger, ContainerTrigger):
+            el = ET.SubElement(parent, "OnContainerUpdateTrigger")
+            el.attrib["containerRef"] = self.make_container_ref(
+                trigger.container, system
+            )
         else:
-            raise Exception("Unexpected algorithm type")
+            raise ExportError(f"Unexpected trigger {trigger.__class__}")
+
+    def add_inputs(
+        self,
+        parent: ET.Element,
+        system: System,
+        inputs: Sequence[InputParameter],
+    ):
+        if inputs:
+            inputset_el = ET.SubElement(parent, "InputSet")
+            for input in inputs:
+                self.add_input(inputset_el, system, input)
+
+    def add_input(self, parent: ET.Element, system: System, input: InputParameter):
+        ref_el = ET.SubElement(parent, "InputParameterInstanceRef")
+        ref_el.attrib["parameterRef"] = self.make_parameter_ref(
+            input.parameter,
+            start=system,
+        )
+        if input.name:
+            ref_el.attrib["inputName"] = input.name
+
+    def add_outputs(
+        self,
+        parent: ET.Element,
+        system: System,
+        outputs: Sequence[OutputParameter],
+    ):
+        if outputs:
+            outputset_el = ET.SubElement(parent, "OutputSet")
+            for output in outputs:
+                self.add_output(outputset_el, system, output)
+
+    def add_output(self, parent: ET.Element, system: System, output: OutputParameter):
+        ref_el = ET.SubElement(parent, "OutputParameterRef")
+        ref_el.attrib["parameterRef"] = self.make_parameter_ref(
+            output.parameter,
+            start=system,
+        )
+        if output.name:
+            ref_el.attrib["outputName"] = output.name
 
     def add_string_data_encoding(self, parent: ET.Element, encoding: StringEncoding):
         el = ET.SubElement(parent, "StringDataEncoding")
@@ -1634,6 +1701,38 @@ class XTCE12Generator:
         el = ET.SubElement(parent, "ContainerSet")
         for container in system.containers:
             self.add_sequence_container(el, container)
+
+    def add_custom_algorithm(
+        self, parent: ET.Element, system: System, algorithm: Algorithm
+    ):
+        el = ET.SubElement(parent, "CustomAlgorithm")
+        el.attrib["name"] = algorithm.name
+
+        if algorithm.short_description:
+            el.attrib["shortDescription"] = algorithm.short_description
+
+        if algorithm.long_description:
+            ET.SubElement(el, "LongDescription").text = algorithm.long_description
+
+        if algorithm.aliases:
+            self.add_aliases(el, algorithm.aliases)
+
+        extra = AncillaryData(algorithm.extra)
+
+        for input in algorithm.inputs:
+            if input.required and input.name:
+                extra.append("Yamcs:AlgorithmMandatoryInput", input.name)
+
+        if len(extra):
+            self.add_ancillary_data(el, extra)
+
+        text_el = ET.SubElement(el, "AlgorithmText")
+        text_el.attrib["language"] = algorithm.language
+        text_el.text = algorithm.text
+
+        self.add_inputs(el, system, algorithm.inputs)
+        self.add_outputs(el, system, algorithm.outputs)
+        self.add_triggers(el, system, algorithm.triggers)
 
     def add_sequence_container(self, parent: ET.Element, container: Container):
         el = ET.SubElement(parent, "SequenceContainer")
