@@ -15,9 +15,9 @@ class ParameterEntry:
     def __init__(
         self,
         parameter: Parameter,
-        location_in_bits: int = 0,
+        bitpos: int | None = None,
         *,
-        absolute: bool = False,
+        offset: int = 0,
         short_description: str | None = None,
         condition: Expression | None = None,
     ) -> None:
@@ -26,9 +26,25 @@ class ParameterEntry:
         self.short_description: str | None = short_description
         """Oneline description"""
 
-        self.absolute: bool = absolute
-        self.location_in_bits: int = location_in_bits
+        self.bitpos: int | None = bitpos
+        """
+        Absolute position within the container, in bits.
+
+        If unspecified, this entry is positioned relative to the preceding
+        entry.
+        """
+
+        self.offset: int = offset
+        """
+        Distance in bits to the preceding entry.
+
+        While not expected, if both :attr:`bitpos` and :attr:`offset` are
+        specified, the two are added together for establishing the real
+        absolute bit position.
+        """
+
         self.condition: Expression | None = condition
+        """If set, this entry is only present when the condition is met"""
 
     def __str__(self) -> str:
         return self.parameter.__str__()
@@ -39,8 +55,8 @@ class ContainerEntry:
         self,
         container: Container,
         short_description: str | None = None,
-        absolute: bool = False,
-        location_in_bits: int = 0,
+        bitpos: int | None = None,
+        offset: int = 0,
         condition: Expression | None = None,
     ) -> None:
         self.container: Container = container
@@ -48,9 +64,25 @@ class ContainerEntry:
         self.short_description: str | None = short_description
         """Oneline description"""
 
-        self.absolute: bool = absolute
-        self.location_in_bits: int = location_in_bits
+        self.bitpos: int | None = bitpos
+        """
+        Absolute position within the container, in bits.
+
+        If unspecified, this entry is positioned relative to the preceding
+        entry.
+        """
+
+        self.offset: int = offset
+        """
+        Distance in bits to the preceding entry.
+
+        While not expected, if both :attr:`bitpos` and :attr:`offset` are
+        specified, the two are added together for establishing the real
+        absolute bit position.
+        """
+
         self.condition: Expression | None = condition
+        """If set, this entry is only present when the condition is met"""
 
     def __str__(self) -> str:
         return self.container.__str__()
@@ -187,10 +219,11 @@ class Container:
                 if not bits:
                     raise Exception(f"Cannot determine size of {entry.parameter}")
 
-                pos = entry.location_in_bits
-                if not entry.absolute:
-                    pos += prev_pos
+                pos = entry.bitpos
+                if pos is None:
+                    pos = prev_pos
 
+                pos += entry.offset
                 pos += bits
 
                 prev_pos = pos

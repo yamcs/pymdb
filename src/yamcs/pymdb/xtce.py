@@ -464,13 +464,14 @@ class XTCE12Generator:
 
         loc_el = ET.SubElement(el, "LocationInContainerInBits")
 
-        if entry.absolute:
-            loc_el.attrib["referenceLocation"] = "containerStart"
-        else:
+        if entry.bitpos is None:
             loc_el.attrib["referenceLocation"] = "previousEntry"
-
-        fv_el = ET.SubElement(loc_el, "FixedValue")
-        fv_el.text = str(entry.location_in_bits)
+            fv_el = ET.SubElement(loc_el, "FixedValue")
+            fv_el.text = str(entry.offset)
+        else:
+            loc_el.attrib["referenceLocation"] = "containerStart"
+            fv_el = ET.SubElement(loc_el, "FixedValue")
+            fv_el.text = str(entry.bitpos + entry.offset)
 
         if entry.condition:
             cond_el = ET.SubElement(el, "IncludeCondition")
@@ -495,13 +496,14 @@ class XTCE12Generator:
 
         loc_el = ET.SubElement(el, "LocationInContainerInBits")
 
-        if entry.absolute:
-            loc_el.attrib["referenceLocation"] = "containerStart"
-        else:
+        if entry.bitpos is None:
             loc_el.attrib["referenceLocation"] = "previousEntry"
-
-        fv_el = ET.SubElement(loc_el, "FixedValue")
-        fv_el.text = str(entry.location_in_bits)
+            fv_el = ET.SubElement(loc_el, "FixedValue")
+            fv_el.text = str(entry.offset)
+        else:
+            loc_el.attrib["referenceLocation"] = "containerStart"
+            fv_el = ET.SubElement(loc_el, "FixedValue")
+            fv_el.text = str(entry.bitpos + entry.offset)
 
         if entry.condition:
             cond_el = ET.SubElement(el, "IncludeCondition")
@@ -1914,13 +1916,14 @@ class XTCE12Generator:
 
         loc_el = ET.SubElement(el, "LocationInContainerInBits")
 
-        if entry.absolute:
-            loc_el.attrib["referenceLocation"] = "containerStart"
-        else:
+        if entry.bitpos is None:
             loc_el.attrib["referenceLocation"] = "previousEntry"
-
-        fv_el = ET.SubElement(loc_el, "FixedValue")
-        fv_el.text = str(entry.location_in_bits)
+            fv_el = ET.SubElement(loc_el, "FixedValue")
+            fv_el.text = str(entry.offset)
+        else:
+            loc_el.attrib["referenceLocation"] = "containerStart"
+            fv_el = ET.SubElement(loc_el, "FixedValue")
+            fv_el.text = str(entry.bitpos + entry.offset)
 
         if entry.condition:
             cond_el = ET.SubElement(el, "IncludeCondition")
@@ -1947,13 +1950,14 @@ class XTCE12Generator:
 
         loc_el = ET.SubElement(el, "LocationInContainerInBits")
 
-        if entry.absolute:
-            loc_el.attrib["referenceLocation"] = "containerStart"
-        else:
+        if entry.bitpos is None:
             loc_el.attrib["referenceLocation"] = "previousEntry"
-
-        fv_el = ET.SubElement(loc_el, "FixedValue")
-        fv_el.text = str(entry.location_in_bits)
+            fv_el = ET.SubElement(loc_el, "FixedValue")
+            fv_el.text = str(entry.offset)
+        else:
+            loc_el.attrib["referenceLocation"] = "containerStart"
+            fv_el = ET.SubElement(loc_el, "FixedValue")
+            fv_el.text = str(entry.bitpos + entry.offset)
 
         if entry.condition:
             cond_el = ET.SubElement(el, "IncludeCondition")

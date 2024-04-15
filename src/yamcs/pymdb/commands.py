@@ -395,8 +395,8 @@ class ArgumentEntry:
         argument: Argument,
         *,
         short_description: str | None = None,
-        absolute: bool = False,
-        location_in_bits: int = 0,
+        bitpos: int | None = None,
+        offset: int = 0,
         condition: Expression | None = None,
     ) -> None:
         self.argument: Argument = argument
@@ -404,9 +404,25 @@ class ArgumentEntry:
         self.short_description: str | None = short_description
         """Oneline description"""
 
-        self.absolute: bool = absolute
-        self.location_in_bits: int = location_in_bits
+        self.bitpos: int | None = bitpos
+        """
+        Absolute position within the container, in bits.
+
+        If unspecified, this entry is positioned relative to the preceding
+        entry.
+        """
+
+        self.offset: int = offset
+        """
+        Distance in bits to the preceding entry.
+
+        While not expected, if both :attr:`bitpos` and :attr:`offset` are
+        specified, the two are added together for establishing the real
+        absolute bit position.
+        """
+
         self.condition: Expression | None = condition
+        """If set, this entry is only present when the condition is met"""
 
 
 class FixedValueEntry:
@@ -416,8 +432,8 @@ class FixedValueEntry:
         name: str | None = None,
         *,
         short_description: str | None = None,
-        absolute: bool = False,
-        location_in_bits: int = 0,
+        bitpos: int | None = None,
+        offset: int = 0,
         condition: Expression | None = None,
         bits: int | None = None,
     ) -> None:
@@ -442,9 +458,25 @@ class FixedValueEntry:
         self.short_description: str | None = short_description
         """Oneline description"""
 
-        self.absolute: bool = absolute
-        self.location_in_bits: int = location_in_bits
+        self.bitpos: int | None = bitpos
+        """
+        Absolute position within the container, in bits.
+
+        If unspecified, this entry is positioned relative to the preceding
+        entry.
+        """
+
+        self.offset: int = offset
+        """
+        Distance in bits to the preceding entry.
+
+        While not expected, if both :attr:`bitpos` and :attr:`offset` are
+        specified, the two are added together for establishing the real
+        absolute bit position.
+        """
+
         self.condition: Expression | None = condition
+        """If set, encode this entry only when the condition is met"""
 
         self.bits: int | None = bits
         """

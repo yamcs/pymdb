@@ -156,7 +156,7 @@ def add_csp_header(
             ParameterEntry(tm_dst),
             ParameterEntry(tm_dport),
             ParameterEntry(tm_sport),
-            ParameterEntry(tm_hmac, location_in_bits=4),
+            ParameterEntry(tm_hmac, offset=4),
             ParameterEntry(tm_xtea),
             ParameterEntry(tm_rdp),
             ParameterEntry(tm_crc),
