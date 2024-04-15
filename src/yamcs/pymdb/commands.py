@@ -449,7 +449,6 @@ class Command:
         extra: Mapping[str, str] | None = None,
         abstract: bool = False,
         base: Command | str | None = None,
-        condition: Expression | None = None,
         assignments: Mapping[str, Any] | None = None,
         arguments: Sequence[Argument] | None = None,
         entries: Sequence[CommandEntry] | None = None,
@@ -476,7 +475,6 @@ class Command:
 
         self.abstract: bool = abstract
         self.base: Command | str | None = base
-        self.condition: Expression | None = condition
         self.assignments: dict[str, Any] = dict(assignments or {})
         self.arguments: list[Argument] = list(arguments or [])
         self._entries: list[CommandEntry] | None = (
