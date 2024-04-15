@@ -260,11 +260,11 @@ def add_csp_header(
             ArgumentEntry(tc_dport),
             FixedValueEntry(
                 name=f"{prefix}sport",
-                binary=b"\x20",  # 48
+                binary="20",  # 48
                 bits=6,
                 short_description="Ephemeral port for outgoing connection",
             ),
-            FixedValueEntry(name=f"{prefix}reserved", binary=b"\x00", bits=4),
+            FixedValueEntry(name=f"{prefix}reserved", binary="00", bits=4),
             ArgumentEntry(tc_hmac),
             ArgumentEntry(tc_xtea),
             ArgumentEntry(tc_rdp),

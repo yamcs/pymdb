@@ -437,12 +437,25 @@ class XTCE12Generator:
         entry: FixedValueEntry,
     ):
         el = ET.SubElement(parent, "FixedValueEntry")
-        el.attrib["binaryValue"] = hexlify(entry.binary).decode("ascii")
 
+        bitlen: int
         if entry.bits is None:
-            el.attrib["sizeInBits"] = str(8 * len(entry.binary))
+            bitlen = 8 * len(entry.binary)
         else:
-            el.attrib["sizeInBits"] = str(entry.bits)
+            bitlen = entry.bits
+
+        hex = hexlify(entry.binary).decode("ascii")
+
+        # XTCE requires hex to be at least as large as the bit size
+        bytelen: int
+        if bitlen % 8:
+            bytelen = (bitlen + (8 - bitlen % 8)) // 8
+        else:
+            bytelen = bitlen // 8
+        hex = hex.zfill(bytelen * 2)
+
+        el.attrib["binaryValue"] = hex
+        el.attrib["sizeInBits"] = str(bitlen)
 
         if entry.name:
             el.attrib["name"] = entry.name

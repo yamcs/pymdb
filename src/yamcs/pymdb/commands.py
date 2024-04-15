@@ -412,7 +412,7 @@ class ArgumentEntry:
 class FixedValueEntry:
     def __init__(
         self,
-        binary: bytes,
+        binary: bytes | str,
         name: str | None = None,
         *,
         short_description: str | None = None,
@@ -421,17 +421,42 @@ class FixedValueEntry:
         condition: Expression | None = None,
         bits: int | None = None,
     ) -> None:
-        self.binary: bytes = binary
+
+        self.binary: bytes
+        """
+        The fixed value to be encoded.
+
+        The value may be provided in any of these ways:
+
+        * Bytes: :python:`b\xDE\xAD\xBE\xEF`
+        * Hex string: :python:`"DEADBEEF"`
+        """
+        if isinstance(binary, str):
+            self.binary = bytes.fromhex(binary)
+        else:
+            self.binary = binary
 
         self.name: str | None = name
+        """Optional name"""
 
         self.short_description: str | None = short_description
-        """Onleine description"""
+        """Oneline description"""
 
         self.absolute: bool = absolute
         self.location_in_bits: int = location_in_bits
         self.condition: Expression | None = condition
+
         self.bits: int | None = bits
+        """
+        If unspecified, its value is derived from the provided
+        :attr:`binary` value.
+
+        If less than the bit size of the :attr:`binary` attribute,
+        the value is left-padded with zeros.
+
+        If larger than the bit size of the :attr:`binary` attribute,
+        the most-significant bits are dropped.
+        """
 
 
 CommandEntry = ArgumentEntry | ParameterEntry | FixedValueEntry

@@ -165,30 +165,30 @@ def add_ccsds_header(system: System) -> CcsdsHeader:
         entries=[
             FixedValueEntry(
                 name="ccsds_version",
-                binary=bytes.fromhex("00"),
+                binary="00",
                 bits=3,
             ),
             FixedValueEntry(
                 name="ccsds_type",
-                binary=bytes.fromhex("01"),
+                binary="01",
                 bits=1,
             ),
             ArgumentEntry(tc_secondary_header),
             ArgumentEntry(tc_apid),
             FixedValueEntry(
                 name="ccsds_group_flags",
-                binary=bytes.fromhex("03"),  # Always standalone
+                binary="03",  # Always standalone
                 bits=2,
             ),
             FixedValueEntry(
                 name="ccsds_source_sequence_count",
-                binary=bytes.fromhex("0000"),
+                binary="0000",
                 bits=14,
                 short_description="Value set by Yamcs during link post-processing",
             ),
             FixedValueEntry(
                 name="ccsds_packet_length",
-                binary=bytes.fromhex("0000"),
+                binary="0000",
                 bits=16,
                 short_description="Value set by Yamcs during link post-processing",
             ),
