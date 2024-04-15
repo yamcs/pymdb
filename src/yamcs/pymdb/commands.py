@@ -448,7 +448,7 @@ class Command:
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
         abstract: bool = False,
-        parent: Command | None = None,
+        base: Command | str | None = None,
         condition: Expression | None = None,
         assignments: Mapping[str, Any] | None = None,
         arguments: Sequence[Argument] | None = None,
@@ -475,7 +475,7 @@ class Command:
         """Arbitrary information, keyed by name"""
 
         self.abstract: bool = abstract
-        self.parent: Command | str | None = parent
+        self.base: Command | str | None = base
         self.condition: Expression | None = condition
         self.assignments: dict[str, Any] = dict(assignments or {})
         self.arguments: list[Argument] = list(arguments or [])
@@ -551,8 +551,8 @@ class Command:
             if argument.name == name:
                 return argument
 
-        if visit_parents and self.parent and isinstance(self.parent, Command):
-            return self.parent.get_argument(name)
+        if visit_parents and self.base and isinstance(self.base, Command):
+            return self.base.get_argument(name)
         else:
             return None
 

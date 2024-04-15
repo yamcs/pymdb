@@ -68,7 +68,7 @@ class Container:
         name: str,
         entries: Sequence[ParameterEntry | ContainerEntry] | None = None,
         *,
-        parent: Container | str | None = None,
+        base: Container | str | None = None,
         abstract: bool = False,
         condition: Expression | None = None,
         aliases: Mapping[str, str] | None = None,
@@ -128,7 +128,7 @@ class Container:
         """
 
         self.entries: list[ParameterEntry | ContainerEntry] = list(entries or [])
-        self.parent: Container | str | None = parent
+        self.base: Container | str | None = base
         self.abstract: bool = abstract
         self.condition: Expression | None = condition
         """Restriction criteria for this container."""
@@ -162,7 +162,7 @@ class Container:
         """
         Automatically set a fixed size to this container based on the known entries.
         """
-        if self.parent:
+        if self.base:
             raise NotImplementedError()
 
         max_pos = 0

@@ -13,7 +13,7 @@ project_command = Command(
     system=spacecraft,
     name="MyProjectPacket",
     abstract=True,
-    parent=ccsds_header.tc_command,
+    base=ccsds_header.tc_command,
     assignments={
         ccsds_header.tc_secondary_header.name: "NotPresent",
         ccsds_header.tc_apid.name: 101,
@@ -28,14 +28,14 @@ project_command = Command(
 
 reboot_command = Command(
     system=spacecraft,
-    parent=project_command,
+    base=project_command,
     name="Reboot",
     assignments={command_id.name: 1},
 )
 
 switch_voltage_on = Command(
     system=spacecraft,
-    parent=project_command,
+    base=project_command,
     name="SwitchVoltageOn",
     short_description="Switches a battery on",
     assignments={command_id.name: 2},
@@ -53,7 +53,7 @@ switch_voltage_on = Command(
 
 switch_voltage_off = Command(
     system=spacecraft,
-    parent=project_command,
+    base=project_command,
     name="SwitchVoltageOff",
     short_description="Switches a battery off",
     assignments={command_id.name: 3},

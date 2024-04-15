@@ -208,10 +208,10 @@ class XTCE12Generator:
         if command.extra:
             self.add_ancillary_data(el, command.extra)
 
-        if command.parent:
+        if command.base:
             base_el = ET.SubElement(el, "BaseMetaCommand")
             base_el.attrib["metaCommandRef"] = self.make_command_ref(
-                target=command.parent,
+                target=command.base,
                 start=command.system,
             )
 
@@ -241,10 +241,10 @@ class XTCE12Generator:
 
         self.add_command_entry_list(container_el, command)
 
-        if command.parent:
+        if command.base:
             base_el = ET.SubElement(container_el, "BaseContainer")
             base_el.attrib["containerRef"] = self.make_command_ref(
-                target=command.parent,
+                target=command.base,
                 start=command.system,
             )
 
@@ -1882,8 +1882,8 @@ class XTCE12Generator:
             else:
                 raise ExportError(f"Unexpected entry {entry.__class__}")
 
-        if container.parent:
-            self.add_base_container(parent, container.parent, container)
+        if container.base:
+            self.add_base_container(parent, container.base, container)
 
     def add_parameter_ref_entry(
         self,
