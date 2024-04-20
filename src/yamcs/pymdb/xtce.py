@@ -862,6 +862,16 @@ class XTCE12Generator:
             member_el.attrib["name"] = str(member.name)
             member_el.attrib["typeRef"] = member_type_name
 
+            if member.short_description:
+                member_el.attrib["shortDescription"] = member.short_description
+
+            if member.long_description:
+                ET.SubElement(member_el, "LongDescription").text = (
+                    member.long_description
+                )
+            if member.extra:
+                self.add_ancillary_data(member_el, member.extra)
+
             if isinstance(member, AbsoluteTimeMember):
                 self.add_absolute_time_parameter_type(
                     parent,
