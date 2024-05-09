@@ -204,7 +204,7 @@ class EnumeratedDataType(DataType):
         self.choices: Choices = choices
 
     def label_for(self, value: int):
-        if isinstance(self.choices, list):
+        if isinstance(self.choices, Sequence):
             for choice in self.choices:
                 if choice[0] == value:
                     return choice[1]

@@ -239,6 +239,20 @@ class XTCE12Generator:
         container_el = ET.SubElement(el, "CommandContainer")
         container_el.attrib["name"] = command.name
 
+        if command.constraints:
+            constraints_el = ET.SubElement(el, "TransmissionConstraintList")
+
+            for constraint in command.constraints:
+                constraint_el = ET.SubElement(constraints_el, "TransmissionConstraint")
+                constraint_el.attrib["timeOut"] = _to_isoduration(constraint.timeout)
+
+                expr_el = ET.SubElement(constraint_el, "BooleanExpression")
+                self.add_expression_condition(
+                    expr_el,
+                    system=command.system,
+                    expression=constraint.expression,
+                )
+
         self.add_command_entry_list(container_el, command)
 
         if command.base:

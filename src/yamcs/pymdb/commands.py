@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from enum import Enum, auto
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, Union
 
 from yamcs.pymdb.containers import ParameterEntry
 from yamcs.pymdb.datatypes import (
@@ -494,6 +494,15 @@ class FixedValueEntry:
 CommandEntry = ArgumentEntry | ParameterEntry | FixedValueEntry
 
 
+class TransmissionConstraint:
+    def __init__(self, expression: Expression, *, timeout: float = 0):
+        self.expression: Expression = expression
+        """Expression that must be satisfied"""
+
+        self.timeout: float = timeout
+        """How long to wait for the constraint to be satisfied (in seconds)"""
+
+
 class Command:
     def __init__(
         self,
@@ -511,6 +520,9 @@ class Command:
         entries: Sequence[CommandEntry] | None = None,
         level: CommandLevel = CommandLevel.NORMAL,
         warning_message: str | None = None,
+        constraint: (
+            Union[TransmissionConstraint, Sequence[TransmissionConstraint]] | None
+        ) = None,
     ):
         self.name: str = name
         """Short name of this command"""
@@ -534,6 +546,21 @@ class Command:
         self.base: Command | str | None = base
         self.assignments: dict[str, Any] = dict(assignments or {})
         self.arguments: list[Argument] = list(arguments or [])
+
+        constraints: list[TransmissionConstraint] = []
+        if isinstance(constraint, Sequence):
+            constraints = list(constraint)
+        elif isinstance(constraint, TransmissionConstraint):
+            constraints.append(constraint)
+        self.constraints = constraints
+        """
+        Constraints to check before sending the command.
+
+        A command is sent only when all constraints are satisfied. Constraints
+        are evaluated in order. Afterwards, also constraints from :attr:`base`
+        are checked.
+        """
+
         self._entries: list[CommandEntry] | None = (
             list(entries) if entries is not None else None
         )
