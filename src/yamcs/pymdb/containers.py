@@ -146,6 +146,9 @@ class Container:
         """
         Expected rate in seconds.
 
+        For example, a rate of ``2`` means: "one update every 2 seconds" (not
+        "2 updates every second").
+
         This is used by Yamcs to determine parameter expiration. A parameter's
         realtime value is considered expired when ``1.9 * rate`` has passed
         without a new update (where ``1.9`` is a configurable tolerance multiplier).

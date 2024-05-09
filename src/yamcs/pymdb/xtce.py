@@ -1796,7 +1796,10 @@ class XTCE12Generator:
 
         if container.rate is not None:
             rate_el = ET.SubElement(el, "DefaultRateInStream")
-            rate_el.attrib["maximumValue"] = _to_xml_value(container.rate)
+            # In XTCE this is expressed as 'x containers per second',
+            # whereas both Yamcs and PyMDB, employ '1 container every x seconds'
+            rate_el.attrib["minimumValue"] = _to_xml_value(1 / container.rate)
+            rate_el.attrib["basis"] = "perSecond"
 
         if container.bits is not None:
             encoding_el = ET.SubElement(el, "BinaryEncoding")
