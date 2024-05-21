@@ -783,7 +783,7 @@ class XTCE12Generator:
             unit_el.text = data_type.units
 
         if data_type.encoding:
-            self.add_data_encoding(el, system, data_type.encoding)
+            self.add_data_encoding(el, system, data_type.encoding, data_type.calibrator)
 
         if data_type.minimum is not None or data_type.maximum is not None:
             set_el = ET.SubElement(el, "ValidRangeSet")
@@ -823,7 +823,7 @@ class XTCE12Generator:
             unit_el.text = data_type.units
 
         if data_type.encoding:
-            self.add_data_encoding(el, system, data_type.encoding)
+            self.add_data_encoding(el, system, data_type.encoding, data_type.calibrator)
 
         if data_type.minimum is not None or data_type.maximum is not None:
             set_el = ET.SubElement(el, "ValidRangeSet")
