@@ -103,4 +103,10 @@ Table of Contents
     algorithms
     commands
     encodings
-    reference/index
+    calibrators
+    alarms
+    ancillary
+    datatypes
+    exceptions
+    expressions
+    verifiers

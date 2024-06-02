@@ -444,8 +444,8 @@ class FixedValueEntry:
 
         The value may be provided in any of these ways:
 
-        * Bytes: :python:`b\xDE\xAD\xBE\xEF`
-        * Hex string: :python:`"DEADBEEF"`
+        * Bytes: :code:`b\\xDE\\xAD\\xBE\\xEF`
+        * Hex string: :code:`"DEADBEEF"`
         """
         if isinstance(binary, str):
             self.binary = bytes.fromhex(binary)

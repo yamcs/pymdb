@@ -47,7 +47,7 @@ latex_elements = {
 latex_documents = [
     (
         master_doc,
-        "pymdb.tex",
+        f"pymdb-{release}.tex",
         "Yamcs PyMDB",
         "Space Applications Services",
         "manual",
@@ -56,6 +56,8 @@ latex_documents = [
 
 autoclass_content = "both"
 autodoc_class_signature = "separated"
+autodoc_typehints_format = "short"
+python_use_unqualified_type_names = True
 autodoc_default_options = {
     # "member-order": "bysource",
     "undoc-members": True,

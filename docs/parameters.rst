@@ -1,52 +1,37 @@
 Parameters
 ==========
 
-AlarmLevel
-----------
-
-.. autoclass:: yamcs.pymdb.parameters.AlarmLevel
-   :members:
-   :member-order: bysource
-
-
 DataSource
 ----------
 
-.. autoclass:: yamcs.pymdb.parameters.DataSource
+.. autoclass:: yamcs.pymdb.DataSource
    :members:
    :member-order: bysource
-
-
-EnumerationAlarm
-----------------
-
-.. autoclass:: yamcs.pymdb.parameters.EnumerationAlarm
-   :members:
 
 
 Parameter
 ---------
 
-.. autoclass:: yamcs.pymdb.parameters.Parameter
+.. autoclass:: yamcs.pymdb.Parameter
    :members:
 
 
 Basic parameters
 ----------------
 
-.. autoclass:: yamcs.pymdb.parameters.AbsoluteTimeParameter
+.. autoclass:: yamcs.pymdb.AbsoluteTimeParameter
    :members:
 
-.. autoclass:: yamcs.pymdb.parameters.BinaryParameter
+.. autoclass:: yamcs.pymdb.BinaryParameter
    :members:
 
-.. autoclass:: yamcs.pymdb.parameters.FloatParameter
+.. autoclass:: yamcs.pymdb.FloatParameter
    :members:
 
-.. autoclass:: yamcs.pymdb.parameters.IntegerParameter
+.. autoclass:: yamcs.pymdb.IntegerParameter
    :members:
 
-.. autoclass:: yamcs.pymdb.parameters.StringParameter
+.. autoclass:: yamcs.pymdb.StringParameter
    :members:
 
 
@@ -56,18 +41,18 @@ Enumerated parameters
 Enumerated parameters can only represent discrete values. Booleans are a
 special kind of enumerated parameter that only knows two states.
 
-.. autoclass:: yamcs.pymdb.parameters.BooleanParameter
+.. autoclass:: yamcs.pymdb.BooleanParameter
    :members:
 
-.. autoclass:: yamcs.pymdb.parameters.EnumeratedParameter
+.. autoclass:: yamcs.pymdb.EnumeratedParameter
    :members:
 
 
 Complex parameters
 ------------------
 
-.. autoclass:: yamcs.pymdb.parameters.AggregateParameter
+.. autoclass:: yamcs.pymdb.AggregateParameter
    :members:
 
-.. autoclass:: yamcs.pymdb.parameters.ArrayParameter
+.. autoclass:: yamcs.pymdb.ArrayParameter
    :members:

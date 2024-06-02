@@ -9,7 +9,15 @@ See https://github.com/yamcs/pymdb
       <AggregateParameterType name="ccsds_packet_id">
         <MemberList>
           <Member name="version" typeRef="ccsds_packet_id__version"/>
-          <Member name="type" typeRef="ccsds_packet_id__type"/>
+          <Member name="type" typeRef="ccsds_packet_id__type">
+            <LongDescription>
+Used to distinguish telemetry (or reporting) packets from
+telecommand (or requesting) packets.
+
+Note that some systems, notably the International Space System,
+use a different convention where 0=core and 1=payload.
+</LongDescription>
+          </Member>
           <Member name="secondary_header" typeRef="ccsds_packet_id__secondary_header"/>
           <Member name="apid" typeRef="ccsds_packet_id__apid"/>
         </MemberList>
