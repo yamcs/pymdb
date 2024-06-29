@@ -1,5 +1,11 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from enum import Enum, auto
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from yamcs.pymdb.expressions import Expression
 
 
 class AlarmLevel(Enum):
@@ -79,6 +85,13 @@ class EnumerationAlarm(Alarm):
         """
 
 
+class EnumerationContextAlarm:
+
+    def __init__(self, context: Expression, alarm: EnumerationAlarm):
+        self.context = context
+        self.alarm = alarm
+
+
 class ThresholdAlarm(Alarm):
     """
     Alarm definition specifying the thresholds for detecting out of limit values.
@@ -138,3 +151,10 @@ class ThresholdAlarm(Alarm):
         self.warning_high_exclusive = warning_high_exclusive
         self.watch_high = watch_high
         self.watch_high_exclusive = watch_high_exclusive
+
+
+class ThresholdContextAlarm:
+
+    def __init__(self, context: Expression, alarm: ThresholdAlarm):
+        self.context = context
+        self.alarm = alarm

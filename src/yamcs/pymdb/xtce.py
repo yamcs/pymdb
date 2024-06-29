@@ -9,7 +9,7 @@ from enum import Enum
 from typing import TYPE_CHECKING, Any, Sequence, cast
 from xml.dom import minidom
 
-from yamcs.pymdb.alarms import AlarmLevel, ThresholdAlarm
+from yamcs.pymdb.alarms import AlarmLevel, ThresholdAlarm, ThresholdContextAlarm
 from yamcs.pymdb.algorithms import (
     Algorithm,
     ContainerTrigger,
@@ -601,6 +601,7 @@ class XTCE12Generator:
                     name=parameter.name,
                     initial_value=parameter.initial_value,
                     alarm=parameter.alarm,
+                    context_alarms=parameter.context_alarms,
                     data_type=parameter,
                 )
             elif isinstance(parameter, IntegerParameter):
@@ -610,6 +611,7 @@ class XTCE12Generator:
                     name=parameter.name,
                     initial_value=parameter.initial_value,
                     alarm=parameter.alarm,
+                    context_alarms=parameter.context_alarms,
                     data_type=parameter,
                 )
             elif isinstance(parameter, StringParameter):
@@ -938,6 +940,7 @@ class XTCE12Generator:
                     name=member_type_name,
                     initial_value=member.initial_value,
                     alarm=None,
+                    context_alarms=None,
                     data_type=member,
                 )
             elif isinstance(member, IntegerMember):
@@ -947,6 +950,7 @@ class XTCE12Generator:
                     name=member_type_name,
                     initial_value=member.initial_value,
                     alarm=None,
+                    context_alarms=None,
                     data_type=member,
                 )
             elif isinstance(member, StringMember):
@@ -1045,6 +1049,7 @@ class XTCE12Generator:
                 name=element_type_name,
                 initial_value=None,
                 alarm=None,
+                context_alarms=None,
                 data_type=el_type,
             )
         elif isinstance(el_type, IntegerDataType):
@@ -1054,6 +1059,7 @@ class XTCE12Generator:
                 name=element_type_name,
                 initial_value=None,
                 alarm=None,
+                context_alarms=None,
                 data_type=el_type,
             )
         elif isinstance(el_type, StringDataType):
@@ -1202,6 +1208,29 @@ class XTCE12Generator:
                     state_el.attrib["alarmLevel"] = self.alarm_level_to_text(v)
                     state_el.attrib["enumerationLabel"] = k
 
+            if data_type.context_alarms:
+                list_el = ET.SubElement(el, "ContextAlarmList")
+                for context_alarm in data_type.context_alarms:
+                    context_alarm_el = ET.SubElement(list_el, "ContextAlarm")
+                    context_alarm_el.attrib["minViolations"] = str(
+                        context_alarm.alarm.minimum_violations
+                    )
+                    context_alarm_el.attrib["defaultAlarmLevel"] = (
+                        self.alarm_level_to_text(context_alarm.alarm.default_level)
+                    )
+
+                    states_el = ET.SubElement(context_alarm_el, "EnumerationAlarmList")
+                    for k, v in context_alarm.alarm.states.items():
+                        state_el = ET.SubElement(states_el, "EnumerationAlarm")
+                        state_el.attrib["alarmLevel"] = self.alarm_level_to_text(v)
+                        state_el.attrib["enumerationLabel"] = k
+
+                    context_el = ET.SubElement(context_alarm_el, "ContextMatch")
+                    condition_el = ET.SubElement(context_el, "BooleanExpression")
+                    self.add_expression_condition(
+                        condition_el, system, context_alarm.context
+                    )
+
     def add_float_parameter_type(
         self,
         parent: ET.Element,
@@ -1209,6 +1238,7 @@ class XTCE12Generator:
         name: str,
         initial_value: Any,
         alarm: ThresholdAlarm | None,
+        context_alarms: Sequence[ThresholdContextAlarm] | None,
         data_type: FloatDataType,
     ):
         el = ET.SubElement(parent, "FloatParameterType")
@@ -1251,6 +1281,20 @@ class XTCE12Generator:
             alarm_el.attrib["minViolations"] = str(alarm.minimum_violations)
             self.add_static_alarm_ranges(alarm_el, alarm)
 
+        if context_alarms:
+            list_el = ET.SubElement(el, "ContextAlarmList")
+            for context_alarm in context_alarms:
+                context_alarm_el = ET.SubElement(list_el, "ContextAlarm")
+                context_alarm_el.attrib["minViolations"] = str(
+                    context_alarm.alarm.minimum_violations
+                )
+                self.add_static_alarm_ranges(context_alarm_el, context_alarm.alarm)
+                context_el = ET.SubElement(context_alarm_el, "ContextMatch")
+                condition_el = ET.SubElement(context_el, "BooleanExpression")
+                self.add_expression_condition(
+                    condition_el, system, context_alarm.context
+                )
+
     def add_integer_parameter_type(
         self,
         parent: ET.Element,
@@ -1258,6 +1302,7 @@ class XTCE12Generator:
         name: str,
         initial_value: Any,
         alarm: ThresholdAlarm | None,
+        context_alarms: Sequence[ThresholdContextAlarm] | None,
         data_type: IntegerDataType,
     ):
         el = ET.SubElement(parent, "IntegerParameterType")
@@ -1293,6 +1338,20 @@ class XTCE12Generator:
             alarm_el = ET.SubElement(el, "DefaultAlarm")
             alarm_el.attrib["minViolations"] = str(alarm.minimum_violations)
             self.add_static_alarm_ranges(alarm_el, alarm)
+
+        if context_alarms:
+            list_el = ET.SubElement(el, "ContextAlarmList")
+            for context_alarm in context_alarms:
+                context_alarm_el = ET.SubElement(list_el, "ContextAlarm")
+                context_alarm_el.attrib["minViolations"] = str(
+                    context_alarm.alarm.minimum_violations
+                )
+                self.add_static_alarm_ranges(context_alarm_el, context_alarm.alarm)
+                context_el = ET.SubElement(context_alarm_el, "ContextMatch")
+                condition_el = ET.SubElement(context_el, "BooleanExpression")
+                self.add_expression_condition(
+                    condition_el, system, context_alarm.context
+                )
 
     def add_string_parameter_type(
         self,

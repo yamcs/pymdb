@@ -25,6 +25,7 @@ from yamcs.pymdb.datatypes import (
 from yamcs.pymdb.encodings import Encoding, TimeEncoding
 
 if TYPE_CHECKING:
+    from yamcs.pymdb.alarms import EnumerationContextAlarm, ThresholdContextAlarm
     from yamcs.pymdb.calibrators import Calibrator
     from yamcs.pymdb.systems import System
 
@@ -374,6 +375,7 @@ class EnumeratedParameter(Parameter, EnumeratedDataType):
         name: str,
         choices: Choices,
         alarm: EnumerationAlarm | None = None,
+        context_alarms: Sequence[EnumerationContextAlarm] | None = None,
         aliases: Mapping[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
         initial_value: Any = None,
@@ -406,6 +408,9 @@ class EnumeratedParameter(Parameter, EnumeratedDataType):
         self.alarm: EnumerationAlarm | None = alarm
         """Specification for alarm monitoring"""
 
+        self.context_alarms: list[EnumerationContextAlarm] = list(context_alarms or [])
+        """Alarm specification when a specific context expression applies"""
+
 
 class FloatParameter(Parameter, FloatDataType):
     """
@@ -432,6 +437,7 @@ class FloatParameter(Parameter, FloatDataType):
         encoding: Encoding | None = None,
         calibrator: Calibrator | None = None,
         alarm: ThresholdAlarm | None = None,
+        context_alarms: Sequence[ThresholdContextAlarm] | None = None,
     ) -> None:
         FloatDataType.__init__(
             self,
@@ -460,6 +466,9 @@ class FloatParameter(Parameter, FloatDataType):
         self.alarm: ThresholdAlarm | None = alarm
         """Specification for alarm monitoring"""
 
+        self.context_alarms: list[ThresholdContextAlarm] = list(context_alarms or [])
+        """Alarm specification when a specific context expression applies"""
+
 
 class IntegerParameter(Parameter, IntegerDataType):
     """
@@ -485,6 +494,7 @@ class IntegerParameter(Parameter, IntegerDataType):
         encoding: Encoding | None = None,
         calibrator: Calibrator | None = None,
         alarm: ThresholdAlarm | None = None,
+        context_alarms: Sequence[ThresholdContextAlarm] | None = None,
     ) -> None:
         IntegerDataType.__init__(
             self,
@@ -511,6 +521,9 @@ class IntegerParameter(Parameter, IntegerDataType):
 
         self.alarm: ThresholdAlarm | None = alarm
         """Specification for alarm monitoring"""
+
+        self.context_alarms: list[ThresholdContextAlarm] = list(context_alarms or [])
+        """Alarm specification when a specific context expression applies"""
 
 
 class StringParameter(Parameter, StringDataType):
