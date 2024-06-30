@@ -12,25 +12,25 @@ pip install yamcs-pymdb
 Use this Python library to generate XTCE XML files for use with [Yamcs Mission Control](https://yamcs.org):
 
 ```python
-from yamcs.pymdb import *
+import yamcs.pymdb as Y
 
-spacecraft = System("Spacecraft")
+spacecraft = Y.System("Spacecraft")
 
-param1 = IntegerParameter(
+param1 = Y.IntegerParameter(
     system=spacecraft,
     name="param1",
     signed=False,
-    encoding=uint8_t,
+    encoding=Y.uint8_t,
 )
 
-param2 = EnumeratedParameter(
+param2 = Y.EnumeratedParameter(
     system=spacecraft,
     name="param2",
     choices=[
         (0, "SUCCESS"),
         (-1, "ERROR"),
     ],
-    encoding=int8_t,
+    encoding=Y.int8_t,
 )
 
 # Emit an XML that conforms to XTCE
