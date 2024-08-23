@@ -1456,16 +1456,28 @@ class XTCE12Generator:
         calibrator: Calibrator | None = None,
     ):
         if isinstance(encoding, FloatTimeEncoding):
+            if calibrator:
+                raise ExportError(
+                    "Calibrators on FloatTimeEncoding are not currently supported"
+                )
             self.add_float_time_encoding(parent, encoding)
         elif isinstance(encoding, IntegerTimeEncoding):
+            if calibrator:
+                raise ExportError(
+                    "Calibrators on IntegerTimeEncoding are not currently supported"
+                )
             self.add_integer_time_encoding(parent, encoding)
         elif isinstance(encoding, BinaryEncoding):
+            if calibrator:
+                raise ExportError("XTCE does not allow calibrators with BinaryEncoding")
             self.add_binary_data_encoding(parent, system, encoding)
         elif isinstance(encoding, IntegerEncoding):
             self.add_integer_data_encoding(parent, encoding, calibrator)
         elif isinstance(encoding, FloatEncoding):
             self.add_float_data_encoding(parent, encoding, calibrator)
         elif isinstance(encoding, StringEncoding):
+            if calibrator:
+                raise ExportError("XTCE does not allow calibrators with StringEncoding")
             self.add_string_data_encoding(parent, encoding)
         else:
             raise Exception("Unexpected encoding")
