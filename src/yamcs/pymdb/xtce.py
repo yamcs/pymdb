@@ -1709,6 +1709,9 @@ class XTCE12Generator:
         if calibrator:
             self.add_calibrator(el, calibrator)
 
+        if encoding.scheme == IntegerEncodingScheme.STRING and encoding.string_encoding:
+            self.add_string_data_encoding(el, encoding.string_encoding)
+
     def add_float_data_encoding(
         self,
         parent: ET.Element,
@@ -1722,6 +1725,8 @@ class XTCE12Generator:
             el.attrib["encoding"] = "IEEE754_1985"
         elif encoding.scheme == FloatEncodingScheme.MILSTD_1750A:
             el.attrib["encoding"] = "MILSTD_1750A"
+        elif encoding.scheme == FloatEncodingScheme.STRING:
+            el.attrib["encoding"] = "STRING"
 
         if encoding.little_endian:
             el.attrib["byteOrder"] = "leastSignificantByteFirst"
@@ -1730,6 +1735,9 @@ class XTCE12Generator:
 
         if calibrator:
             self.add_calibrator(el, calibrator)
+
+        if encoding.scheme == FloatEncodingScheme.STRING and encoding.string_encoding:
+            self.add_string_data_encoding(el, encoding.string_encoding)
 
     def add_calibrator(self, parent: ET.Element, calibrator: Calibrator):
         el = ET.SubElement(parent, "DefaultCalibrator")

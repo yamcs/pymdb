@@ -50,6 +50,20 @@ class FloatEncodingScheme(Enum):
     MILSTD_1750A = auto()
     """MIL-STD-1750A"""
 
+    STRING = auto()
+    """
+    String-encoded float
+
+    .. warning::
+        This  scheme is not supported by XTCE, and will lead to invalid
+        XML exports. However, that XML will be correctly understood
+        by Yamcs, which does support string-based float encodings.
+
+        An alternative is to use a :class:`.StringEncoding` for a
+        :class:`.FloatParameter`, but then you will not be able to use
+        use calibrators.
+    """
+
 
 class IntegerEncodingScheme(Enum):
     """Integer encoding"""
@@ -65,6 +79,20 @@ class IntegerEncodingScheme(Enum):
 
     ONES_COMPLEMENT = auto()
     """Ones' complement"""
+
+    STRING = auto()
+    """
+    String-encoded integer
+
+    .. warning::
+        This  scheme is not supported by XTCE, and will lead to invalid
+        XML exports. However, that XML will be correctly understood
+        by Yamcs, which does support string-based integer encodings.
+
+        An alternative is to use a :class:`.StringEncoding` for an
+        :class:`.IntegerParameter`, but then you will not be able to use
+        use calibrators.
+    """
 
 
 class Encoding:
@@ -104,10 +132,16 @@ class IntegerEncoding(Encoding):
         bits: int,
         little_endian: bool = False,
         scheme: IntegerEncodingScheme = IntegerEncodingScheme.UNSIGNED,
+        string_encoding: StringEncoding | None = None,
     ) -> None:
         super().__init__(bits=bits)
         self.little_endian: bool = little_endian
         self.scheme: IntegerEncodingScheme = scheme
+
+        self.string_encoding: StringEncoding | None = string_encoding
+        """
+        String encoding, required when :attr:`scheme` is set to ``STRING``.
+        """
 
 
 class FloatEncoding(Encoding):
@@ -116,10 +150,16 @@ class FloatEncoding(Encoding):
         bits: int,
         little_endian: bool = False,
         scheme: FloatEncodingScheme = FloatEncodingScheme.IEEE754_1985,
+        string_encoding: StringEncoding | None = None,
     ) -> None:
         super().__init__(bits=bits)
         self.little_endian: bool = little_endian
         self.scheme: FloatEncodingScheme = scheme
+
+        self.string_encoding: StringEncoding | None = string_encoding
+        """
+        String encoding, required when :attr:`scheme` is set to ``STRING``.
+        """
 
 
 class FloatTimeEncoding(FloatEncoding):
