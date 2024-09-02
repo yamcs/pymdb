@@ -20,7 +20,7 @@ class Epoch(Enum):
     UNIX = auto()
 
 
-Choices: TypeAlias = list[tuple[int, str] | tuple[int, str, str]] | type[Enum]
+Choices: TypeAlias = Sequence[tuple[int, str] | tuple[int, str, str]] | type[Enum]
 
 
 @dataclass

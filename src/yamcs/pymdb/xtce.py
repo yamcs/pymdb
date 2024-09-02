@@ -1758,7 +1758,7 @@ class XTCE12Generator:
 
     def add_enumeration_list(self, parent: ET.Element, choices: Choices):
         el = ET.SubElement(parent, "EnumerationList")
-        if isinstance(choices, list):
+        if isinstance(choices, Sequence):
             for choice in choices:
                 enumeration_el = ET.SubElement(el, "Enumeration")
                 enumeration_el.attrib["value"] = str(choice[0])
