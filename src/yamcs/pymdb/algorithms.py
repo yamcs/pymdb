@@ -94,6 +94,7 @@ class InputParameter:
         *,
         name: str | None = None,
         required: bool = False,
+        instance: int = 0,
     ):
         self.parameter = parameter
         """Reference parameter"""
@@ -105,6 +106,8 @@ class InputParameter:
         """
 
         self.required: bool = required
+
+        self.instance: int = instance
 
 
 class OutputParameter:

@@ -1588,6 +1588,8 @@ class XTCE12Generator:
             input.parameter,
             start=system,
         )
+        ref_el.attrib["instance"] = str(input.instance)
+
         if input.name:
             ref_el.attrib["inputName"] = input.name
 
