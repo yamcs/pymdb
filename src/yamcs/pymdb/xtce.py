@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import posixpath
 import xml.etree.ElementTree as ET
 from binascii import hexlify
 from collections.abc import Mapping
@@ -2081,7 +2082,9 @@ class XTCE12Generator:
             if os.path.commonprefix([target, start.qualified_name]) == "/":
                 return target  # abs path
             else:
-                return os.path.relpath(target, start=start.qualified_name)
+                # posixpath so that we always have forward slashes
+                # (also on Windows)
+                return posixpath.relpath(target, start=start.qualified_name)
         else:
             return target
 
