@@ -945,7 +945,7 @@ class XTCE12Generator:
                 parent,
                 system,
                 name=element_type_name,
-                default=None,                
+                default=None,
                 data_type=el_type,
             )
         elif isinstance(el_type, IntegerDataType):
@@ -953,7 +953,7 @@ class XTCE12Generator:
                 parent,
                 system,
                 name=element_type_name,
-                default=None,                
+                default=None,
                 data_type=el_type,
             )
         elif isinstance(el_type, StringDataType):
@@ -966,7 +966,6 @@ class XTCE12Generator:
             )
         else:
             raise ExportError(f"Unexpected data type {el_type.__class__}")
-
 
     def add_aggregate_parameter_type(
         self,
