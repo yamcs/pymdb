@@ -648,6 +648,8 @@ class XTCE12Generator:
             self.add_integer_argument_type(parent, system, name, default, data_type)
         elif isinstance(data_type, StringDataType):
             self.add_string_argument_type(parent, system, name, default, data_type)
+        elif isinstance(data_type, ArrayDataType):
+            self.add_array_argument_type(parent, system, name, data_type)
         else:
             raise ExportError(f"Unexpected data type {data_type.__class__}")
 
@@ -859,6 +861,111 @@ class XTCE12Generator:
                 range_el.attrib["minInclusive"] = str(data_type.min_length)
             if data_type.max_length is not None:
                 range_el.attrib["maxInclusive"] = str(data_type.max_length)
+
+    def add_array_argument_type(
+        self,
+        parent: ET.Element,
+        system: System,
+        name: str,
+        data_type: ArrayDataType,
+    ):
+        el = ET.SubElement(parent, "ArrayArgumentType")
+        el.attrib["name"] = name
+
+        element_type_name = f"{name}__el"
+        el.attrib["arrayTypeRef"] = element_type_name
+
+        dims_el = ET.SubElement(el, "DimensionList")
+        dim_el = ET.SubElement(dims_el, "Dimension")
+        start_idx_el = ET.SubElement(dim_el, "StartingIndex")
+        ET.SubElement(start_idx_el, "FixedValue").text = "0"
+
+        end_idx_el = ET.SubElement(dim_el, "EndingIndex")
+        if isinstance(data_type.length, DynamicInteger):
+            dyn_el = ET.SubElement(end_idx_el, "DynamicValue")
+            ref_el = ET.SubElement(dyn_el, "ArgumentInstanceRef")
+            parameter = data_type.length.parameter
+            ref_el.attrib["argumentRef"] = self.make_parameter_ref(
+                parameter,
+                start=system,
+            )
+            adj_el = ET.SubElement(dyn_el, "LinearAdjustment")
+            adj_el.attrib["intercept"] = "-1"
+        else:
+            ET.SubElement(end_idx_el, "FixedValue").text = str(data_type.length - 1)
+
+        el_type = data_type.data_type
+        if isinstance(el_type, AbsoluteTimeDataType):
+            self.add_absolute_time_argument_type(
+                parent,
+                system,
+                name=element_type_name,
+                data_type=el_type,
+            )
+        # elif isinstance(el_type, AggregateDataType):
+        #     self.add_aggregate_argument_type(
+        #         parent,
+        #         system,
+        #         name=element_type_name,
+        #         data_type=el_type,
+        #     )
+        elif isinstance(el_type, ArrayDataType):
+            self.add_array_argument_type(
+                parent,
+                system,
+                name=element_type_name,
+                data_type=el_type,
+            )
+        elif isinstance(el_type, BinaryDataType):
+            self.add_binary_argument_type(
+                parent,
+                system,
+                name=element_type_name,
+                default=None,
+                data_type=el_type,
+            )
+        elif isinstance(el_type, BooleanDataType):
+            self.add_boolean_argument_type(
+                parent,
+                system,
+                name=element_type_name,
+                default=None,
+                data_type=el_type,
+            )
+        elif isinstance(el_type, EnumeratedDataType):
+            self.add_enumerated_argument_type(
+                parent,
+                system,
+                name=element_type_name,
+                default=None,
+                data_type=el_type,
+            )
+        elif isinstance(el_type, FloatDataType):
+            self.add_float_argument_type(
+                parent,
+                system,
+                name=element_type_name,
+                default=None,
+                data_type=el_type,
+            )
+        elif isinstance(el_type, IntegerDataType):
+            self.add_integer_argument_type(
+                parent,
+                system,
+                name=element_type_name,
+                default=None,
+                data_type=el_type,
+            )
+        elif isinstance(el_type, StringDataType):
+            self.add_string_argument_type(
+                parent,
+                system,
+                name=element_type_name,
+                default=None,
+                data_type=el_type,
+            )
+        else:
+            raise ExportError(f"Unexpected data type {el_type.__class__}")
 
     def add_aggregate_parameter_type(
         self,
