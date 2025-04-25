@@ -650,6 +650,8 @@ class XTCE12Generator:
             self.add_string_argument_type(parent, system, name, default, data_type)
         elif isinstance(data_type, ArrayDataType):
             self.add_array_argument_type(parent, system, name, data_type)
+        elif isinstance(data_type, AggregateDataType):
+            self.add_aggregate_argument_type(parent, system, name, data_type)
         else:
             raise ExportError(f"Unexpected data type {data_type.__class__}")
 
@@ -902,13 +904,13 @@ class XTCE12Generator:
                 name=element_type_name,
                 data_type=el_type,
             )
-        # elif isinstance(el_type, AggregateDataType):
-        #     self.add_aggregate_argument_type(
-        #         parent,
-        #         system,
-        #         name=element_type_name,
-        #         data_type=el_type,
-        #     )
+        elif isinstance(el_type, AggregateDataType):
+            self.add_aggregate_argument_type(
+                parent,
+                system,
+                name=element_type_name,
+                data_type=el_type,
+            )
         elif isinstance(el_type, ArrayDataType):
             self.add_array_argument_type(
                 parent,
@@ -966,6 +968,107 @@ class XTCE12Generator:
             )
         else:
             raise ExportError(f"Unexpected data type {el_type.__class__}")
+
+    def add_aggregate_argument_type(
+        self,
+        parent: ET.Element,
+        system: System,
+        name: str,
+        data_type: AggregateDataType,
+    ):
+        el = ET.SubElement(parent, "AggregateArgumentType")
+        el.attrib["name"] = name
+
+        members_el = ET.SubElement(el, "MemberList")
+        for member in data_type.members:
+            # Always make a new type
+            member_type_name = f"{name}__{member.name}"
+
+            member_el = ET.SubElement(members_el, "Member")
+            member_el.attrib["name"] = str(member.name)
+            member_el.attrib["typeRef"] = member_type_name
+
+            if member.short_description:
+                member_el.attrib["shortDescription"] = member.short_description
+
+            if member.long_description:
+                ET.SubElement(member_el, "LongDescription").text = (
+                    member.long_description
+                )
+            if member.extra:
+                self.add_ancillary_data(member_el, member.extra)
+
+            if isinstance(member, AbsoluteTimeMember):
+                self.add_absolute_time_argument_type(
+                    parent,
+                    system,
+                    name=member_type_name,
+                    data_type=member,
+                )
+            elif isinstance(member, AggregateMember):
+                self.add_aggregate_argument_type(
+                    parent,
+                    system,
+                    name=member_type_name,
+                    data_type=member,
+                )
+            elif isinstance(member, ArrayMember):
+                self.add_array_argument_type(
+                    parent,
+                    system,
+                    name=member_type_name,
+                    data_type=member,
+                )
+            elif isinstance(member, BinaryMember):
+                self.add_binary_argument_type(
+                    parent,
+                    system,
+                    name=member_type_name,
+                    default=None,
+                    data_type=member,
+                )
+            elif isinstance(member, BooleanMember):
+                self.add_boolean_argument_type(
+                    parent,
+                    system,
+                    name=member_type_name,
+                    default=None,
+                    data_type=member,
+                )
+            elif isinstance(member, EnumeratedMember):
+                self.add_enumerated_argument_type(
+                    parent,
+                    system,
+                    name=member_type_name,
+                    default=None,
+                    data_type=member,
+                )
+            elif isinstance(member, FloatMember):
+                self.add_float_argument_type(
+                    parent,
+                    system,
+                    name=member_type_name,
+                    default=None,
+                    data_type=member,
+                )
+            elif isinstance(member, IntegerMember):
+                self.add_integer_argument_type(
+                    parent,
+                    system,
+                    name=member_type_name,
+                    default=None,
+                    data_type=member,
+                )
+            elif isinstance(member, StringMember):
+                self.add_string_argument_type(
+                    parent,
+                    system,
+                    name=member_type_name,
+                    default=None,
+                    data_type=member,
+                )
+            else:
+                raise ExportError(f"Unexpected member type {member.__class__}")
 
     def add_aggregate_parameter_type(
         self,
