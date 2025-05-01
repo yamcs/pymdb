@@ -178,12 +178,17 @@ class XTCE12Generator:
                 if not set_el:
                     set_el = ET.SubElement(parent, "ArgumentTypeSet")
 
+                # Handle ParameterEntrys not having a default
+                default = None
+                if hasattr(argument, 'default'):
+                    default = argument.default
+
                 # Make an argument type unique to each command
                 self.add_argument_type(
                     set_el,
                     system,
                     name=f"{command.name}__{argument.name}",
-                    default=argument.default,
+                    default=default,
                     data_type=argument,
                 )
 
