@@ -442,6 +442,8 @@ class XTCE12Generator:
                 self.add_fixed_value_entry(el, command, entry)
             elif isinstance(entry, ArgumentEntry):
                 self.add_argument_ref_entry(el, command, entry)
+            elif isinstance(entry, ParameterEntry):
+                self.add_parameter_ref_entry(el, command, entry)
             else:
                 raise Exception(f"Unexpected command entry {entry.__class__}")
 
@@ -2222,7 +2224,7 @@ class XTCE12Generator:
     def add_parameter_ref_entry(
         self,
         parent: ET.Element,
-        container: Container,
+        container: Container | Command,
         entry: ParameterEntry,
     ):
         el = ET.SubElement(parent, "ParameterRefEntry")
