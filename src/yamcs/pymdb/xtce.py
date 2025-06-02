@@ -2291,7 +2291,7 @@ class XTCE12Generator:
 
     def make_ref(self, target: str, start: System):
         if target.startswith("/"):
-            if os.path.commonprefix([target, start.qualified_name]) == "/":
+            if os.path.commonpath([target, start.qualified_name]) == "/":
                 return target  # abs path
             else:
                 # posixpath so that we always have forward slashes
