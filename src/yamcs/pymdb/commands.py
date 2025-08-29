@@ -8,6 +8,7 @@ from yamcs.pymdb.containers import ParameterEntry
 from yamcs.pymdb.datatypes import (
     AbsoluteTimeDataType,
     AggregateDataType,
+    ArgumentValue,
     ArrayDataType,
     BinaryDataType,
     BooleanDataType,
@@ -18,6 +19,7 @@ from yamcs.pymdb.datatypes import (
     FloatDataType,
     IntegerDataType,
     Member,
+    ParameterValue,
     StringDataType,
 )
 from yamcs.pymdb.encodings import Encoding, TimeEncoding
@@ -167,7 +169,7 @@ class ArrayArgument(Argument, ArrayDataType):
         self,
         name: str,
         data_type: DataType,
-        length: int,
+        length: int | ArgumentValue | ParameterValue,
         *,
         default: Any = None,
         short_description: str | None = None,

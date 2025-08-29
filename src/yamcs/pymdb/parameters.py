@@ -14,12 +14,12 @@ from yamcs.pymdb.datatypes import (
     BooleanDataType,
     Choices,
     DataType,
-    DynamicInteger,
     EnumeratedDataType,
     Epoch,
     FloatDataType,
     IntegerDataType,
     Member,
+    ParameterValue,
     StringDataType,
 )
 from yamcs.pymdb.encodings import Encoding, TimeEncoding
@@ -250,7 +250,7 @@ class ArrayParameter(Parameter, ArrayDataType):
         system: System,
         name: str,
         data_type: DataType,
-        length: int | DynamicInteger,
+        length: int | ParameterValue,
         aliases: Mapping[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
         initial_value: Any = None,

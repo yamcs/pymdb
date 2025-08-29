@@ -9,10 +9,17 @@ Epoch
    :member-order: bysource
 
 
-DynamicInteger
+ParameterValue
 --------------
 
-.. autoclass:: yamcs.pymdb.DynamicInteger
+.. autoclass:: yamcs.pymdb.ParameterValue
+   :members:
+
+
+ArgumentValue
+-------------
+
+.. autoclass:: yamcs.pymdb.ArgumentValue
    :members:
 
 

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import warnings
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from datetime import datetime
@@ -10,7 +11,8 @@ from yamcs.pymdb.encodings import Encoding, TimeEncoding
 
 if TYPE_CHECKING:
     from yamcs.pymdb.calibrators import Calibrator
-    from yamcs.pymdb.parameters import AbsoluteTimeParameter, IntegerParameter
+    from yamcs.pymdb.commands import Argument
+    from yamcs.pymdb.parameters import AbsoluteTimeParameter, Parameter
 
 
 class Epoch(Enum):
@@ -24,14 +26,40 @@ Choices: TypeAlias = Sequence[tuple[int, str] | tuple[int, str, str]] | type[Enu
 
 
 @dataclass
-class DynamicInteger:
-    parameter: IntegerParameter | str
+class ParameterValue:
+    parameter: Parameter | str
     """
-    Retrieve the value of this parameter.
+    Reference the value of this parameter.
 
-    The parameter may be specified as ``str``, which is intended for referencing
-    a parameter that is not managed with PyMDB.
+    The reference may be specified as ``str``, which is intended for
+    referencing a parameter that is not managed with PyMDB.
     """
+
+
+@dataclass
+class ArgumentValue:
+    argument: Argument | str
+    """
+    Reference the value of this argument.
+
+    The reference may also be specified as ``str``, representing the
+    argument's name.
+    """
+
+
+class DynamicInteger(ParameterValue):
+    """
+    DEPRECATED. Use ParameterValue or ArgumentValue instead.
+    """
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn(
+            "Class 'DynamicInteger' is deprecated and will be removed in a"
+            "future version. Use 'ParameterValue' or 'ArgumentValue' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        super().__init__(*args, **kwargs)
 
 
 class DataType:
@@ -114,7 +142,7 @@ class ArrayDataType(DataType):
     def __init__(
         self,
         data_type: DataType,
-        length: int | DynamicInteger,
+        length: int | ParameterValue | ArgumentValue,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
@@ -128,7 +156,7 @@ class ArrayDataType(DataType):
             encoding=encoding,
         )
         self.data_type: DataType = data_type
-        self.length: int | DynamicInteger = length
+        self.length: int | ParameterValue | ArgumentValue = length
 
 
 class BinaryDataType(DataType):

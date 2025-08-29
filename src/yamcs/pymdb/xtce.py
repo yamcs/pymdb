@@ -37,6 +37,7 @@ from yamcs.pymdb.datatypes import (
     AbsoluteTimeMember,
     AggregateDataType,
     AggregateMember,
+    ArgumentValue,
     ArrayDataType,
     ArrayMember,
     BinaryDataType,
@@ -45,7 +46,6 @@ from yamcs.pymdb.datatypes import (
     BooleanMember,
     Choices,
     DataType,
-    DynamicInteger,
     EnumeratedDataType,
     EnumeratedMember,
     Epoch,
@@ -53,6 +53,7 @@ from yamcs.pymdb.datatypes import (
     FloatMember,
     IntegerDataType,
     IntegerMember,
+    ParameterValue,
     StringDataType,
     StringMember,
 )
@@ -885,12 +886,22 @@ class XTCE12Generator:
         ET.SubElement(start_idx_el, "FixedValue").text = "0"
 
         end_idx_el = ET.SubElement(dim_el, "EndingIndex")
-        if isinstance(data_type.length, DynamicInteger):
+        if isinstance(data_type.length, ArgumentValue):
             dyn_el = ET.SubElement(end_idx_el, "DynamicValue")
             ref_el = ET.SubElement(dyn_el, "ArgumentInstanceRef")
-            parameter = data_type.length.parameter
-            ref_el.attrib["argumentRef"] = self.make_parameter_ref(
-                parameter,
+            reference = data_type.length.argument
+            if isinstance(reference, Argument):
+                ref_el.attrib["argumentRef"] = reference.name
+            else:
+                ref_el.attrib["argumentRef"] = reference
+            adj_el = ET.SubElement(dyn_el, "LinearAdjustment")
+            adj_el.attrib["intercept"] = "-1"
+        elif isinstance(data_type.length, ParameterValue):
+            dyn_el = ET.SubElement(end_idx_el, "DynamicValue")
+            ref_el = ET.SubElement(dyn_el, "ParameterInstanceRef")
+            reference = data_type.length.parameter
+            ref_el.attrib["parameterRef"] = self.make_parameter_ref(
+                reference,
                 start=system,
             )
             adj_el = ET.SubElement(dyn_el, "LinearAdjustment")
@@ -1196,7 +1207,7 @@ class XTCE12Generator:
         ET.SubElement(start_idx_el, "FixedValue").text = "0"
 
         end_idx_el = ET.SubElement(dim_el, "EndingIndex")
-        if isinstance(data_type.length, DynamicInteger):
+        if isinstance(data_type.length, ParameterValue):
             dyn_el = ET.SubElement(end_idx_el, "DynamicValue")
             ref_el = ET.SubElement(dyn_el, "ParameterInstanceRef")
             parameter = data_type.length.parameter
@@ -1206,6 +1217,8 @@ class XTCE12Generator:
             )
             adj_el = ET.SubElement(dyn_el, "LinearAdjustment")
             adj_el.attrib["intercept"] = "-1"
+        elif isinstance(data_type.length, ArgumentValue):
+            raise ExportError("Cannot reference an argument from a parameter type")
         else:
             ET.SubElement(end_idx_el, "FixedValue").text = str(data_type.length - 1)
 
