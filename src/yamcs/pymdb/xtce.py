@@ -176,7 +176,7 @@ class XTCE12Generator:
         for command in system.commands:
             for argument in command.arguments:
                 # Create this lazily, XML should not have this element if it's empty
-                if not set_el:
+                if set_el is None:
                     set_el = ET.SubElement(parent, "ArgumentTypeSet")
 
                 # Make an argument type unique to each command
@@ -2376,7 +2376,7 @@ class XTCE12Generator:
         parent: ET.Element | None = None,
         add_schema_location: bool = False,
     ):
-        if not parent:
+        if parent is None:
             el = ET.Element("SpaceSystem")
             el.attrib["xmlns"] = "http://www.omg.org/spec/XTCE/20180204"
             if add_schema_location:
