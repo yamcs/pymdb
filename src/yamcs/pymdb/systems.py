@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TextIO
 
 from yamcs.pymdb import xtce
 
@@ -210,21 +210,95 @@ class System:
         """
         return self._subsystems_by_name[name]
 
-    def dump(self, fp, indent: str = "  ", top_comment: bool | str = True) -> None:
+    def dump(
+        self,
+        fp: TextIO,
+        *,
+        indent: str = "  ",
+        top_comment: bool | str = True,
+        skip_algorithms: bool = False,
+        skip_commands: bool = False,
+        skip_containers: bool = False,
+        skip_parameters: bool = False,
+        skip_subsystems: bool = False,
+    ) -> None:
         """
         Serialize this system in XTCE format to a file-like object
-        """
-        xml = self.dumps(indent=indent, top_comment=top_comment)
-        fp.write(xml)
 
-    def dumps(self, indent: str = "  ", top_comment: bool | str = True) -> str:
+        :param fp:
+            The file-like object to serialize to. ``fp.write()`` must support
+            ``str`` input.
+        :param indent:
+            String used to indent each level. For most compact, use empty string.
+            Defaults to two spaces.
+        :param top_comment:
+            Customize the XML comment to insert at the top of the generated XTCE.
+            Set to ``false`` to have no top comment.
+        :param skip_algorithms:
+            If ``True``, skip the ``<AlgorithmSet />`` tag within
+            ``<TelemetryMetaData />``.
+        :param skip_commands:
+            If ``True``, skip the ``<CommandMetaData />`` tag.
+        :param skip_containers:
+            If ``True``, skip the ``<ContainerSet />`` tag within
+            ``<TelemetryMetaData />``.
+        :param skip_parameters:
+            If ``True``, skip the ``<ParameterSet />`` and ``<ParameterTypeSet />``
+            within ``<TelemetryMetaData />``.
         """
-        Serialize this system to an XTCE formatted string
-        """
-        return xtce.XTCE12Generator(self).to_xtce(
+        xml = self.dumps(
             indent=indent,
             top_comment=top_comment,
+            skip_algorithms=skip_algorithms,
+            skip_commands=skip_commands,
+            skip_containers=skip_containers,
+            skip_parameters=skip_parameters,
+            skip_subsystems=skip_subsystems,
         )
+        fp.write(xml)
+
+    def dumps(
+        self,
+        *,
+        indent: str = "  ",
+        top_comment: bool | str = True,
+        skip_algorithms: bool = False,
+        skip_commands: bool = False,
+        skip_containers: bool = False,
+        skip_parameters: bool = False,
+        skip_subsystems: bool = False,
+    ) -> str:
+        """
+        Serialize this system to an XTCE-formatted string
+
+        :param indent:
+            String used to indent each level. For most compact, use empty string.
+            Defaults to two spaces.
+        :param top_comment:
+            Customize the XML comment to insert at the top of the generated XTCE.
+            Set to ``false`` to have no top comment.
+        :param skip_algorithms:
+            If ``True``, skip the ``<AlgorithmSet />`` tag within
+            ``<TelemetryMetaData />``.
+        :param skip_commands:
+            If ``True``, skip the ``<CommandMetaData />`` tag.
+        :param skip_containers:
+            If ``True``, skip the ``<ContainerSet />`` tag within
+            ``<TelemetryMetaData />``.
+        :param skip_parameters:
+            If ``True``, skip the ``<ParameterSet />`` and ``<ParameterTypeSet />``
+            within ``<TelemetryMetaData />``.
+        """
+        return xtce.XTCE12Generator(
+            self,
+            indent=indent,
+            top_comment=top_comment,
+            skip_algorithms=skip_algorithms,
+            skip_commands=skip_commands,
+            skip_containers=skip_containers,
+            skip_parameters=skip_parameters,
+            skip_subsystems=skip_subsystems,
+        ).to_xtce()
 
     def __lt__(self, other: System) -> bool:
         return self.qualified_name < other.qualified_name

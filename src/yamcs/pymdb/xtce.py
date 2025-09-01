@@ -139,35 +139,51 @@ def _to_isoduration(seconds: float):
 
 
 class XTCE12Generator:
-    def __init__(self, system: System):
-        self.system = system
-
-    def to_xtce(
+    def __init__(
         self,
+        system: System,
+        *,
         indent="",
         add_schema_location: bool = True,
         top_comment: bool | str = True,
-    ) -> str:
+        skip_algorithms: bool = False,
+        skip_commands: bool = False,
+        skip_containers: bool = False,
+        skip_parameters: bool = False,
+        skip_subsystems: bool = False,
+    ):
+        self.indent = indent
+        self.add_schema_location = add_schema_location
+        self.top_comment = top_comment
+        self.system = system
+        self.skip_algorithms = skip_algorithms
+        self.skip_commands = skip_commands
+        self.skip_containers = skip_containers
+        self.skip_parameters = skip_parameters
+        self.skip_subsystems = skip_subsystems
+
+    def to_xtce(self) -> str:
         el = self.generate_space_system(
             self.system,
-            add_schema_location=add_schema_location,
+            add_schema_location=self.add_schema_location,
         )
         xtce = ET.tostring(el, encoding="unicode")
         xtce_dom = minidom.parseString(xtce)
 
+        top_comment = self.top_comment
         if top_comment is True:
             top_comment = (
-                "\nThis file was automatically generated with Yamcs PyMDB.\n"
+                "\nThis file was generated with Yamcs PyMDB.\n"
                 "See https://github.com/yamcs/pymdb\n"
             )
         if top_comment:
             comment_el = xtce_dom.createComment(top_comment)
             xtce_dom.insertBefore(comment_el, xtce_dom.firstChild)
-        return xtce_dom.toprettyxml(indent=indent)
+        return xtce_dom.toprettyxml(indent=self.indent)
 
     def add_command_metadata(self, parent: ET.Element, system: System):
         el = ET.SubElement(parent, "CommandMetaData")
-        if system.commands:
+        if not self.skip_commands and system.commands:
             self.add_argument_type_set(el, system)
             self.add_meta_command_set(el, system)
 
@@ -534,10 +550,13 @@ class XTCE12Generator:
 
     def add_telemetry_metadata(self, parent: ET.Element, system: System):
         el = ET.SubElement(parent, "TelemetryMetaData")
-        self.add_parameter_type_set(el, system)
-        self.add_parameter_set(el, system)
-        self.add_container_set(el, system)
-        self.add_algorithm_set(el, system)
+        if not self.skip_parameters:
+            self.add_parameter_type_set(el, system)
+            self.add_parameter_set(el, system)
+        if not self.skip_containers:
+            self.add_container_set(el, system)
+        if not self.skip_algorithms:
+            self.add_algorithm_set(el, system)
 
     def add_algorithm_set(self, parent: ET.Element, system: System):
         if not system.algorithms:
@@ -2404,5 +2423,6 @@ class XTCE12Generator:
 
         self.add_telemetry_metadata(el, system)
         self.add_command_metadata(el, system)
-        self.add_space_systems(el, system)
+        if not self.skip_subsystems:
+            self.add_space_systems(el, system)
         return el
