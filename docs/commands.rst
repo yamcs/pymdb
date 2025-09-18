@@ -44,8 +44,8 @@ ArrayArgument
    :members:
 
 
-BinartyArgument
----------------
+BinaryArgument
+--------------
 
 .. autoclass:: yamcs.pymdb.BinaryArgument
    :members:
@@ -73,7 +73,7 @@ FloatArgument
 
 
 IntegerArgument
-------------------
+---------------
 
 .. autoclass:: yamcs.pymdb.IntegerArgument
    :members:
