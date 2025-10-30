@@ -208,7 +208,7 @@ class StringEncoding(Encoding):
         length_bits: int | None = None,
         max_bits: int | None = 8388608,
         charset: Charset = Charset.US_ASCII,
-        termination: bytes = b"\0",
+        termination: bytes | None = b"\0",
     ) -> None:
         super().__init__(bits=bits)
 
@@ -226,7 +226,7 @@ class StringEncoding(Encoding):
         """
 
         self.charset: Charset = charset
-        self.termination: bytes = termination
+        self.termination: bytes | None = termination
 
 
 uint1_t = IntegerEncoding(bits=1, scheme=IntegerEncodingScheme.UNSIGNED)
