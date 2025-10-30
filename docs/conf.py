@@ -1,4 +1,4 @@
-import pkg_resources
+from importlib.metadata import version as get_pkg_version
 
 # -- Path setup --------------------------------------------------------------
 
@@ -15,8 +15,7 @@ author = "Yamcs Team"
 version = ""
 
 # The full version, including alpha/beta/rc tags
-dist = pkg_resources.get_distribution("yamcs-pymdb")
-release = dist.version
+release = get_pkg_version("yamcs-pymdb")
 
 extensions = [
     "sphinx.ext.autodoc",
