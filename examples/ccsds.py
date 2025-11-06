@@ -1,15 +1,16 @@
-from yamcs.pymdb import ArgumentEntry, Command, IntegerArgument, System, ccsds, uint16_t
+import yamcs.pymdb as Y
+from yamcs.pymdb import ccsds
 
-spacecraft = System("Spacecraft")
+spacecraft = Y.System("Spacecraft")
 ccsds_header = ccsds.add_ccsds_header(spacecraft)
 
-command_id = IntegerArgument(
+command_id = Y.IntegerArgument(
     name="command_id",
     signed=False,
-    encoding=uint16_t,
+    encoding=Y.uint16_t,
 )
 
-project_command = Command(
+project_command = Y.Command(
     system=spacecraft,
     name="MyProjectPacket",
     abstract=True,
@@ -22,49 +23,49 @@ project_command = Command(
         command_id,
     ],
     entries=[
-        ArgumentEntry(command_id),
+        Y.ArgumentEntry(command_id),
     ],
 )
 
-reboot_command = Command(
+reboot_command = Y.Command(
     system=spacecraft,
     base=project_command,
     name="Reboot",
     assignments={command_id.name: 1},
 )
 
-switch_voltage_on = Command(
+switch_voltage_on = Y.Command(
     system=spacecraft,
     base=project_command,
     name="SwitchVoltageOn",
     short_description="Switches a battery on",
     assignments={command_id.name: 2},
     arguments=[
-        IntegerArgument(
+        Y.IntegerArgument(
             name="battery",
             short_description="Number of the battery",
             signed=False,
             minimum=1,
             maximum=3,
-            encoding=uint16_t,
+            encoding=Y.uint16_t,
         ),
     ],
 )
 
-switch_voltage_off = Command(
+switch_voltage_off = Y.Command(
     system=spacecraft,
     base=project_command,
     name="SwitchVoltageOff",
     short_description="Switches a battery off",
     assignments={command_id.name: 3},
     arguments=[
-        IntegerArgument(
+        Y.IntegerArgument(
             name="battery",
             short_description="Number of the battery",
             signed=False,
             minimum=1,
             maximum=3,
-            encoding=uint16_t,
+            encoding=Y.uint16_t,
         ),
     ],
 )
