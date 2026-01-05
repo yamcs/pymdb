@@ -7,7 +7,7 @@ with io.open("README.md", encoding="utf-8") as f:
 
 setuptools.setup(
     name="yamcs-pymdb",
-    version="1.1.0",
+    version="1.2.0",
     description="Generate XTCE for use with Yamcs",
     long_description=readme,
     long_description_content_type="text/markdown",
@@ -29,6 +29,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: 3.13",
+        "Programming Language :: Python :: 3.14",
         "Operating System :: OS Independent",
     ],
     keywords=["packet telemetry ccsds xtce yamcs"],
