@@ -3,6 +3,26 @@ name: CI
 on: [push, pull_request]
 
 jobs:
+  examples:
+    name: Examples
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Set up pymdb
+        run: |
+          pip install --upgrade pip
+          pip install -e .
+      - name: Run examples
+        run: |
+          cd examples
+          python ccsds.py
+          python csp.py
   lint:
     name: Lint
     runs-on: ubuntu-latest
