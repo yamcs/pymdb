@@ -493,7 +493,7 @@ class FixedValueEntry:
         """
 
 
-CommandEntry = ArgumentEntry | ParameterEntry | FixedValueEntry
+CommandEntry = Union[ArgumentEntry, ParameterEntry, FixedValueEntry]
 
 
 class TransmissionConstraint:

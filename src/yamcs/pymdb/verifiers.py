@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import TYPE_CHECKING, TypeAlias
+from typing import TYPE_CHECKING, Union
 
 if TYPE_CHECKING:
     from yamcs.pymdb.algorithms import UnnamedAlgorithm
@@ -31,7 +31,7 @@ class ExpressionCheck:
         self.expression = expression
 
 
-Check: TypeAlias = AlgorithmCheck | ContainerCheck | ExpressionCheck
+Check = Union[AlgorithmCheck, ContainerCheck, ExpressionCheck]
 
 
 @dataclass

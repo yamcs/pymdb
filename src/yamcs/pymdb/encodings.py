@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from enum import Enum, auto
-from typing import TYPE_CHECKING, TypeAlias
+from typing import TYPE_CHECKING, Union
 
 if TYPE_CHECKING:
     from yamcs.pymdb.algorithms import UnnamedAlgorithm
@@ -198,7 +198,7 @@ class IntegerTimeEncoding(IntegerEncoding):
         self.scale: float = scale
 
 
-TimeEncoding: TypeAlias = FloatTimeEncoding | IntegerTimeEncoding
+TimeEncoding = Union[FloatTimeEncoding, IntegerTimeEncoding]
 
 
 class StringEncoding(Encoding):

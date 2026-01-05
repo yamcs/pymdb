@@ -5,7 +5,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum, auto
-from typing import TYPE_CHECKING, Any, Literal, TypeAlias
+from typing import TYPE_CHECKING, Any, Literal, Type, Union
 
 from yamcs.pymdb.encodings import Encoding, TimeEncoding
 
@@ -22,7 +22,7 @@ class Epoch(Enum):
     UNIX = auto()
 
 
-Choices: TypeAlias = Sequence[tuple[int, str] | tuple[int, str, str]] | type[Enum]
+Choices = Union[Sequence[Union[tuple[int, str], tuple[int, str, str]]], Type[Enum]]
 
 
 @dataclass
