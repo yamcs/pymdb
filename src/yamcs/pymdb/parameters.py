@@ -23,6 +23,7 @@ from yamcs.pymdb.datatypes import (
     StringDataType,
 )
 from yamcs.pymdb.encodings import Encoding, TimeEncoding
+from yamcs.pymdb.exceptions import DuplicateNameError
 
 if TYPE_CHECKING:
     from yamcs.pymdb.alarms import EnumerationContextAlarm, ThresholdContextAlarm
@@ -134,7 +135,7 @@ class Parameter(DataType):
         """
 
         if name in system._parameters_by_name:
-            raise Exception(f"System already contains a parameter {name}")
+            raise DuplicateNameError(f"Parameter '{name}' already exists in system")
         system._parameters_by_name[name] = self
 
     @property

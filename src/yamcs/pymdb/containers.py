@@ -9,6 +9,7 @@ from yamcs.pymdb.datatypes import (
     ArrayDataType,
     ParameterValue,
 )
+from yamcs.pymdb.exceptions import DuplicateNameError, SizeCalculationError
 
 if TYPE_CHECKING:
     from yamcs.pymdb.expressions import Expression
@@ -174,11 +175,7 @@ class Container:
         """Restriction criteria for this container."""
 
         if name in system._containers_by_name:
-            raise Exception(
-                "System {} already contains a container {}".format(
-                    system.qualified_name, name
-                )
-            )
+            raise DuplicateNameError(f"Container '{name}' already exists in system")
 
         system._containers_by_name[name] = self
 
@@ -217,9 +214,13 @@ class Container:
                     encoding = parameter.data_type.encoding
                     if encoding and encoding.bits:
                         if isinstance(length, ParameterValue):
-                            raise Exception("Cannot determine parameter value")
+                            raise SizeCalculationError(
+                                "Cannot determine fixed size of parameter value"
+                            )
                         elif isinstance(length, ArgumentValue):
-                            raise Exception("Cannot determine argument value")
+                            raise SizeCalculationError(
+                                "Cannot determine fixed size of argument value"
+                            )
                         bits = length * encoding.bits
                 elif isinstance(parameter, AggregateDataType):
                     raise NotImplementedError()
@@ -227,7 +228,9 @@ class Container:
                     bits = parameter.encoding.bits
 
                 if not bits:
-                    raise Exception(f"Cannot determine size of {entry.parameter}")
+                    raise SizeCalculationError(
+                        f"Cannot determine fixed size of {entry.parameter}"
+                    )
 
                 pos = entry.bitpos
                 if pos is None:

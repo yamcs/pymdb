@@ -4,6 +4,7 @@ from collections.abc import Mapping
 from typing import TYPE_CHECKING, Literal, TextIO
 
 from yamcs.pymdb import xtce
+from yamcs.pymdb.exceptions import DuplicateNameError
 
 if TYPE_CHECKING:
     from yamcs.pymdb.algorithms import Algorithm
@@ -113,8 +114,6 @@ class System:
     def remove_parameter(self, name: str) -> bool:
         """
         Removes a parameter directly belonging to this system.
-
-        Raises an exception if no such parameter exists
         """
         try:
             self._parameters_by_name.pop(name)
@@ -125,8 +124,6 @@ class System:
     def remove_command(self, name: str) -> bool:
         """
         Removes a command directly belonging to this system.
-
-        Raises an exception if no such command exists
         """
         try:
             self._commands_by_name.pop(name)
@@ -137,8 +134,6 @@ class System:
     def remove_container(self, name: str) -> bool:
         """
         Removes a container directly belonging to this system.
-
-        Raises an exception if no such container exists
         """
         try:
             self._containers_by_name.pop(name)
@@ -149,8 +144,6 @@ class System:
     def remove_algorithm(self, name: str) -> bool:
         """
         Removes an algorithm directly belonging to this system.
-
-        Raises an exception if no such algorithm exists
         """
         try:
             self._algorithms_by_name.pop(name)
@@ -161,8 +154,6 @@ class System:
     def remove_subsystem(self, name: str) -> bool:
         """
         Removes a subsystem directly belonging to this system.
-
-        Raises an exception if no such subsystem exists
         """
         try:
             self._subsystems_by_name.pop(name)
@@ -299,7 +290,7 @@ class System:
         elif format == "xtce-1.3":
             xtce_version = "1.3"
         else:
-            raise Exception(f"Unexpected format {format}")
+            raise ValueError(f"Unsupported format: {format}")
 
         return xtce.XTCEGenerator(
             self,
@@ -347,8 +338,8 @@ class Subsystem(System):
         """Parent system"""
 
         if name in system._subsystems_by_name:
-            raise Exception(
-                "System {} already contains a subsystem {}".format(
+            raise DuplicateNameError(
+                "Subsystem '{}' already exists in parent system '{}'".format(
                     system.qualified_name, name
                 )
             )

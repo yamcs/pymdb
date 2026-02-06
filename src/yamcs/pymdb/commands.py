@@ -23,6 +23,7 @@ from yamcs.pymdb.datatypes import (
     StringDataType,
 )
 from yamcs.pymdb.encodings import Encoding, TimeEncoding
+from yamcs.pymdb.exceptions import DuplicateNameError
 from yamcs.pymdb.expressions import Expression
 from yamcs.pymdb.verifiers import (
     AcceptedVerifier,
@@ -586,7 +587,7 @@ class Command:
         """Message explaining the importance of this telecommand"""
 
         if name in system._commands_by_name:
-            raise Exception(f"System already contains a command {name}")
+            raise DuplicateNameError(f"Command '{name}' already exists in system")
         system._commands_by_name[name] = self
 
     @property

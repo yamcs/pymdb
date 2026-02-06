@@ -4,6 +4,7 @@ from collections.abc import Mapping, Sequence
 from typing import TYPE_CHECKING
 
 from yamcs.pymdb.ancillary import AncillaryData
+from yamcs.pymdb.exceptions import DuplicateNameError
 
 if TYPE_CHECKING:
     from yamcs.pymdb.containers import Container
@@ -61,7 +62,7 @@ class Algorithm:
         """Algorithm triggers"""
 
         if name in system._algorithms_by_name:
-            raise Exception(f"System already contains an algorithm {name}")
+            raise DuplicateNameError(f"Algorithm '{name}' already exists in system")
         system._algorithms_by_name[name] = self
 
     @property
