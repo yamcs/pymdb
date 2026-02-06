@@ -462,7 +462,7 @@ class XTCE12Generator:
             elif isinstance(entry, ParameterEntry):
                 self.add_parameter_ref_entry(el, command, entry)
             else:
-                raise Exception(f"Unexpected command entry {entry.__class__}")
+                raise ExportError(f"Unexpected command entry {entry.__class__}")
 
     def add_fixed_value_entry(
         self,
@@ -697,9 +697,9 @@ class XTCE12Generator:
             if data_type.reference == Epoch.UNIX:
                 epoch_el.text = "UNIX"
             else:
-                raise Exception(f"Unexpected epoch {data_type.reference}")
+                raise ExportError(f"Unexpected epoch {data_type.reference}")
         else:
-            raise Exception("Arguments can only reference epoch")
+            raise ExportError("Arguments can only reference epoch")
 
     def add_binary_argument_type(
         self,
@@ -1344,7 +1344,7 @@ class XTCE12Generator:
             elif data_type.reference == Epoch.UNIX:
                 epoch_el.text = "UNIX"
             else:
-                raise Exception(f"Unexpected epoch {data_type.reference}")
+                raise ExportError(f"Unexpected epoch {data_type.reference}")
         elif isinstance(data_type.reference, datetime):
             epoch_el = ET.SubElement(ref_el, "Epoch")
             if data_type.reference.tzinfo:
@@ -1628,7 +1628,7 @@ class XTCE12Generator:
         elif level == AlarmLevel.SEVERE:
             return "severe"
         else:
-            raise Exception("Unexpected alarm level")
+            raise ExportError("Unexpected alarm level")
 
     def add_static_alarm_ranges(self, parent: ET.Element, alarm: ThresholdAlarm):
         ranges_el = ET.SubElement(parent, "StaticAlarmRanges")
@@ -1725,7 +1725,7 @@ class XTCE12Generator:
                 raise ExportError("XTCE does not allow calibrators with StringEncoding")
             self.add_string_data_encoding(parent, encoding)
         else:
-            raise Exception("Unexpected encoding")
+            raise ExportError("Unexpected encoding")
 
     def add_binary_data_encoding(
         self, parent: ET.Element, system: System, encoding: BinaryEncoding
@@ -1882,7 +1882,7 @@ class XTCE12Generator:
         elif encoding.charset == Charset.UTF_32BE:
             el.attrib["encoding"] = "UTF-32BE"
         else:
-            raise Exception(f"Unexpected charset {encoding.charset}")
+            raise ExportError(f"Unexpected charset {encoding.charset}")
 
         if encoding.bits is not None:
             size_el = ET.SubElement(el, "SizeInBits")
@@ -2204,7 +2204,7 @@ class XTCE12Generator:
             for expression in expression.expressions:
                 self.add_expression_condition(el, system, expression)
         else:
-            raise Exception(f"Unexpected expression condition {expression.__class__}")
+            raise ExportError(f"Unexpected expression condition {expression.__class__}")
 
     def add_condition(
         self,
