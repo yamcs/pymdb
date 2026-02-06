@@ -7,7 +7,7 @@ from binascii import hexlify
 from collections.abc import Mapping
 from datetime import datetime, timezone
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Sequence, cast
+from typing import TYPE_CHECKING, Any, Literal, Sequence, cast
 from xml.dom import minidom
 
 from yamcs.pymdb.alarms import AlarmLevel, ThresholdAlarm, ThresholdContextAlarm
@@ -138,11 +138,12 @@ def _to_isoduration(seconds: float):
     return "P" + (str(d) + "D" if d else "") + sep + (t if seconds else "T0S")
 
 
-class XTCE12Generator:
+class XTCEGenerator:
     def __init__(
         self,
         system: System,
         *,
+        version: Literal["1.2", "1.3"],
         indent="",
         add_schema_location: bool = True,
         top_comment: bool | str = True,
@@ -152,6 +153,7 @@ class XTCE12Generator:
         skip_parameters: bool = False,
         skip_subsystems: bool = False,
     ):
+        self.version = version
         self.indent = indent
         self.add_schema_location = add_schema_location
         self.top_comment = top_comment
@@ -161,6 +163,12 @@ class XTCE12Generator:
         self.skip_containers = skip_containers
         self.skip_parameters = skip_parameters
         self.skip_subsystems = skip_subsystems
+
+    def is_1_2(self):
+        return self.version == "1.2"
+
+    def is_1_3(self):
+        return self.version == "1.3"
 
     def to_xtce(self) -> str:
         el = self.generate_space_system(
@@ -2397,13 +2405,22 @@ class XTCE12Generator:
     ):
         if parent is None:
             el = ET.Element("SpaceSystem")
-            el.attrib["xmlns"] = "http://www.omg.org/spec/XTCE/20180204"
-            if add_schema_location:
-                el.attrib["xmlns:xsi"] = "http://www.w3.org/2001/XMLSchema-instance"
-                el.attrib["xsi:schemaLocation"] = "{} {}".format(
-                    "http://www.omg.org/spec/XTCE/20180204",
-                    "https://www.omg.org/spec/XTCE/20180204/SpaceSystem.xsd",
-                )
+            if self.is_1_2():
+                el.attrib["xmlns"] = "http://www.omg.org/spec/XTCE/20180204"
+                if add_schema_location:
+                    el.attrib["xmlns:xsi"] = "http://www.w3.org/2001/XMLSchema-instance"
+                    el.attrib["xsi:schemaLocation"] = "{} {}".format(
+                        "http://www.omg.org/spec/XTCE/20180204",
+                        "https://www.omg.org/spec/XTCE/20180204/SpaceSystem.xsd",
+                    )
+            elif self.is_1_3():
+                el.attrib["xmlns"] = "http://www.omg.org/spec/XTCE/20250214"
+                if add_schema_location:
+                    el.attrib["xmlns:xsi"] = "http://www.w3.org/2001/XMLSchema-instance"
+                    el.attrib["xsi:schemaLocation"] = "{} {}".format(
+                        "http://www.omg.org/spec/XTCE/20250214",
+                        "https://www.omg.org/spec/XTCE/20250214/SpaceSystem.xsd",
+                    )
         else:
             el = ET.SubElement(parent, "SpaceSystem")
 

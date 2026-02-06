@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, TextIO
+from typing import TYPE_CHECKING, Literal, TextIO
 
 from yamcs.pymdb import xtce
 
@@ -214,6 +214,7 @@ class System:
         self,
         fp: TextIO,
         *,
+        format: Literal["xtce-1.2", "xtce-1.3"] = "xtce-1.2",
         indent: str = "  ",
         top_comment: bool | str = True,
         skip_algorithms: bool = False,
@@ -247,6 +248,7 @@ class System:
             within ``<TelemetryMetaData />``.
         """
         xml = self.dumps(
+            format=format,
             indent=indent,
             top_comment=top_comment,
             skip_algorithms=skip_algorithms,
@@ -260,6 +262,7 @@ class System:
     def dumps(
         self,
         *,
+        format: Literal["xtce-1.2", "xtce-1.3"] = "xtce-1.2",
         indent: str = "  ",
         top_comment: bool | str = True,
         skip_algorithms: bool = False,
@@ -271,6 +274,8 @@ class System:
         """
         Serialize this system to an XTCE-formatted string
 
+        :param format:
+            Output format.
         :param indent:
             String used to indent each level. For most compact, use empty string.
             Defaults to two spaces.
@@ -289,8 +294,16 @@ class System:
             If ``True``, skip the ``<ParameterSet />`` and ``<ParameterTypeSet />``
             within ``<TelemetryMetaData />``.
         """
-        return xtce.XTCE12Generator(
+        if format == "xtce-1.2":
+            xtce_version = "1.2"
+        elif format == "xtce-1.3":
+            xtce_version = "1.3"
+        else:
+            raise Exception(f"Unexpected format {format}")
+
+        return xtce.XTCEGenerator(
             self,
+            version=xtce_version,
             indent=indent,
             top_comment=top_comment,
             skip_algorithms=skip_algorithms,
