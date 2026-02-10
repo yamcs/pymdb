@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from datetime import datetime
 from enum import Enum, auto
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Generic, Literal, TypeVar
 
 from yamcs.pymdb.alarms import EnumerationAlarm, ThresholdAlarm
 from yamcs.pymdb.datatypes import (
@@ -64,7 +64,10 @@ class DataSource(Enum):
     """
 
 
-class Parameter(DataType):
+InitialValueT = TypeVar("InitialValueT")
+
+
+class Parameter(DataType, Generic[InitialValueT]):
     """
     Base class for a telemetry parameter.
 
@@ -91,7 +94,7 @@ class Parameter(DataType):
         *,
         aliases: Mapping[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
-        initial_value: Any = None,
+        initial_value: InitialValueT | None = None,
         persistent: bool = True,
         short_description: str | None = None,
         long_description: str | None = None,
@@ -122,7 +125,7 @@ class Parameter(DataType):
         value
         """
 
-        self.initial_value: Any = initial_value
+        self.initial_value: InitialValueT | None = initial_value
         """Initial value"""
 
         self.persistent: bool = persistent
@@ -161,7 +164,7 @@ class Parameter(DataType):
         return self.qualified_name
 
 
-class AbsoluteTimeParameter(Parameter, AbsoluteTimeDataType):
+class AbsoluteTimeParameter(Parameter[datetime], AbsoluteTimeDataType):
     """
     A parameter where engineering values represent an instant in time
     """
@@ -173,7 +176,7 @@ class AbsoluteTimeParameter(Parameter, AbsoluteTimeDataType):
         reference: Epoch | datetime | AbsoluteTimeParameter,
         aliases: Mapping[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
-        initial_value: Any = None,
+        initial_value: datetime | None = None,
         persistent: bool = True,
         short_description: str | None = None,
         long_description: str | None = None,
@@ -201,7 +204,7 @@ class AbsoluteTimeParameter(Parameter, AbsoluteTimeDataType):
         )
 
 
-class AggregateParameter(Parameter, AggregateDataType):
+class AggregateParameter(Parameter[Mapping[str, Any]], AggregateDataType):
     """
     A parameter where engineering values represent a structure of other
     data types, referred to as `members`
@@ -214,7 +217,7 @@ class AggregateParameter(Parameter, AggregateDataType):
         members: Sequence[Member],
         aliases: Mapping[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
-        initial_value: Any = None,
+        initial_value: Mapping[str, Any] | None = None,
         persistent: bool = True,
         short_description: str | None = None,
         long_description: str | None = None,
@@ -240,7 +243,7 @@ class AggregateParameter(Parameter, AggregateDataType):
         )
 
 
-class ArrayParameter(Parameter, ArrayDataType):
+class ArrayParameter(Parameter[Sequence[Any]], ArrayDataType):
     """
     A parameter where engineering values represent an array where each element
     is of another data type
@@ -254,7 +257,7 @@ class ArrayParameter(Parameter, ArrayDataType):
         length: int | ParameterValue,
         aliases: Mapping[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
-        initial_value: Any = None,
+        initial_value: Sequence[Any] | None = None,
         persistent: bool = True,
         short_description: str | None = None,
         long_description: str | None = None,
@@ -281,7 +284,7 @@ class ArrayParameter(Parameter, ArrayDataType):
         )
 
 
-class BinaryParameter(Parameter, BinaryDataType):
+class BinaryParameter(Parameter[bytes | bytearray | str], BinaryDataType):
     """
     A parameter where engineering values represent binary
     """
@@ -294,7 +297,7 @@ class BinaryParameter(Parameter, BinaryDataType):
         max_length: int | None = None,
         aliases: Mapping[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
-        initial_value: Any = None,
+        initial_value: bytes | bytearray | str | None = None,
         persistent: bool = True,
         short_description: str | None = None,
         long_description: str | None = None,
@@ -323,7 +326,7 @@ class BinaryParameter(Parameter, BinaryDataType):
         )
 
 
-class BooleanParameter(Parameter, BooleanDataType):
+class BooleanParameter(Parameter[bool | str], BooleanDataType):
     """
     A parameter where engineering values represent a boolean enumeration
     """
@@ -336,7 +339,7 @@ class BooleanParameter(Parameter, BooleanDataType):
         one_string_value: str = "True",
         aliases: Mapping[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
-        initial_value: Any = None,
+        initial_value: bool | str | None = None,
         persistent: bool = True,
         short_description: str | None = None,
         long_description: str | None = None,
@@ -365,7 +368,7 @@ class BooleanParameter(Parameter, BooleanDataType):
         )
 
 
-class EnumeratedParameter(Parameter, EnumeratedDataType):
+class EnumeratedParameter(Parameter[str | Enum], EnumeratedDataType):
     """
     A parameter where engineering values represent states in an enumeration
     """
@@ -379,7 +382,7 @@ class EnumeratedParameter(Parameter, EnumeratedDataType):
         context_alarms: Sequence[EnumerationContextAlarm] | None = None,
         aliases: Mapping[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
-        initial_value: Any = None,
+        initial_value: str | Enum | None = None,
         persistent: bool = True,
         short_description: str | None = None,
         long_description: str | None = None,
@@ -413,7 +416,7 @@ class EnumeratedParameter(Parameter, EnumeratedDataType):
         """Alarm specification when a specific context expression applies"""
 
 
-class FloatParameter(Parameter, FloatDataType):
+class FloatParameter(Parameter[float], FloatDataType):
     """
     A parameter where engineering values represent a decimal
     """
@@ -429,7 +432,7 @@ class FloatParameter(Parameter, FloatDataType):
         maximum_inclusive: bool = True,
         aliases: Mapping[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
-        initial_value: Any = None,
+        initial_value: float | None = None,
         persistent: bool = True,
         short_description: str | None = None,
         long_description: str | None = None,
@@ -471,7 +474,7 @@ class FloatParameter(Parameter, FloatDataType):
         """Alarm specification when a specific context expression applies"""
 
 
-class IntegerParameter(Parameter, IntegerDataType):
+class IntegerParameter(Parameter[int], IntegerDataType):
     """
     A parameter where engineering values represent an integer
     """
@@ -486,7 +489,7 @@ class IntegerParameter(Parameter, IntegerDataType):
         maximum: int | None = None,
         aliases: Mapping[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
-        initial_value: Any = None,
+        initial_value: int | None = None,
         persistent: bool = True,
         short_description: str | None = None,
         long_description: str | None = None,
@@ -527,7 +530,7 @@ class IntegerParameter(Parameter, IntegerDataType):
         """Alarm specification when a specific context expression applies"""
 
 
-class StringParameter(Parameter, StringDataType):
+class StringParameter(Parameter[str], StringDataType):
     """
     A parameter where engineering values represent a character string
     """
@@ -540,7 +543,7 @@ class StringParameter(Parameter, StringDataType):
         max_length: int | None = None,
         aliases: Mapping[str, str] | None = None,
         data_source: DataSource = DataSource.TELEMETERED,
-        initial_value: Any = None,
+        initial_value: str | None = None,
         persistent: bool = True,
         short_description: str | None = None,
         long_description: str | None = None,

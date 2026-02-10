@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 import posixpath
 import xml.etree.ElementTree as ET
@@ -118,12 +119,26 @@ if TYPE_CHECKING:
 def _to_xml_value(value: Any):
     if isinstance(value, (bytes, bytearray)):
         return hexlify(value).decode("ascii")
+    elif isinstance(value, str):
+        return value
     elif isinstance(value, bool):
         return "true" if value else "false"
     elif isinstance(value, Enum):
         return value.name
+    elif isinstance(value, Mapping):
+        return json.dumps(value)
+    elif isinstance(value, Sequence):
+        return json.dumps(value)
     else:
         return str(value)
+
+
+def _datetime_to_xsd(dt: datetime) -> str:
+    if dt.tzinfo:
+        utctime = dt.astimezone(tz=timezone.utc)
+        return utctime.isoformat().replace("+00:00", "Z")
+    else:
+        return dt.isoformat() + "Z"
 
 
 def _to_isoduration(seconds: float):
@@ -586,6 +601,7 @@ class XTCEGenerator:
                     el,
                     system,
                     name=parameter.name,
+                    initial_value=parameter.initial_value,
                     data_type=parameter,
                 )
             elif isinstance(parameter, AggregateParameter):
@@ -593,6 +609,7 @@ class XTCEGenerator:
                     el,
                     system,
                     name=parameter.name,
+                    initial_value=parameter.initial_value,
                     data_type=parameter,
                 )
             elif isinstance(parameter, ArrayParameter):
@@ -600,6 +617,7 @@ class XTCEGenerator:
                     el,
                     system,
                     name=parameter.name,
+                    initial_value=parameter.initial_value,
                     data_type=parameter,
                 )
             elif isinstance(parameter, BinaryParameter):
@@ -666,7 +684,9 @@ class XTCEGenerator:
         data_type: DataType,
     ):
         if isinstance(data_type, AbsoluteTimeDataType):
-            self.add_absolute_time_argument_type(parent, system, name, data_type)
+            self.add_absolute_time_argument_type(
+                parent, system, name, default, data_type
+            )
         elif isinstance(data_type, BinaryDataType):
             self.add_binary_argument_type(parent, system, name, default, data_type)
         elif isinstance(data_type, BooleanDataType):
@@ -680,9 +700,9 @@ class XTCEGenerator:
         elif isinstance(data_type, StringDataType):
             self.add_string_argument_type(parent, system, name, default, data_type)
         elif isinstance(data_type, ArrayDataType):
-            self.add_array_argument_type(parent, system, name, data_type)
+            self.add_array_argument_type(parent, system, name, default, data_type)
         elif isinstance(data_type, AggregateDataType):
-            self.add_aggregate_argument_type(parent, system, name, data_type)
+            self.add_aggregate_argument_type(parent, system, name, default, data_type)
         else:
             raise ExportError(f"Unexpected data type {data_type.__class__}")
 
@@ -691,10 +711,14 @@ class XTCEGenerator:
         parent: ET.Element,
         system: System,
         name: str,
+        default: datetime | None,
         data_type: AbsoluteTimeDataType,
     ):
         el = ET.SubElement(parent, "AbsoluteTimeArgumentType")
         el.attrib["name"] = name
+
+        if default:
+            el.attrib["initialValue"] = _datetime_to_xsd(default)
 
         if data_type.encoding:
             self.add_data_encoding(el, system, data_type.encoding)
@@ -715,7 +739,7 @@ class XTCEGenerator:
         parent: ET.Element,
         system: System,
         name: str,
-        default: Any,
+        default: bytes | bytearray | str | None,
         data_type: BinaryDataType,
     ):
         el = ET.SubElement(parent, "BinaryArgumentType")
@@ -746,7 +770,7 @@ class XTCEGenerator:
         parent: ET.Element,
         system: System,
         name: str,
-        default: Any,
+        default: bool | str | None,
         data_type: BooleanDataType,
     ):
         el = ET.SubElement(parent, "BooleanArgumentType")
@@ -779,13 +803,15 @@ class XTCEGenerator:
         parent: ET.Element,
         system: System,
         name: str,
-        default: Any,
+        default: str | Enum | None,
         data_type: EnumeratedDataType,
     ):
         el = ET.SubElement(parent, "EnumeratedArgumentType")
         el.attrib["name"] = name
 
-        if default:
+        if isinstance(default, Enum):
+            el.attrib["initialValue"] = default.name
+        elif default:
             el.attrib["initialValue"] = str(default)
 
         if data_type.units:
@@ -804,7 +830,7 @@ class XTCEGenerator:
         parent: ET.Element,
         system: System,
         name: str,
-        default: Any,
+        default: float | None,
         data_type: FloatDataType,
     ):
         el = ET.SubElement(parent, "FloatArgumentType")
@@ -843,7 +869,7 @@ class XTCEGenerator:
         parent: ET.Element,
         system: System,
         name: str,
-        default: Any,
+        default: int | None,
         data_type: IntegerDataType,
     ):
         el = ET.SubElement(parent, "IntegerArgumentType")
@@ -877,7 +903,7 @@ class XTCEGenerator:
         parent: ET.Element,
         system: System,
         name: str,
-        default: Any,
+        default: str | None,
         data_type: StringDataType,
     ):
         el = ET.SubElement(parent, "StringArgumentType")
@@ -900,10 +926,13 @@ class XTCEGenerator:
         parent: ET.Element,
         system: System,
         name: str,
+        default: Sequence[Any] | None,
         data_type: ArrayDataType,
     ):
         el = ET.SubElement(parent, "ArrayArgumentType")
         el.attrib["name"] = name
+        if default:
+            el.attrib["initialValue"] = _to_xml_value(default)
 
         element_type_name = f"{name}__el"
         el.attrib["arrayTypeRef"] = element_type_name
@@ -943,6 +972,7 @@ class XTCEGenerator:
                 parent,
                 system,
                 name=element_type_name,
+                default=None,
                 data_type=el_type,
             )
         elif isinstance(el_type, AggregateDataType):
@@ -950,6 +980,7 @@ class XTCEGenerator:
                 parent,
                 system,
                 name=element_type_name,
+                default=None,
                 data_type=el_type,
             )
         elif isinstance(el_type, ArrayDataType):
@@ -957,6 +988,7 @@ class XTCEGenerator:
                 parent,
                 system,
                 name=element_type_name,
+                default=None,
                 data_type=el_type,
             )
         elif isinstance(el_type, BinaryDataType):
@@ -1015,10 +1047,13 @@ class XTCEGenerator:
         parent: ET.Element,
         system: System,
         name: str,
+        default: Mapping[str, Any] | None,
         data_type: AggregateDataType,
     ):
         el = ET.SubElement(parent, "AggregateArgumentType")
         el.attrib["name"] = name
+        if default:
+            el.attrib["initialValue"] = _to_xml_value(default)
 
         members_el = ET.SubElement(el, "MemberList")
         for member in data_type.members:
@@ -1044,6 +1079,7 @@ class XTCEGenerator:
                     parent,
                     system,
                     name=member_type_name,
+                    default=None,
                     data_type=member,
                 )
             elif isinstance(member, AggregateMember):
@@ -1051,6 +1087,7 @@ class XTCEGenerator:
                     parent,
                     system,
                     name=member_type_name,
+                    default=None,
                     data_type=member,
                 )
             elif isinstance(member, ArrayMember):
@@ -1058,6 +1095,7 @@ class XTCEGenerator:
                     parent,
                     system,
                     name=member_type_name,
+                    default=None,
                     data_type=member,
                 )
             elif isinstance(member, BinaryMember):
@@ -1116,10 +1154,13 @@ class XTCEGenerator:
         parent: ET.Element,
         system: System,
         name: str,
+        initial_value: Mapping[str, Any] | None,
         data_type: AggregateDataType,
     ):
         el = ET.SubElement(parent, "AggregateParameterType")
         el.attrib["name"] = name
+        if initial_value:
+            el.attrib["initialValue"] = _to_xml_value(initial_value)
 
         members_el = ET.SubElement(el, "MemberList")
         for member in data_type.members:
@@ -1145,6 +1186,7 @@ class XTCEGenerator:
                     parent,
                     system,
                     name=member_type_name,
+                    initial_value=member.initial_value,
                     data_type=member,
                 )
             elif isinstance(member, AggregateMember):
@@ -1152,6 +1194,7 @@ class XTCEGenerator:
                     parent,
                     system,
                     name=member_type_name,
+                    initial_value=member.initial_value,
                     data_type=member,
                 )
             elif isinstance(member, ArrayMember):
@@ -1159,6 +1202,7 @@ class XTCEGenerator:
                     parent,
                     system,
                     name=member_type_name,
+                    initial_value=member.initial_value,
                     data_type=member,
                 )
             elif isinstance(member, BinaryMember):
@@ -1221,10 +1265,13 @@ class XTCEGenerator:
         parent: ET.Element,
         system: System,
         name: str,
+        initial_value: Sequence[Any] | None,
         data_type: ArrayDataType,
     ):
         el = ET.SubElement(parent, "ArrayParameterType")
         el.attrib["name"] = name
+        if initial_value:
+            el.attrib["initialValue"] = _to_xml_value(initial_value)
 
         element_type_name = f"{name}__el"
         el.attrib["arrayTypeRef"] = element_type_name
@@ -1256,6 +1303,7 @@ class XTCEGenerator:
                 parent,
                 system,
                 name=element_type_name,
+                initial_value=None,
                 data_type=el_type,
             )
         elif isinstance(el_type, AggregateDataType):
@@ -1263,6 +1311,7 @@ class XTCEGenerator:
                 parent,
                 system,
                 name=element_type_name,
+                initial_value=None,
                 data_type=el_type,
             )
         elif isinstance(el_type, ArrayDataType):
@@ -1270,6 +1319,7 @@ class XTCEGenerator:
                 parent,
                 system,
                 name=element_type_name,
+                initial_value=None,
                 data_type=el_type,
             )
         elif isinstance(el_type, BinaryDataType):
@@ -1332,10 +1382,14 @@ class XTCEGenerator:
         parent: ET.Element,
         system: System,
         name: str,
+        initial_value: datetime | None,
         data_type: AbsoluteTimeDataType,
     ):
         el = ET.SubElement(parent, "AbsoluteTimeParameterType")
         el.attrib["name"] = name
+
+        if initial_value:
+            el.attrib["initialValue"] = _datetime_to_xsd(initial_value)
 
         if data_type.encoding:
             self.add_data_encoding(el, system, data_type.encoding)
@@ -1356,11 +1410,7 @@ class XTCEGenerator:
                 raise ExportError(f"Unexpected epoch {data_type.reference}")
         elif isinstance(data_type.reference, datetime):
             epoch_el = ET.SubElement(ref_el, "Epoch")
-            if data_type.reference.tzinfo:
-                utctime = data_type.reference.astimezone(tz=timezone.utc)
-                epoch_el.text = utctime.isoformat().replace("+00:00", "Z")
-            else:
-                epoch_el.text = data_type.reference.isoformat() + "Z"
+            epoch_el.text = _datetime_to_xsd(data_type.reference)
         else:
             offset_el = ET.SubElement(ref_el, "OffsetFrom")
             offset_el.attrib["parameterRef"] = self.make_parameter_ref(
@@ -1373,7 +1423,7 @@ class XTCEGenerator:
         parent: ET.Element,
         system: System,
         name: str,
-        initial_value: Any,
+        initial_value: bytes | bytearray | str | None,
         data_type: BinaryDataType,
     ):
         el = ET.SubElement(parent, "BinaryParameterType")
@@ -1395,7 +1445,7 @@ class XTCEGenerator:
         parent: ET.Element,
         system: System,
         name: str,
-        initial_value: Any,
+        initial_value: bool | str | None,
         data_type: BooleanDataType,
     ):
         el = ET.SubElement(parent, "BooleanParameterType")
@@ -1428,14 +1478,16 @@ class XTCEGenerator:
         parent: ET.Element,
         system: System,
         name: str,
-        initial_value: Any,
+        initial_value: str | Enum | None,
         data_type: EnumeratedDataType,
     ):
         el = ET.SubElement(parent, "EnumeratedParameterType")
         el.attrib["name"] = name
 
-        if initial_value:
-            el.attrib["initialValue"] = initial_value
+        if isinstance(initial_value, Enum):
+            el.attrib["initialValue"] = initial_value.name
+        elif initial_value:
+            el.attrib["initialValue"] = str(initial_value)
 
         if data_type.units:
             unit_set_el = ET.SubElement(el, "UnitSet")
@@ -1490,7 +1542,7 @@ class XTCEGenerator:
         parent: ET.Element,
         system: System,
         name: str,
-        initial_value: Any,
+        initial_value: float | None,
         alarm: ThresholdAlarm | None,
         context_alarms: Sequence[ThresholdContextAlarm] | None,
         data_type: FloatDataType,
@@ -1554,7 +1606,7 @@ class XTCEGenerator:
         parent: ET.Element,
         system: System,
         name: str,
-        initial_value: Any,
+        initial_value: int | None,
         alarm: ThresholdAlarm | None,
         context_alarms: Sequence[ThresholdContextAlarm] | None,
         data_type: IntegerDataType,
@@ -1612,7 +1664,7 @@ class XTCEGenerator:
         parent: ET.Element,
         system: System,
         name: str,
-        initial_value: Any,
+        initial_value: str | None,
         data_type: StringDataType,
     ):
         el = ET.SubElement(parent, "StringParameterType")

@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
+from datetime import datetime
 from enum import Enum, auto
-from typing import TYPE_CHECKING, Any, Literal, Union
+from typing import TYPE_CHECKING, Any, Generic, Literal, TypeVar, Union
 
 from yamcs.pymdb.containers import ParameterEntry
 from yamcs.pymdb.datatypes import (
@@ -42,6 +43,9 @@ if TYPE_CHECKING:
     from yamcs.pymdb.systems import System
 
 
+DefaultT = TypeVar("DefaultT")
+
+
 class CommandLevel(Enum):
     """
     The importance of a telecommand in terms of the nature and
@@ -78,12 +82,12 @@ class CommandLevel(Enum):
     """
 
 
-class Argument(DataType):
+class Argument(DataType, Generic[DefaultT]):
     def __init__(
         self,
         name: str,
         *,
-        default: Any = None,
+        default: DefaultT | None = None,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
@@ -93,7 +97,7 @@ class Argument(DataType):
         self.name: str = name
         """Short name of this argument"""
 
-        self.default: Any = default
+        self.default: DefaultT | None = default
         """Default value"""
 
         DataType.__init__(
@@ -109,13 +113,13 @@ class Argument(DataType):
             return self.name
 
 
-class AbsoluteTimeArgument(Argument, AbsoluteTimeDataType):
+class AbsoluteTimeArgument(Argument[datetime], AbsoluteTimeDataType):
     def __init__(
         self,
         name: str,
         reference: Epoch,
         *,
-        default: Any = None,
+        default: datetime | None = None,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
@@ -138,13 +142,13 @@ class AbsoluteTimeArgument(Argument, AbsoluteTimeDataType):
         )
 
 
-class AggregateArgument(Argument, AggregateDataType):
+class AggregateArgument(Argument[Mapping[str, Any]], AggregateDataType):
     def __init__(
         self,
         name: str,
         members: Sequence[Member],
         *,
-        default: Any = None,
+        default: Mapping[str, Any] | None = None,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
@@ -165,14 +169,14 @@ class AggregateArgument(Argument, AggregateDataType):
         )
 
 
-class ArrayArgument(Argument, ArrayDataType):
+class ArrayArgument(Argument[Sequence[Any]], ArrayDataType):
     def __init__(
         self,
         name: str,
         data_type: DataType,
         length: int | ArgumentValue | ParameterValue,
         *,
-        default: Any = None,
+        default: Sequence[Any] | None = None,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
@@ -194,14 +198,14 @@ class ArrayArgument(Argument, ArrayDataType):
         )
 
 
-class BinaryArgument(Argument, BinaryDataType):
+class BinaryArgument(Argument[bytes | bytearray | str], BinaryDataType):
     def __init__(
         self,
         name: str,
         *,
         min_length: int | None = None,
         max_length: int | None = None,
-        default: Any = None,
+        default: bytes | bytearray | str | None = None,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
@@ -225,14 +229,14 @@ class BinaryArgument(Argument, BinaryDataType):
         )
 
 
-class BooleanArgument(Argument, BooleanDataType):
+class BooleanArgument(Argument[bool | str], BooleanDataType):
     def __init__(
         self,
         name: str,
         *,
         zero_string_value: str = "False",
         one_string_value: str = "True",
-        default: Any = None,
+        default: bool | str | None = None,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
@@ -256,13 +260,13 @@ class BooleanArgument(Argument, BooleanDataType):
         )
 
 
-class EnumeratedArgument(Argument, EnumeratedDataType):
+class EnumeratedArgument(Argument[str | Enum], EnumeratedDataType):
     def __init__(
         self,
         name: str,
         choices: Choices,
         *,
-        default: Any = None,
+        default: str | Enum | None = None,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
@@ -285,7 +289,7 @@ class EnumeratedArgument(Argument, EnumeratedDataType):
         )
 
 
-class FloatArgument(Argument, FloatDataType):
+class FloatArgument(Argument[float], FloatDataType):
     def __init__(
         self,
         name: str,
@@ -295,7 +299,7 @@ class FloatArgument(Argument, FloatDataType):
         minimum_inclusive: bool = True,
         maximum: float | None = None,
         maximum_inclusive: bool = True,
-        default: Any = None,
+        default: float | None = None,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
@@ -324,7 +328,7 @@ class FloatArgument(Argument, FloatDataType):
         )
 
 
-class IntegerArgument(Argument, IntegerDataType):
+class IntegerArgument(Argument[int], IntegerDataType):
     def __init__(
         self,
         name: str,
@@ -333,7 +337,7 @@ class IntegerArgument(Argument, IntegerDataType):
         bits: int = 32,
         minimum: int | None = None,
         maximum: int | None = None,
-        default: Any = None,
+        default: int | None = None,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
@@ -361,14 +365,14 @@ class IntegerArgument(Argument, IntegerDataType):
         )
 
 
-class StringArgument(Argument, StringDataType):
+class StringArgument(Argument[str], StringDataType):
     def __init__(
         self,
         name: str,
         *,
         min_length: int | None = None,
         max_length: int | None = None,
-        default: Any = None,
+        default: str | None = None,
         short_description: str | None = None,
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
