@@ -1,6 +1,13 @@
 Expressions
 ===========
 
+ArgumentMember
+--------------
+
+.. autoclass:: yamcs.pymdb.ArgumentMember
+   :members:
+
+
 ParameterMember
 ---------------
 

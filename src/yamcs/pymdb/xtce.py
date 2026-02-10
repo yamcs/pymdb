@@ -72,6 +72,7 @@ from yamcs.pymdb.encodings import (
 from yamcs.pymdb.exceptions import ExportError
 from yamcs.pymdb.expressions import (
     AndExpression,
+    ArgumentMember,
     EqExpression,
     Expression,
     GteExpression,
@@ -2218,15 +2219,33 @@ class XTCEGenerator:
         self,
         parent: ET.Element,
         system: System,
-        ref: Parameter | ParameterMember | str,
+        ref: Parameter | ParameterMember | Argument | ArgumentMember | str,
         value: Any,
         operator: str,
         calibrated: bool,
     ):
         condition_el = ET.SubElement(parent, "Condition")
 
-        pref_el = ET.SubElement(condition_el, "ParameterInstanceRef")
-        pref_el.attrib["parameterRef"] = self.make_parameter_ref(ref, start=system)
+        if isinstance(ref, str):
+            if ref.startswith("/yamcs/cmd/arg/"):
+                pref_el = ET.SubElement(condition_el, "ParameterInstanceRef")
+                pref_el.attrib["parameterRef"] = self.make_argument_ref(ref)
+            else:
+                pref_el = ET.SubElement(condition_el, "ParameterInstanceRef")
+                pref_el.attrib["parameterRef"] = self.make_parameter_ref(
+                    ref, start=system
+                )
+        elif isinstance(ref, (Parameter, ParameterMember)):
+            pref_el = ET.SubElement(condition_el, "ParameterInstanceRef")
+            pref_el.attrib["parameterRef"] = self.make_parameter_ref(ref, start=system)
+        elif isinstance(ref, (Argument, ArgumentMember)):
+            pref_el = ET.SubElement(condition_el, "ParameterInstanceRef")
+            pref_el.attrib["parameterRef"] = "/yamcs/cmd/arg/" + self.make_argument_ref(
+                ref
+            )
+        else:
+            raise ExportError("Unexpected condition reference")
+
         pref_el.attrib["useCalibratedValue"] = _to_xml_value(calibrated)
 
         ET.SubElement(condition_el, "ComparisonOperator").text = operator
@@ -2354,6 +2373,19 @@ class XTCEGenerator:
             return self.make_ref(target, start)
         else:
             raise ExportError("Unexpected parameter reference")
+
+    def make_argument_ref(self, target: Argument | ArgumentMember | str):
+        if isinstance(target, Argument):
+            return target.name
+        elif isinstance(target, ArgumentMember):
+            argument_ref = target.argument.name
+            for member in target.path:
+                argument_ref += "/" + member.name
+            return argument_ref
+        elif isinstance(target, str):
+            return target
+        else:
+            raise ExportError("Unexpected argument reference")
 
     def make_container_ref(self, target: Container | str, start: System):
         if isinstance(target, Container):
