@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from yamcs.pymdb.commands import Command
     from yamcs.pymdb.containers import Container
     from yamcs.pymdb.parameters import Parameter
+    from yamcs.pymdb.headers import Header
 
 
 class System:
@@ -32,6 +33,7 @@ class System:
         short_description: str | None = None,
         long_description: str | None = None,
         extra: Mapping[str, str] | None = None,
+        header: Header | None = None
     ):
         self.name: str = name
         """Short name of this system"""
@@ -48,11 +50,18 @@ class System:
         self.extra: dict[str, str] = dict(extra or {})
         """Arbitrary information, keyed by name"""
 
+        self.header: Header | None = header
+        """Header content of thee SpaceSystem"""
+
         self._algorithms_by_name: dict[str, Algorithm] = {}
         self._commands_by_name: dict[str, Command] = {}
         self._containers_by_name: dict[str, Container] = {}
         self._parameters_by_name: dict[str, Parameter] = {}
         self._subsystems_by_name: dict[str, Subsystem] = {}
+
+    @property
+    def header(self) -> Header | None:
+        return self.header
 
     @property
     def root(self) -> System:
