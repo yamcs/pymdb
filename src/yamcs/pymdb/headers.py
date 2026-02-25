@@ -2,11 +2,19 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, TextIO
-
-from __future__ import annotations
+from enum import Enum
 
 from functools import total_ordering
 import re
+
+class ValidationStatus(str, Enum):
+    UNKNOWN = "Unknown"
+    WORKING = "Working"
+    DRAFT = "Draft"
+    TEST = "Test"
+    VALIDATED = "Validated"
+    RELEASED = "Released"
+    WITHDRAWN = "Withdrawn"
 
 @total_ordering
 class History:
@@ -33,8 +41,8 @@ class History:
     def __str__(self) -> str:
         base = f"{self.version}"
         base = f"{base}; {self.date}" if self.date else f"{base}; "
-        base = f"{base}: {self.message}" if self.message else f"{base}; "
-        base = f"{base}: {self.author}" if self.author else f"{base}; "
+        base = f"{base}; {self.message}" if self.message else f"{base}; "
+        base = f"{base}; {self.author}" if self.author else f"{base}; "
 
         return base
 
@@ -73,13 +81,18 @@ class History:
         return 0
 
 class Header:
-    __slots__ = ("_version", "_date", "_history_list", "_author_list")
+    __slots__ = ("_version", "_date", "_history_list", "_author_list", "_validation_status", "_classification", "_classification_instructions")
 
-    def __init__(self) -> None:
+    def __init__(self, validation_status: str | ValidationStatus) -> None:
         self._version: str | None = None
         self._date: str | None = None
         self._history_list: list[History] = []
         self._author_list: list[str] = []
+        self._classification: str = "NotClassified"
+        self._classification_instructions: str | None = None
+
+        # Mandatory field
+        self.validation_status: ValidationStatus = validation_status
 
     # setters
     def set_version(self, version: str | None) -> None:
@@ -88,7 +101,43 @@ class Header:
     def set_date(self, date: str | None) -> None:
         self._date = date
 
+    def set_classification(self, classification: str | None) -> None:
+        if classification:
+            self._classification = classification
+
+    def set_classification_instructions(self, instructions: str | None) -> None:
+        self._classification_instructions = instructions
+
+    @property
+    def validation_status(self) -> str:
+        return self._validation_status.value
+
+    @validation_status.setter
+    def validation_status(self, value: str | ValidationStatus) -> None:
+
+        if isinstance(value, ValidationStatus):
+            self._validation_status = value
+            return
+
+        if isinstance(value, str):
+            try:
+                self._validation_status = ValidationStatus(value)
+                return
+            except ValueError:
+                pass
+
+        raise ValueError(
+            f"Invalid validation status: {value!r}. "
+            f"Allowed: {[s.value for s in ValidationStatus]}"
+        )
+
     # getters
+    def get_classification(self) -> str:
+        return self._classification
+
+    def get_classification_instructions(self) -> str | None:
+        return self._classification_instructions
+    
     def get_version(self) -> str | None:
         return self._version
 
@@ -98,11 +147,11 @@ class Header:
     def get_history_list(self) -> list[History]:
         return self._history_list
 
-    def add_history(self, history: History) -> None:
-        self._history_list.append(history)
-
     def get_author_list(self) -> list[str]:
         return self._author_list
+
+    def add_history(self, history: History) -> None:
+        self._history_list.append(history)
 
     def add_author(self, author: str) -> None:
         self._author_list.append(author)

@@ -50,7 +50,7 @@ class System:
         self.extra: dict[str, str] = dict(extra or {})
         """Arbitrary information, keyed by name"""
 
-        self.header: Header | None = header
+        self._header: Header | None = header
         """Header content of thee SpaceSystem"""
 
         self._algorithms_by_name: dict[str, Algorithm] = {}
@@ -61,7 +61,7 @@ class System:
 
     @property
     def header(self) -> Header | None:
-        return self.header
+        return self._header
 
     @property
     def root(self) -> System:
