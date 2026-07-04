@@ -1,68 +1,56 @@
 from importlib.metadata import version as get_pkg_version
 
-# -- Path setup --------------------------------------------------------------
-
-# If extensions (or modules to document with autodoc) are in another directory,
-# add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute, like shown here.
-# sys.path.insert(0, os.path.abspath('.'))
-
-project = "yamcs-pymdb"
-copyright = "2024, Space Applications Services"
+project = "Yamcs PyMDB"
+copyright = "2026, Space Applications Services"
 author = "Yamcs Team"
 
-# The short X.Y version
-version = ""
-
-# The full version, including alpha/beta/rc tags
 release = get_pkg_version("yamcs-pymdb")
-
-extensions = [
-    "sphinx.ext.autodoc",
-    "sphinx.ext.doctest",
-    "sphinx.ext.intersphinx",
-    "sphinxcontrib.fulltoc",
-]
+version = release
 
 source_suffix = ".rst"
-master_doc = "index"
 language = "en"
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 pygments_style = "sphinx"
 
+extensions = [
+    "sphinxcontrib.fulltoc",
+    "sphinx.ext.intersphinx",
+]
 
-# -- Options for HTML output -------------------------------------------------
-
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
-#
-html_theme = "nature"
+html_theme = "alabaster"
+html_theme_options = {
+    "fixed_sidebar": False,
+    "show_powered_by": False,
+    "font_family": "Helvetica,Arial,sans-serif",
+    "font_size": "15px",
+}
+html_show_sourcelink = False
 
 latex_elements = {
     "papersize": "a4paper",
+    "preamble": r"""
+\setcounter{tocdepth}{2}
+\usepackage{colortbl}
+""",
     "figure_align": "htbp",
 }
 
 latex_documents = [
     (
-        master_doc,
+        "index",
         f"pymdb-{release}.tex",
         "Yamcs PyMDB",
-        "Space Applications Services",
+        "Yamcs Team",
         "manual",
     ),
 ]
 
-autoclass_content = "both"
-autodoc_class_signature = "separated"
-autodoc_typehints_format = "short"
-python_use_unqualified_type_names = True
-autodoc_default_options = {
-    # "member-order": "bysource",
-    "undoc-members": True,
-    "show-inheritance": True,
-    "inherited-members": True,
-}
+latex_show_pagerefs = True
+latex_show_urls = "footnote"
+
+latex_appendices = [
+    "appendices/names",
+]
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
