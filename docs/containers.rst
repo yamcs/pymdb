@@ -61,6 +61,37 @@ holds:
    Y.ParameterEntry(payload_temp, condition=Y.eq(payload_on, True))
 
 
+Repeating entries
+=================
+
+.. index:: RepeatEntry
+
+With ``repeat`` set, an entry is extracted multiple times in sequence —
+the common shape for packets carrying "N records". The count is either a
+fixed number, or read from a parameter that appears earlier in the same
+packet, wrapped in ``ParameterValue``:
+
+.. code-block:: python
+
+   entries=[
+       Y.ParameterEntry(sample, repeat=4),
+   ]
+
+   # Count read from the packet itself
+   entries=[
+       Y.ParameterEntry(record_count),
+       Y.ContainerEntry(record, repeat=Y.ParameterValue(record_count)),
+   ]
+
+Repeating a ``ContainerEntry``, as in the second example, is the usual
+way to repeat a multi-field record: define the record layout once as its
+own container, then repeat one entry referencing it.
+
+Repeats are only available on telemetry container entries; Yamcs does not
+apply them when encoding commands, so using ``repeat`` on an entry of a
+:doc:`command <commands>` is rejected at export time.
+
+
 Container inheritance and packet identification
 ===============================================
 

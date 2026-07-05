@@ -2357,6 +2357,16 @@ class XTCEGenerator:
             fv_el = ET.SubElement(loc_el, "FixedValue")
             fv_el.text = str(entry.bitpos + entry.offset)
 
+        if entry.repeat is not None:
+            if isinstance(container, Command):
+                raise ExportError(
+                    f"Entry {entry} of command {container} uses repeat. "
+                    "Repeated entries are only supported in telemetry "
+                    "containers (Yamcs does not apply them when encoding "
+                    "commands)"
+                )
+            self.add_repeat_entry(el, container.system, entry.repeat)
+
         if entry.condition:
             cond_el = ET.SubElement(el, "IncludeCondition")
             expr_el = ET.SubElement(cond_el, "BooleanExpression")
@@ -2391,6 +2401,9 @@ class XTCEGenerator:
             fv_el = ET.SubElement(loc_el, "FixedValue")
             fv_el.text = str(entry.bitpos + entry.offset)
 
+        if entry.repeat is not None:
+            self.add_repeat_entry(el, container.system, entry.repeat)
+
         if entry.condition:
             cond_el = ET.SubElement(el, "IncludeCondition")
             expr_el = ET.SubElement(cond_el, "BooleanExpression")
@@ -2399,6 +2412,24 @@ class XTCEGenerator:
                 system=container.system,
                 expression=entry.condition,
             )
+
+    def add_repeat_entry(
+        self,
+        parent: ET.Element,
+        system: System,
+        repeat: int | ParameterValue,
+    ):
+        repeat_el = ET.SubElement(parent, "RepeatEntry")
+        count_el = ET.SubElement(repeat_el, "Count")
+        if isinstance(repeat, ParameterValue):
+            dyn_el = ET.SubElement(count_el, "DynamicValue")
+            ref_el = ET.SubElement(dyn_el, "ParameterInstanceRef")
+            ref_el.attrib["parameterRef"] = self.make_parameter_ref(
+                repeat.parameter,
+                start=system,
+            )
+        else:
+            ET.SubElement(count_el, "FixedValue").text = str(repeat)
 
     def make_ref(self, target: str, start: System):
         if target.startswith("/"):

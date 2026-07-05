@@ -26,6 +26,7 @@ class ParameterEntry:
         offset: int = 0,
         short_description: str | None = None,
         condition: Expression | None = None,
+        repeat: int | ParameterValue | None = None,
     ) -> None:
         self.parameter: Parameter = parameter
 
@@ -52,6 +53,14 @@ class ParameterEntry:
         self.condition: Expression | None = condition
         """If set, this entry is only present when the condition is met"""
 
+        self.repeat: int | ParameterValue | None = repeat
+        """
+        If set, repeat this entry multiple times.
+
+        Either a fixed count, or a count read from a parameter that
+        occurs earlier in the same container.
+        """
+
     def __str__(self) -> str:
         return self.parameter.__str__()
 
@@ -64,6 +73,7 @@ class ContainerEntry:
         bitpos: int | None = None,
         offset: int = 0,
         condition: Expression | None = None,
+        repeat: int | ParameterValue | None = None,
     ) -> None:
         self.container: Container = container
 
@@ -89,6 +99,14 @@ class ContainerEntry:
 
         self.condition: Expression | None = condition
         """If set, this entry is only present when the condition is met"""
+
+        self.repeat: int | ParameterValue | None = repeat
+        """
+        If set, repeat this entry multiple times.
+
+        Either a fixed count, or a count read from a parameter that
+        occurs earlier in the container referencing this entry.
+        """
 
     def __str__(self) -> str:
         return self.container.__str__()
@@ -231,6 +249,14 @@ class Container:
                     raise SizeCalculationError(
                         f"Cannot determine fixed size of {entry.parameter}"
                     )
+
+                if isinstance(entry.repeat, ParameterValue):
+                    raise SizeCalculationError(
+                        "Cannot determine fixed size of dynamically "
+                        "repeated entry"
+                    )
+                elif entry.repeat is not None:
+                    bits *= entry.repeat
 
                 pos = entry.bitpos
                 if pos is None:

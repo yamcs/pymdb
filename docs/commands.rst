@@ -76,6 +76,9 @@ types can be mixed:
 All entry types support the same positioning options as container entries
 (``bitpos``, ``offset``) and a ``condition`` expression that includes the
 entry only when it holds — see :doc:`containers` and :doc:`expressions`.
+The ``repeat`` option of container entries is *not* available here: Yamcs
+does not apply entry repeats when encoding commands, so PyMDB rejects it
+at export time.
 
 .. code-block:: python
 
