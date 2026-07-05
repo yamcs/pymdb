@@ -203,7 +203,7 @@ class XTCEGenerator:
         if top_comment is True:
             top_comment = (
                 "\nThis file was generated with Yamcs PyMDB.\n"
-                "See https://github.com/yamcs/pymdb\n"
+                "See https://docs.yamcs.org/pymdb/\n"
             )
         if top_comment:
             comment_el = xtce_dom.createComment(top_comment)
