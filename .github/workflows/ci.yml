@@ -37,3 +37,21 @@ jobs:
           pip install flake8
       - name: Lint with flake8
         run: flake8 src --count --show-source --statistics
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.x"
+      - name: Install build tool
+        run: |
+          pip install --upgrade pip
+          pip install build
+      - name: Build sdist and wheel
+        run: python -m build
+      - name: Verify py.typed is packaged
+        run: |
+          unzip -l dist/*.whl | grep -q py.typed
+          tar tzf dist/*.tar.gz | grep -q py.typed

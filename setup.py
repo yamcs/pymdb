@@ -31,9 +31,11 @@ setuptools.setup(
         "Programming Language :: Python :: 3.13",
         "Programming Language :: Python :: 3.14",
         "Operating System :: OS Independent",
+        "Typing :: Typed",
     ],
     keywords=["packet telemetry ccsds xtce yamcs"],
     platforms="Posix; MacOS X; Windows",
     include_package_data=True,
+    package_data={"yamcs.pymdb": ["py.typed"]},
     zip_safe=False,
 )
