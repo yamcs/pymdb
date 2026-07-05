@@ -32,7 +32,12 @@ from yamcs.pymdb.commands import (
     EnumeratedArgument,
     FixedValueEntry,
 )
-from yamcs.pymdb.containers import Container, ContainerEntry, ParameterEntry
+from yamcs.pymdb.containers import (
+    Container,
+    ContainerEntry,
+    IndirectParameterEntry,
+    ParameterEntry,
+)
 from yamcs.pymdb.datatypes import (
     AbsoluteTimeDataType,
     AbsoluteTimeMember,
@@ -485,6 +490,12 @@ class XTCEGenerator:
                 self.add_argument_ref_entry(el, command, entry)
             elif isinstance(entry, ParameterEntry):
                 self.add_parameter_ref_entry(el, command, entry)
+            elif isinstance(entry, IndirectParameterEntry):
+                raise ExportError(
+                    f"Entry {entry} of command {command} is indirect. "
+                    "Indirect entries are only supported in telemetry "
+                    "containers"
+                )
             else:
                 raise ExportError(f"Unexpected command entry {entry.__class__}")
 
@@ -2326,6 +2337,8 @@ class XTCEGenerator:
                 self.add_parameter_ref_entry(el, container, entry)
             elif isinstance(entry, ContainerEntry):
                 self.add_container_ref_entry(el, container, entry)
+            elif isinstance(entry, IndirectParameterEntry):
+                self.add_indirect_parameter_ref_entry(el, container, entry)
             else:
                 raise ExportError(f"Unexpected entry {entry.__class__}")
 
@@ -2412,6 +2425,35 @@ class XTCEGenerator:
                 system=container.system,
                 expression=entry.condition,
             )
+
+    def add_indirect_parameter_ref_entry(
+        self,
+        parent: ET.Element,
+        container: Container,
+        entry: IndirectParameterEntry,
+    ):
+        el = ET.SubElement(parent, "IndirectParameterRefEntry")
+        if entry.alias_namespace is not None:
+            el.attrib["aliasNameSpace"] = entry.alias_namespace
+        if entry.short_description:
+            el.attrib["shortDescription"] = entry.short_description
+
+        loc_el = ET.SubElement(el, "LocationInContainerInBits")
+
+        if entry.bitpos is None:
+            loc_el.attrib["referenceLocation"] = "previousEntry"
+            fv_el = ET.SubElement(loc_el, "FixedValue")
+            fv_el.text = str(entry.offset)
+        else:
+            loc_el.attrib["referenceLocation"] = "containerStart"
+            fv_el = ET.SubElement(loc_el, "FixedValue")
+            fv_el.text = str(entry.bitpos + entry.offset)
+
+        ref_el = ET.SubElement(el, "ParameterInstance")
+        ref_el.attrib["parameterRef"] = self.make_parameter_ref(
+            entry.parameter_instance,
+            start=container.system,
+        )
 
     def add_repeat_entry(
         self,

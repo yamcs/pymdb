@@ -12,7 +12,7 @@ from yamcs.pymdb.datatypes import (
 from yamcs.pymdb.exceptions import DuplicateNameError, SizeCalculationError
 
 if TYPE_CHECKING:
-    from yamcs.pymdb.expressions import Expression
+    from yamcs.pymdb.expressions import Expression, ParameterMember
     from yamcs.pymdb.parameters import Parameter
     from yamcs.pymdb.systems import System
 
@@ -58,7 +58,7 @@ class ParameterEntry:
         If set, repeat this entry multiple times.
 
         Either a fixed count, or a count read from a parameter that
-        occurs earlier in the same container.
+        occurs earlier in the same packet.
         """
 
     def __str__(self) -> str:
@@ -105,11 +105,70 @@ class ContainerEntry:
         If set, repeat this entry multiple times.
 
         Either a fixed count, or a count read from a parameter that
-        occurs earlier in the container referencing this entry.
+        occurs earlier in the same packet.
         """
 
     def __str__(self) -> str:
         return self.container.__str__()
+
+
+class IndirectParameterEntry:
+    """
+    An entry whose parameter is not fixed in the container definition,
+    but determined while processing the container, from the identifier
+    carried by a preceding entry.
+
+    Yamcs converts the identifier value to a string and matches it
+    against parameter aliases in :attr:`alias_namespace`, then extracts
+    the resolved parameter using that parameter's own data type. This is
+    the XTCE model for self-describing packets carrying (identifier,
+    value) pairs.
+    """
+
+    def __init__(
+        self,
+        parameter_instance: Parameter | ParameterMember,
+        alias_namespace: str | None = None,
+        *,
+        short_description: str | None = None,
+        bitpos: int | None = None,
+        offset: int = 0,
+    ) -> None:
+        self.parameter_instance: Parameter | ParameterMember = parameter_instance
+        """
+        Parameter carrying the identifier of the parameter to extract.
+        Its most recent value within the same packet is used.
+        """
+
+        self.alias_namespace: str | None = alias_namespace
+        """
+        Namespace in which the identifier is matched against parameter
+        aliases. If unset, the identifier is interpreted as a fully
+        qualified parameter name.
+        """
+
+        self.short_description: str | None = short_description
+        """Oneline description"""
+
+        self.bitpos: int | None = bitpos
+        """
+        Absolute position within the container, in bits.
+
+        If unspecified, this entry is positioned relative to the preceding
+        entry.
+        """
+
+        self.offset: int = offset
+        """
+        Distance in bits to the preceding entry.
+
+        While not expected, if both :attr:`bitpos` and :attr:`offset` are
+        specified, the two are added together for establishing the real
+        absolute bit position.
+        """
+
+    def __str__(self) -> str:
+        return self.parameter_instance.__str__()
 
 
 class Container:
@@ -122,7 +181,9 @@ class Container:
         self,
         system: System,
         name: str,
-        entries: Sequence[ParameterEntry | ContainerEntry] | None = None,
+        entries: (
+            Sequence[ParameterEntry | ContainerEntry | IndirectParameterEntry] | None
+        ) = None,
         *,
         base: Container | str | None = None,
         abstract: bool = False,
@@ -186,7 +247,8 @@ class Container:
         stored to Yamcs.
         """
 
-        self.entries: list[ParameterEntry | ContainerEntry] = list(entries or [])
+        self.entries: list[ParameterEntry | ContainerEntry | IndirectParameterEntry]
+        self.entries = list(entries or [])
         self.base: Container | str | None = base
         self.abstract: bool = abstract
         self.condition: Expression | None = condition

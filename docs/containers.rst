@@ -91,6 +91,48 @@ Repeats are only available on telemetry container entries; Yamcs does not
 apply them when encoding commands, so using ``repeat`` on an entry of a
 :doc:`command <commands>` is rejected at export time.
 
+The count parameter must have a value within the packet being processed.
+It may come from a base container, but Yamcs does not fall back to values
+from earlier packets.
+
+
+Self-describing packets
+=======================
+
+.. index:: IndirectParameterEntry
+
+Some packets carry (identifier, value) pairs, where which parameter comes
+next is only known by reading the identifier out of the stream. This is
+modelled with ``IndirectParameterEntry``: instead of naming a parameter,
+the entry points at the *identifier* parameter extracted just before it,
+plus an alias namespace. At processing time, Yamcs matches the identifier
+value against parameter aliases in that namespace, and extracts the
+resolved parameter with its own data type:
+
+.. code-block:: python
+
+   battery_voltage = Y.FloatParameter(
+       system=obc,
+       name="battery_voltage",
+       aliases={"OBSW": "1"},   # matched against the identifier value
+       encoding=Y.float32_t,
+   )
+
+   parameter_id = Y.IntegerParameter(
+       system=obc, name="parameter_id", signed=False, encoding=Y.uint16_t)
+
+   pair = Y.Container(
+       system=obc,
+       name="parameter_value_pair",
+       entries=[
+           Y.ParameterEntry(parameter_id),
+           Y.IndirectParameterEntry(parameter_id, alias_namespace="OBSW"),
+       ],
+   )
+
+Without ``alias_namespace``, the identifier is interpreted as a fully
+qualified parameter name instead.
+
 
 Container inheritance and packet identification
 ===============================================
