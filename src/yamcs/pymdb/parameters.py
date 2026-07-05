@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from datetime import datetime
 from enum import Enum, auto
-from typing import TYPE_CHECKING, Any, Generic, Literal, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, Literal, TypeVar, Union
 
 from yamcs.pymdb.alarms import EnumerationAlarm, ThresholdAlarm
 from yamcs.pymdb.datatypes import (
@@ -284,7 +284,7 @@ class ArrayParameter(Parameter[Sequence[Any]], ArrayDataType):
         )
 
 
-class BinaryParameter(Parameter[bytes | bytearray | str], BinaryDataType):
+class BinaryParameter(Parameter[Union[bytes, bytearray, str]], BinaryDataType):
     """
     A parameter where engineering values represent binary
     """
@@ -326,7 +326,7 @@ class BinaryParameter(Parameter[bytes | bytearray | str], BinaryDataType):
         )
 
 
-class BooleanParameter(Parameter[bool | str], BooleanDataType):
+class BooleanParameter(Parameter[Union[bool, str]], BooleanDataType):
     """
     A parameter where engineering values represent a boolean enumeration
     """
@@ -368,7 +368,7 @@ class BooleanParameter(Parameter[bool | str], BooleanDataType):
         )
 
 
-class EnumeratedParameter(Parameter[str | Enum], EnumeratedDataType):
+class EnumeratedParameter(Parameter[Union[str, Enum]], EnumeratedDataType):
     """
     A parameter where engineering values represent states in an enumeration
     """

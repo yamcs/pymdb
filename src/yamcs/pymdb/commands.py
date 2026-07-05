@@ -198,7 +198,7 @@ class ArrayArgument(Argument[Sequence[Any]], ArrayDataType):
         )
 
 
-class BinaryArgument(Argument[bytes | bytearray | str], BinaryDataType):
+class BinaryArgument(Argument[Union[bytes, bytearray, str]], BinaryDataType):
     def __init__(
         self,
         name: str,
@@ -229,7 +229,7 @@ class BinaryArgument(Argument[bytes | bytearray | str], BinaryDataType):
         )
 
 
-class BooleanArgument(Argument[bool | str], BooleanDataType):
+class BooleanArgument(Argument[Union[bool, str]], BooleanDataType):
     def __init__(
         self,
         name: str,
@@ -260,7 +260,7 @@ class BooleanArgument(Argument[bool | str], BooleanDataType):
         )
 
 
-class EnumeratedArgument(Argument[str | Enum], EnumeratedDataType):
+class EnumeratedArgument(Argument[Union[str, Enum]], EnumeratedDataType):
     def __init__(
         self,
         name: str,

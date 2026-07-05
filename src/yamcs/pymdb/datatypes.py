@@ -475,7 +475,7 @@ class ArrayMember(Member[Sequence[Any]], ArrayDataType):
         )
 
 
-class BinaryMember(Member[bytes | bytearray | str], BinaryDataType):
+class BinaryMember(Member[Union[bytes, bytearray, str]], BinaryDataType):
     def __init__(
         self,
         name: str,
@@ -505,7 +505,7 @@ class BinaryMember(Member[bytes | bytearray | str], BinaryDataType):
         )
 
 
-class BooleanMember(Member[bool | str], BooleanDataType):
+class BooleanMember(Member[Union[bool, str]], BooleanDataType):
     def __init__(
         self,
         name: str,
@@ -535,7 +535,7 @@ class BooleanMember(Member[bool | str], BooleanDataType):
         )
 
 
-class EnumeratedMember(Member[str | Enum], EnumeratedDataType):
+class EnumeratedMember(Member[Union[str, Enum]], EnumeratedDataType):
     def __init__(
         self,
         name: str,
