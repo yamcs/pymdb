@@ -19,7 +19,7 @@ setuptools.setup(
     package_dir={"": "src"},
     python_requires=">=3.9",
     classifiers=[
-        "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
         "Programming Language :: Python",
