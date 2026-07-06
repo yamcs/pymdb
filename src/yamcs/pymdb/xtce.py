@@ -84,6 +84,10 @@ from yamcs.pymdb.expressions import (
     OrExpression,
     ParameterMember,
 )
+from yamcs.pymdb.headers import (
+    Header,
+    History
+)
 from yamcs.pymdb.parameters import (
     AbsoluteTimeParameter,
     AggregateParameter,
@@ -2481,6 +2485,38 @@ class XTCEGenerator:
         for subsystem in system.subsystems:
             self.generate_space_system(subsystem, parent)
 
+    def add_header(self, parent: ET.Element, header: Header):
+        header_el = ET.SubElement(parent, "Header")
+       
+        history_list: list[History] = header.get_history_list()
+        author_list: list[str] = header.get_author_list()
+
+        date: str | None = header.get_date()
+        version: str | None = header.get_version()
+        validation_status: str = header.validation_status
+        classification: str = header.get_classification()
+        classification_instructions: str | None = header.get_classification_instructions()
+
+        header_el.attrib["validationStatus"] = validation_status
+        header_el.attrib["classification"] = classification
+        
+        if classification_instructions:
+            header_el.attrib["classificationInstructions"] = classification_instructions
+        if version:
+            header_el.attrib["version"] = version
+        if date:
+            header_el.attrib["date"] = date
+
+        if history_list:
+            history_set_el = ET.SubElement(header_el, "HistorySet")
+            for history in history_list:
+                ET.SubElement(history_set_el, "History").text = str(history)
+
+        if author_list:
+            author_set_el = ET.SubElement(header_el, "AuthorSet")
+            for author in author_list:
+                ET.SubElement(author_set_el, "Author").text = author
+
     def generate_space_system(
         self,
         system: System,
@@ -2515,6 +2551,9 @@ class XTCEGenerator:
 
         if system.long_description:
             ET.SubElement(el, "LongDescription").text = system.long_description
+
+        if system.header:
+            self.add_header(el, system.header)
 
         if system.aliases:
             self.add_aliases(el, system.aliases)
