@@ -510,6 +510,25 @@ class TransmissionConstraint:
         """How long to wait for the constraint to be satisfied (in seconds)"""
 
 
+def _is_encoded(data_type: DataType) -> bool:
+    """
+    Whether this data type is fully encoded.
+
+    Complex types do not carry an encoding themselves, so they are
+    considered encoded only if every contained type is.
+    """
+    if data_type.encoding:
+        return True
+    elif isinstance(data_type, AggregateDataType):
+        return bool(data_type.members) and all(
+            _is_encoded(member) for member in data_type.members
+        )
+    elif isinstance(data_type, ArrayDataType):
+        return _is_encoded(data_type.data_type)
+    else:
+        return False
+
+
 class Command:
     def __init__(
         self,
@@ -653,11 +672,15 @@ class Command:
         If unset, the default behaviour is to have a consecutive
         entry for each argument that has an encoding defined, in the
         same order as the arguments.
+
+        Aggregate and array arguments do not specify an encoding
+        themselves, and are included only if all of the types they
+        group together are encoded.
         """
         if self._entries is None:
             res = []
             for argument in self.arguments:
-                if argument.encoding:
+                if _is_encoded(argument):
                     res.append(ArgumentEntry(argument))
             return res
         else:
