@@ -138,7 +138,7 @@ class AggregateDataType(DataType):
         for member in self.members:
             if member.name == name:
                 return member
-        raise KeyError
+        raise KeyError(f"Aggregate has no member named '{name}'")
 
 
 class ArrayDataType(DataType):
